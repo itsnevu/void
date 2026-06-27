@@ -1,0 +1,66 @@
+key,en_US,pt_BR,es_ES
+WELCOME,Welcome,Bem vindo!,Bienvenido
+LOGIN,Login,Entrar,Entrar
+CREATE_ACC,Create Account,Criar conta,Crear una cuenta
+PLAY_AS_GUEST,Play as Guest,Jogar como convidado,Jugar como visitante
+NO_CON_YET,Not connected yet,Ainda não conectado,Aún no conectado
+ACC_NAME,Account name,Nome da conta,Nombre de la cuenta
+ENTER_ACC_NAME,Enter your account name here,Digite aqui o nome da sua conta,Introduzca el nombre de su cuenta aquí
+PASSWORD,Password,Senha,Contraseña
+ENTER_PASSWORD,Enter your password here,Digite aqui sua senha,Introduzca su contraseña aquí
+BACK,Back,Voltar,Volver
+ENTER_PASSWORD_CONFIRM,Enter your password again here,Digite sua senha novamente aqui,Vuelva a introducir su contraseña
+PASSWORD_CONFIRM,Password Repeat,Confirmação de senha,Confirmación de contraseña
+WORLD_SELECTION,World Selection,Seleção de mundos,Selección de Mundos
+UPDATE,Update,Atualizar,Actualizar
+WAITING,Waiting,Esperando,Espera
+PLEASE_CONFIRM,Please Confirm,"Por favor, confirme","Por favor, confirme"
+CHANGE,Change,Mudar,Cambiar
+CONTINUE,Continue,Continuar,Continuar
+MORE,More,Mais,Más
+ACCOUNT,Account,Conta,Cuenta
+SETTINGS,Settings,Configurações,Configuración
+COMMUNITY,Community,Comunidade,Comunidad
+PATCH_NOTES,Patch notes,Notas de atualização,Notas de actualización
+LOGOUT,Log out,Sair,Salir
+CLOSE_GAME,Close game,Fechar jogo,Cerrar el juego
+CONNECTING,Connecting to Ekonia…,Conectando ao Ekonia…,Conectando a Ekonia…
+SERVER_ONLINE,Connected · Ekonia,Conectado · Ekonia,Conectado · Ekonia
+STATUS_ONLINE,Connected,Conectado,Conectado
+STATUS_OFFLINE,Offline,Offline,Sin conexión
+NOT_LOGGED_IN,Not logged in,Não autenticado,No autenticado
+CANT_REACH_TITLE,Connection,Conexão,Conexión
+ERR_CANT_REACH,Couldn't reach Ekonia. Check your connection and retry.,Não foi possível conectar ao Ekonia. Verifique sua conexão e tente novamente.,No se pudo conectar a Ekonia. Verifica tu conexión e inténtalo de nuevo.
+RETRY,Retry,Tentar novamente,Reintentar
+UPDATE_TITLE,Update required,Atualização necessária,Actualización requerida
+UPDATE,Update,Atualizar,Actualizar
+ERR_OUTDATED,Your game is out of date. Please update to keep playing.,Seu jogo está desatualizado. Atualize para continuar jogando.,Tu juego está desactualizado. Actualiza para seguir jugando.
+WELCOME_TINY_MMO,Welcome to Tiny MMO!,Bem vindo ao Tiny MMO!,¡Bienvenido a Tiny MMO!
+RECONNECT_POPUP,No world available.\nTrying again in \n%d\n%s,Nenhum mundo disponível.\nTentando novamente em \n%d\n%s,No hay mundos disponibles. Reintentando en \n%d\n%s
+CONTINUE_WORLD_ACC,Continue\n%s - %s,Continue\n%s - %s,Continúa\n%s - %s
+NAME_CLASS_LEVEL,%s\nClass: %s\nLevel: %d,%s\nClasse: %s\nNível: %d,%s\nClase: %s\nNivel: %d
+CREATE_NEW_CHAR,Create New Character,Criar um novo personagem,Crear un nuevo personaje
+USERNAME,Username:\n,Nome de usuário:\n,Nombre de usuario:\n
+PASSWORDS_DONT_MATCH,Passwords don't match,Senhas não combinam,Las contraseñas no coinciden.
+ACC_NAME_ACC_ID,Account-name: %s\nAccount-ID: %s,Nome da conta: %s\nID da conta: %s,Nombre de la cuenta: %s\nID de la cuenta: %s
+CHARACTER_SELECTION,Character Selection,Seleção de personagens,Selección de personaje
+CHARACTER_CREATION,Character Creation,Criação de personagem,Creación de personaje
+STARTING_SKIN,Starting Skin,Skin Inicial,Skin Inicial
+KNIGHT,Knight,Caveleiro,Caballero
+ROGUE,Rogue,Bandido,Bandido
+WIZARD,Wizard,Mago,Mago
+PREVIEW,Preview,Prever,Prever
+DESCRIPTION,Description,Descrição,Descripción
+CHARACTER_NAME,Character name,Nome do personagem,Nombrel del personaje
+RANDOM,Random,Aleatório,Aleatorio
+CREATE,Create,Criar,Crear
+ERR_BAD_CREDENTIALS,Incorrect account name or password.,Nome da conta ou senha incorretos.,Nombre de cuenta o contraseña incorrectos.
+ERR_ALREADY_CONNECTED,This account is already in game. Try again in a moment.,Esta conta já está em jogo. Tente novamente em instantes.,Esta cuenta ya está en juego. Inténtalo de nuevo en un momento.
+ERR_ACCOUNT_CREATE_FAILED,Couldn't create the account. That name may already be taken.,Não foi possível criar a conta. Esse nome pode já estar em uso.,No se pudo crear la cuenta. Ese nombre puede estar en uso.
+ERR_CONNECTION,Couldn't reach the server. Check your connection and try again.,Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.,No se pudo conectar al servidor. Comprueba tu conexión e inténtalo de nuevo.
+ERR_GENERIC,Something went wrong. Please try again.,Algo deu errado. Tente novamente.,Algo salió mal. Inténtalo de nuevo.
+NO_WORLDS_ONLINE,No worlds are online right now. Trying again shortly…,Nenhum mundo está online no momento. Tentando novamente em breve…,No hay mundos en línea ahora mismo. Reintentando en breve…
+ERR_RATE_LIMITED,Too many attempts. Please wait a moment and try again.,Muitas tentativas. Aguarde um momento e tente novamente.,Demasiados intentos. Espera un momento e inténtalo de nuevo.
+SHOW_PASSWORD,Show password,Mostrar senha,Mostrar contraseña
+CONNECTED_AS,Connected · %s,Conectado · %s,Conectado · %s
+NAME_LEVEL,%s\nLevel %d,%s\nNível %d,%s\nNivel %d

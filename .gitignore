@@ -1,0 +1,37 @@
+# Godot 4+ specific ignores
+.godot/
+# NOTE: export_presets.cfg IS committed — CI (release.yml) needs it to export
+# headlessly. It contains no secrets (encrypt_pck=false). If you ever add signing
+# keys or store credentials to a preset, move those to CI secrets instead.
+
+# Imported translations (automatically generated from CSV files)
+*.translation
+
+# System/tool-specific ignores
+.directory
+*DS_Store
+*~
+
+# Godot tmp files (https://github.com/godotengine/godot/issues/82270)
+*.tmp
+
+# Project-local volatile data
+data/local/
+/source/server/master/account_collection.tres
+
+# godot-sqlite: ignore unused platform binaries
+addons/godot-sqlite/bin/*
+
+# SQLite runtime files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# lock file for excel/libreoffice CSV editting
+.~lock.translations.csv#
+
+/docs
+/data/config/discord_webhook.cfg
+source/server/master/account_collection.tres
+/addons/godot_mcp
