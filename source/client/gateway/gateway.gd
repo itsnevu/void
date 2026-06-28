@@ -51,8 +51,16 @@ var current_theme: StringName = ThemePalettes.DEFAULT
 
 # Community / support links opened by the global "More" menu. Empty = not provided
 # yet → that button is disabled rather than opening a dead link.
-const LINK_WEBSITE: String = "https://ekoniaonline.com"
+const LINK_WEBSITE: String = "https://mythreach.gg"
 const LINK_DISCORD: String = "https://discord.gg/QE5JwpFzgK"
+
+## Brand logo on the main login screen (replaces the text title). Static PNG fallback
+## + an optional animated version played from extracted video frames (logo_frames/).
+const LOGO_PATH: String = "res://assets/sprites/gui/branding/mythreach_logo.png"
+const LOGO_FRAMES_DIR: String = "res://assets/sprites/gui/branding/logo_frames/"
+var _logo_rect: TextureRect
+var _logo_frames: Array[Texture2D] = []
+var _logo_frame_index: int = 0
 
 # Soft, organic foley placeholders, routed through the shared AudioManager's
 # polyphonic UI player (Sound bus, volume-bound to settings). Swap the files in
@@ -64,7 +72,7 @@ const SFX_REVEAL: String = "res://assets/audio/sfx/ui/ui_reveal.wav"
 const MUSIC_GATEWAY: String = "res://assets/audio/music/angevin.ogg"
 
 # Release-stage tag shown after the build number in the ConnectionInfo line
-# ("Connected · Ekonia 0.2.0 - Alpha"). The version itself comes live from
+# ("Connected · Mythreach 0.2.0 - Alpha"). The version itself comes live from
 # project.godot via GatewayAPI.game_version(), so it never drifts from the build.
 const BUILD_STAGE: String = "Alpha"
 
@@ -117,6 +125,10 @@ func _ready() -> void:
 	_wire_button_sounds()  # static + character-creation buttons exist by now
 	_start_gateway_music()
 	_apply_gateway_theme(_pick_startup_palette())
+	ClientState.spectator = false  # reset on every return to the title screen
+	_install_login_logo()
+	_add_spectate_button()
+	_add_whitepaper_button()
 	# Live-apply a palette picked in the Settings menu (the gateway's own $Settings
 	# overlay shows the same dropdown) — no relaunch needed.
 	ClientState.settings.setting_changed.connect(_on_settings_changed)
@@ -285,8 +297,8 @@ func _reveal_main_menu() -> void:
 ## back the corner chrome (More / ConnectionInfo) that stayed hidden during connect.
 func _end_boot() -> void:
 	_hide_connecting()
-	%MoreButton.show()
-	$ConnectionInfo.show()
+	# The ••• More menu + the bottom-left status line stay hidden on the clean title
+	# screen — the More menu is shown once you're past login (see handle_success_login).
 
 
 func handle_success_login(d: Dictionary) -> void:
@@ -309,6 +321,7 @@ func handle_success_login(d: Dictionary) -> void:
 	populate_worlds(worlds)
 
 	_end_boot()
+	(%MoreButton as Button).show()  # past login → expose the More menu (settings / logout)
 	fill_connection_info(account_name, account_id)
 	if is_last_world_online:
 		$AlreadyConnectedPanel/ContinueButton.text = tr("CONTINUE_WORLD_ACC") % [last_world_name, account_name]
@@ -481,8 +494,195 @@ func _focus_first_in(node: Node) -> bool:
 	return false
 
 
+# --- Wallet sign-in (Solana / Phantom) ------------------------------------
+# Mythreach is wallet-only. On WEB we drive the Phantom browser extension via
+# JavaScriptBridge (connect + signMessage). On DESKTOP (no in-process wallet) we
+# use a persisted local "dev wallet" so the game stays testable locally — the
+# master skips signature verification only when it runs from the editor.
+
+## The human-readable line the player signs. The server-issued nonce is appended so
+## each signature is single-use and bound to this login.
+const WALLET_MESSAGE_PREFIX: String = "Sign in to Mythreach\n\nnonce: "
+
+## Phantom bridge, eval'd once on web. Exposes window.MythreachWallet.{connect,signMessage}
+## which stash their async results on window.__aeth so GDScript can poll them.
+const WALLET_SHIM_JS: String = """
+window.__aeth = window.__aeth || {status:'', pubkey:'', signature:'', error:''};
+window.MythreachWallet = {
+  _provider: function(){
+    if (window.phantom && window.phantom.solana && window.phantom.solana.isPhantom) return window.phantom.solana;
+    if (window.solana && window.solana.isPhantom) return window.solana;
+    return null;
+  },
+  _b58: function(bytes){
+    var A='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    var d=[],s='',i,j,c;
+    for(i=0;i<bytes.length;i++){ c=bytes[i];
+      for(j=0;j<d.length;j++){ c+=d[j]<<8; d[j]=c%58; c=(c/58)|0; }
+      while(c>0){ d.push(c%58); c=(c/58)|0; } }
+    for(i=0;i<bytes.length&&bytes[i]===0;i++) s+=A[0];
+    for(i=d.length-1;i>=0;i--) s+=A[d[i]];
+    return s;
+  },
+  connect: async function(){
+    window.__aeth.status='pending'; window.__aeth.error=''; window.__aeth.pubkey='';
+    try { var p=this._provider(); if(!p){ window.__aeth.status='nowallet'; return; }
+      var res=await p.connect(); window.__aeth.pubkey=res.publicKey.toString(); window.__aeth.status='ok';
+    } catch(e){ window.__aeth.error=String(e); window.__aeth.status='error'; }
+  },
+  signMessage: async function(msg){
+    window.__aeth.status='pending'; window.__aeth.error=''; window.__aeth.signature='';
+    try { var p=this._provider(); if(!p){ window.__aeth.status='nowallet'; return; }
+      var enc=new TextEncoder().encode(msg); var signed=await p.signMessage(enc,'utf8');
+      window.__aeth.signature=this._b58(signed.signature); window.__aeth.status='ok';
+    } catch(e){ window.__aeth.error=String(e); window.__aeth.status='error'; }
+  }
+};
+"""
+
+var _wallet_shim_ready: bool = false
+
+
+## Entry point from the single "Connect Wallet" main-menu button.
 func _on_login_button_pressed() -> void:
-	_show(login_panel)
+	var login_button: Button = $MainPanel/VBoxContainer/VBoxContainer/LoginButton
+	login_button.disabled = true
+	var pubkey: String = await _wallet_get_pubkey()
+	if pubkey.is_empty():
+		login_button.disabled = false
+		await popup_panel.confirm_message(tr("ERR_NO_WALLET"))
+		return
+	main_panel.hide()
+	_show_connecting()
+	var ok: bool = await _do_wallet_login(pubkey, false)
+	if not ok:
+		_hide_connecting()
+		main_panel.show()
+		login_button.disabled = false
+
+
+## Run the full challenge → sign → verify handshake for a pubkey. Returns true on a
+## successful login (worlds populated, selection shown). `silent` suppresses error popups
+## (used by auto-login). On success calls handle_success_login(), reusing the old path.
+func _do_wallet_login(pubkey: String, silent: bool, dev_sign: bool = false) -> bool:
+	# 1. Ask the server for a fresh nonce to sign.
+	var challenge: Dictionary = await do_request(
+		HTTPClient.Method.METHOD_POST,
+		GatewayAPI.wallet_challenge(),
+		{GatewayAPI.KEY_WALLET_PUBKEY: pubkey}
+	)
+	if challenge.has("error"):
+		if not silent:
+			_hide_connecting()  # drop "Connecting…" so it doesn't overlap the error popup
+			await popup_panel.confirm_message(GatewayError.humanize(challenge))
+		return false
+	var nonce: String = str(challenge.get(GatewayAPI.KEY_WALLET_NONCE, ""))
+	if nonce.is_empty():
+		return false
+
+	# 2. Sign the nonce-bound message with the wallet. Spectators sign with the local
+	# dev key (no Phantom popup) even on web — they don't need a real wallet to watch.
+	var message: String = WALLET_MESSAGE_PREFIX + nonce
+	var signature: String
+	if dev_sign:
+		signature = Base58.encode(Crypto.new().generate_random_bytes(64))
+	else:
+		signature = await _wallet_sign(message)
+	if signature.is_empty():
+		if not silent:
+			_hide_connecting()  # drop "Connecting…" so it doesn't overlap the error popup
+			await popup_panel.confirm_message(tr("ERR_WALLET_REJECTED"))
+		return false
+
+	# 3. Submit for verification + login.
+	var response: Dictionary = await do_request(
+		HTTPClient.Method.METHOD_POST,
+		GatewayAPI.wallet_login(),
+		{
+			GatewayAPI.KEY_WALLET_PUBKEY: pubkey,
+			GatewayAPI.KEY_WALLET_SIGNATURE: signature,
+			GatewayAPI.KEY_WALLET_NONCE: nonce,
+			GatewayAPI.KEY_WALLET_MESSAGE: message,
+			GatewayAPI.KEY_CLIENT_VERSION: GatewayAPI.game_version(),
+		}
+	)
+	if response.has("error"):
+		if not silent:
+			_hide_connecting()  # drop "Connecting…" so it doesn't overlap the error popup
+			await popup_panel.confirm_message(GatewayError.humanize(response))
+		return false
+
+	session_id = response.get("session_id", "")
+	_save_wallet_pubkey(pubkey)
+	handle_success_login(response)
+	return true
+
+
+## Get the wallet public key (base58): Phantom on web, the persisted dev wallet on desktop.
+func _wallet_get_pubkey() -> String:
+	if OS.has_feature("web"):
+		_ensure_wallet_shim()
+		JavaScriptBridge.eval("window.MythreachWallet.connect();", true)
+		if await _poll_wallet_status() != "ok":
+			return ""
+		return str(JavaScriptBridge.eval("window.__aeth.pubkey || '';", true))
+	return _dev_wallet_pubkey()
+
+
+## Sign a message and return the base58 signature ("" on rejection/failure).
+func _wallet_sign(message: String) -> String:
+	if OS.has_feature("web"):
+		_ensure_wallet_shim()
+		JavaScriptBridge.eval("window.MythreachWallet.signMessage(%s);" % JSON.stringify(message), true)
+		if await _poll_wallet_status() != "ok":
+			return ""
+		return str(JavaScriptBridge.eval("window.__aeth.signature || '';", true))
+	# Desktop dev: a throwaway base58 signature. The editor-mode master skips ed25519
+	# verification, so any well-formed value is accepted for local testing.
+	return Base58.encode(Crypto.new().generate_random_bytes(64))
+
+
+func _ensure_wallet_shim() -> void:
+	if _wallet_shim_ready:
+		return
+	JavaScriptBridge.eval(WALLET_SHIM_JS, true)
+	_wallet_shim_ready = true
+
+
+## Poll window.__aeth.status until the async wallet call settles. Returns the final
+## status ("ok" / "error" / "nowallet" / "timeout").
+func _poll_wallet_status() -> String:
+	var elapsed: float = 0.0
+	while elapsed < 120.0:
+		await get_tree().create_timer(0.15).timeout
+		var status: String = str(JavaScriptBridge.eval("window.__aeth.status || '';", true))
+		if status != "pending":
+			return status
+		elapsed += 0.15
+	return "timeout"
+
+
+## A stable local "dev wallet" address for desktop testing — 32 random bytes, base58,
+## persisted per local id so the same dev account is reused across launches.
+func _dev_wallet_pubkey() -> String:
+	var path: String = "user://%swallet.dat" % local_id
+	if FileAccess.file_exists(path):
+		var f: FileAccess = FileAccess.open(path, FileAccess.READ)
+		if f:
+			var saved: String = f.get_as_text().strip_edges()
+			f.close()
+			if not saved.is_empty():
+				return saved
+	var address: String = Base58.encode(Crypto.new().generate_random_bytes(32))
+	var out: FileAccess = FileAccess.open(path, FileAccess.WRITE)
+	if out:
+		out.store_string(address)
+		out.close()
+	return address
+
+
+func _save_wallet_pubkey(pubkey: String) -> void:
+	save_refresh_token(pubkey, "user://%ssession.dat" % local_id)
 
 
 func _on_login_login_button_pressed() -> void:
@@ -848,16 +1048,259 @@ func fill_connection_info(_account_name: String, _account_id: int) -> void:
 
 
 ## The bottom-left status line, two rows: "<Connected/Offline> · <account / not logged
-## in>" then "Ekonia <version> <stage>". Built in one place so the build version is
+## in>" then "Mythreach <version> <stage>". Built in one place so the build version is
 ## ALWAYS shown — logged in or not. Version is live from project.godot (never drifts
 ## from the handshake gate); the account-ID (old dev-only debug) is intentionally gone.
 func _refresh_connection_info() -> void:
 	var status: String = tr("STATUS_ONLINE") if _server_online else tr("STATUS_OFFLINE")
-	var who: String = account_name if not account_name.is_empty() else tr("NOT_LOGGED_IN")
-	var game: String = str(ProjectSettings.get_setting("application/config/name", "Ekonia"))
+	var who: String = _short_wallet(account_name) if not account_name.is_empty() else tr("NOT_LOGGED_IN")
+	var game: String = str(ProjectSettings.get_setting("application/config/name", "Mythreach"))
 	$ConnectionInfo.text = "%s · %s\n%s %s %s" % [
 		status, who, game, GatewayAPI.game_version(), BUILD_STAGE
 	]
+
+
+## Swap the text title for the brand logo (animated video frames if available, else
+## the static PNG) on the login screen. The art has an opaque black background, so we
+## (a) deepen the backdrop and (b) put a soft RADIAL BLACK HALO directly behind it —
+## the square's hard edge dissolves into black instead of showing a visible cut.
+func _install_login_logo() -> void:
+	var frames: Array[Texture2D] = _load_logo_frames()
+	var static_tex: Texture2D = load(LOGO_PATH) as Texture2D if ResourceLoader.exists(LOGO_PATH) else null
+	if frames.is_empty() and static_tex == null:
+		return  # nothing to show — keep the text title
+
+	# The logo is the title now — hide the text title + its divider.
+	($MainPanel/VBoxContainer/Label as Control).hide()
+	($MainPanel/VBoxContainer/HSeparator as Control).hide()
+
+	# Hero box holding the halo (behind) + the logo (front).
+	var hero: Control = Control.new()
+	hero.custom_minimum_size = Vector2(300.0, 165.0)
+	hero.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# A seamless CIRCLE of black behind the logo only (centered, overflowing the
+	# hero box — Controls don't clip): solid black across the logo's square, fading
+	# to fully transparent so the background stays visible everywhere else. The
+	# logo's opaque-black art sits entirely inside the solid core, so no square cut.
+	var halo: TextureRect = TextureRect.new()
+	halo.texture = _make_radial_black()
+	halo.stretch_mode = TextureRect.STRETCH_SCALE
+	halo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	halo.set_anchors_preset(Control.PRESET_CENTER)
+	halo.offset_left = -175.0
+	halo.offset_top = -255.0
+	halo.offset_right = 175.0
+	halo.offset_bottom = 255.0
+	hero.add_child(halo)
+
+	_logo_rect = TextureRect.new()
+	_logo_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_logo_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_logo_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_logo_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_logo_rect.texture = frames[0] if not frames.is_empty() else static_tex
+	hero.add_child(_logo_rect)
+
+	var column: VBoxContainer = $MainPanel/VBoxContainer
+	column.add_child(hero)
+	column.move_child(hero, 0)  # above the Connect Wallet button
+
+	# Loop the frames (extracted at 10 fps) if we have them.
+	if not frames.is_empty():
+		_logo_frames = frames
+		var timer: Timer = Timer.new()
+		timer.wait_time = 0.1
+		timer.autostart = true
+		timer.timeout.connect(_advance_logo_frame)
+		add_child(timer)
+
+	# Darken the backdrop SPRITE directly (modulate is foolproof — no layering/overlay
+	# z-order surprises): the map dims to a moody ~35% brightness so the logo's radial
+	# halo melts into it seamlessly, while the map stays faintly visible.
+	$Background.modulate = Color(0.35, 0.35, 0.4, 1.0)
+	$BackgroundRect.color = Color(0.02, 0.025, 0.04, 0.45)
+	# Drop the bottom-left status line on the title screen.
+	$ConnectionInfo.hide()
+
+
+func _advance_logo_frame() -> void:
+	if _logo_frames.is_empty() or not is_instance_valid(_logo_rect):
+		return
+	_logo_frame_index = (_logo_frame_index + 1) % _logo_frames.size()
+	_logo_rect.texture = _logo_frames[_logo_frame_index]
+
+
+## Load the extracted logo video frames (f_001.png, f_002.png, …) by index until a
+## gap. ResourceLoader.exists + load resolve imported textures in editor AND export,
+## so we avoid fragile DirAccess enumeration of res://.
+func _load_logo_frames() -> Array[Texture2D]:
+	var out: Array[Texture2D] = []
+	for i: int in range(1, 500):
+		var path: String = "%sf_%03d.png" % [LOGO_FRAMES_DIR, i]
+		if not ResourceLoader.exists(path):
+			break
+		var t: Texture2D = load(path) as Texture2D
+		if t != null:
+			out.append(t)
+	return out
+
+
+## A radial gradient: solid black core fading to transparent at the edge — the soft
+## black backing that hides the logo art's square cut.
+func _make_radial_black() -> Texture2D:
+	var grad: Gradient = Gradient.new()
+	# Solid black across the logo's footprint, then a soft fade to transparent so it
+	# melts into the visible backdrop (no hard ring, no square cut).
+	grad.offsets = PackedFloat32Array([0.0, 0.80, 1.0])
+	grad.colors = PackedColorArray([Color(0, 0, 0, 1.0), Color(0, 0, 0, 1.0), Color(0, 0, 0, 0.0)])
+	var tex: GradientTexture2D = GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 256
+	tex.height = 256
+	return tex
+
+
+## Add a "Spectate" button under Connect Wallet — drop into the world as a
+## non-combatant fireball (local dev identity, no real wallet needed: just watch).
+func _add_spectate_button() -> void:
+	var column: VBoxContainer = $MainPanel/VBoxContainer/VBoxContainer
+	var btn: Button = Button.new()
+	btn.name = "SpectateButton"
+	btn.text = "Spectate"
+	btn.custom_minimum_size = Vector2(420.0, 48.0)
+	btn.theme_type_variation = &"FrameButton"
+	btn.add_theme_font_size_override(&"font_size", 16)
+	btn.pressed.connect(_on_spectate_pressed)
+	_wire_button_audio(btn)
+	column.add_child(btn)
+
+
+func _on_spectate_pressed() -> void:
+	var btn: Button = $MainPanel/VBoxContainer/VBoxContainer.get_node_or_null(^"SpectateButton") as Button
+	if btn:
+		btn.disabled = true
+	ClientState.spectator = true
+	var pubkey: String = _dev_wallet_pubkey()
+	if pubkey.is_empty():
+		ClientState.spectator = false
+		if btn: btn.disabled = false
+		return
+	main_panel.hide()
+	_show_connecting()
+	# dev_sign = true → no Phantom popup; spectators just watch.
+	if not await _do_wallet_login(pubkey, false, true) or not await _auto_enter_world():
+		ClientState.spectator = false
+		_hide_connecting()
+		main_panel.show()
+		if btn: btn.disabled = false
+
+
+## A small "Whitepaper" button under Spectate — opens the in-app whitepaper panel.
+func _add_whitepaper_button() -> void:
+	var column: VBoxContainer = $MainPanel/VBoxContainer/VBoxContainer
+	var btn: Button = Button.new()
+	btn.text = "Whitepaper"
+	btn.custom_minimum_size = Vector2(420.0, 38.0)
+	btn.theme_type_variation = &"FrameButton"
+	btn.add_theme_font_size_override(&"font_size", 14)
+	btn.pressed.connect(_show_whitepaper)
+	_wire_button_audio(btn)
+	column.add_child(btn)
+
+
+var _whitepaper_overlay: Control
+
+
+## Full-screen overlay with the scrollable whitepaper (WhitepaperContent). Click the
+## dim backdrop or Close to dismiss.
+func _show_whitepaper() -> void:
+	if is_instance_valid(_whitepaper_overlay):
+		return
+	var overlay: Control = Control.new()
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.z_index = 200
+	_whitepaper_overlay = overlay
+
+	var dim: ColorRect = ColorRect.new()
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.color = Color(0.0, 0.0, 0.0, 0.8)
+	dim.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and (event as InputEventMouseButton).pressed:
+			_close_whitepaper())
+	overlay.add_child(dim)
+
+	var panel: PanelContainer = PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.offset_left = -370.0
+	panel.offset_top = -275.0
+	panel.offset_right = 370.0
+	panel.offset_bottom = 275.0
+	overlay.add_child(panel)
+
+	var margin: MarginContainer = MarginContainer.new()
+	for side: String in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 22)
+	panel.add_child(margin)
+
+	var vbox: VBoxContainer = VBoxContainer.new()
+	vbox.add_theme_constant_override(&"separation", 8)
+	margin.add_child(vbox)
+
+	var title: Label = Label.new()
+	title.text = WhitepaperContent.TITLE
+	title.add_theme_font_size_override(&"font_size", 26)
+	title.add_theme_color_override(&"font_color", Color(0.906, 0.698, 0.416))
+	vbox.add_child(title)
+
+	var subtitle: Label = Label.new()
+	subtitle.text = WhitepaperContent.SUBTITLE
+	subtitle.add_theme_font_size_override(&"font_size", 13)
+	subtitle.add_theme_color_override(&"font_color", Color(0.72, 0.70, 0.66))
+	vbox.add_child(subtitle)
+
+	var sep: HSeparator = HSeparator.new()
+	vbox.add_child(sep)
+
+	var scroll: ScrollContainer = ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	vbox.add_child(scroll)
+
+	var body: RichTextLabel = RichTextLabel.new()
+	body.bbcode_enabled = true
+	body.fit_content = true
+	body.scroll_active = false
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_theme_font_size_override(&"normal_font_size", 14)
+	body.text = WhitepaperContent.BBCODE
+	scroll.add_child(body)
+
+	var close_button: Button = Button.new()
+	close_button.text = "Close"
+	close_button.custom_minimum_size = Vector2(0.0, 40.0)
+	close_button.pressed.connect(_close_whitepaper)
+	_wire_button_audio(close_button)
+	vbox.add_child(close_button)
+
+	add_child(overlay)
+
+
+func _close_whitepaper() -> void:
+	if is_instance_valid(_whitepaper_overlay):
+		_whitepaper_overlay.queue_free()
+	_whitepaper_overlay = null
+
+
+## Shorten a base58 wallet address for display ("9xQe…4kT2"). Leaves shorter names as-is.
+func _short_wallet(name: String) -> String:
+	if name.length() <= 12:
+		return name
+	return "%s…%s" % [name.substr(0, 4), name.substr(name.length() - 4)]
 
 
 func add_world_card(world_info: Dictionary, world_id: int) -> Button:
@@ -994,6 +1437,7 @@ func _logout() -> void:
 	menu_stack.clear()
 	menu_stack.append(main_panel)
 	main_panel.show()
+	(%MoreButton as Button).hide()  # back on the clean title — hide the More menu again
 	back_button.hide()
 	if _focus_nav:
 		_focus_first_in(main_panel)
@@ -1265,37 +1709,82 @@ func _apply_skin(index: int) -> void:
 # Ideally we must not save credentials locally even if crypted,
 # saving a temporary token given by the server is the way. 
 func try_auto_login() -> bool:
-	# Load the saved session FIRST. A first-time player (no token) goes straight
-	# to the main menu — no spinner, no boot delay, nothing to wait on.
-	var file_path: String = "user://%ssession.dat" % local_id
-	var refresh_token: String = load_refresh_token(file_path)
-	if refresh_token.is_empty():
+	# Default: show the login screen first (logo + Connect Wallet) — the branded
+	# "press start" moment, on web AND desktop.
+	# Opt-in: pass `--auto` (desktop only) to silently sign in with the local dev
+	# wallet — used by the editor's "Run Multiple Instances" and the multiplayer
+	# smoke test so extra clients join hands-free. Never on web (Phantom needs a
+	# real click) and never without the flag.
+	if OS.has_feature("web") or not CmdlineUtils.get_parsed_args().has("auto"):
+		return false
+	var pubkey: String = _dev_wallet_pubkey()
+	if pubkey.is_empty():
+		return false
+	if not await _do_wallet_login(pubkey, true):
+		return false
+	# --auto goes all the way into the world (first world, first character, creating
+	# one if needed) so multi-instance / multiplayer testing is fully hands-free.
+	return await _auto_enter_world()
+
+
+## Test helper (--auto only): jump straight into the first online world with the
+## first character (auto-creating one if the account has none). Mirrors the manual
+## world-select → character-select → enter flow. Returns false (→ show menu) on any snag.
+func _auto_enter_world() -> bool:
+	var worlds_resp: Dictionary = await do_request(HTTPClient.Method.METHOD_POST, GatewayAPI.worlds(), {})
+	var worlds: Dictionary = worlds_resp.get("w", {})
+	if worlds.is_empty():
+		return false
+	var world_id: int = int(worlds.keys()[0])
+	current_world_id = world_id
+
+	var chars: Dictionary = await do_request(
+		HTTPClient.Method.METHOD_POST,
+		GatewayAPI.world_characters(),
+		{
+			GatewayAPI.KEY_WORLD_ID: world_id,
+			GatewayAPI.KEY_ACCOUNT_ID: account_id,
+			GatewayAPI.KEY_ACCOUNT_USERNAME: account_name,
+			GatewayAPI.KEY_TOKEN_ID: session_id,
+		}
+	)
+	if chars.has("error"):
 		return false
 
-	var username: String = refresh_token.get_slice("\n", 0)
-	var password: String = refresh_token.get_slice("\n", 1)
+	var char_id: int = -1
+	for key: String in chars.keys():
+		var entry: Variant = chars[key]
+		if entry is Dictionary and (entry as Dictionary).has("name"):
+			char_id = key.to_int()
+			break
 
-	# The "Connecting…" label from boot stays up through sign-in — no panel flicker.
-	var response: Dictionary = await request_login(username, password)
-
-	# In the editor, "Run Multiple Instances" boots gateway/master/world AND the
-	# client all at once, so the gateway may not be listening yet on the first
-	# try. Retry briefly on a pure connection failure (not on a real rejection
-	# like bad credentials). Exported clients talk to an always-on remote gateway,
-	# so OS.has_feature("editor") is false and they skip the retries entirely.
-	var attempts: int = 0
-	while OS.has_feature("editor") and GatewayError.is_connection_error(response) and attempts < 20:
-		attempts += 1
-		await get_tree().create_timer(0.25).timeout
-		response = await request_login(username, password)
-
-	if response.has("error"):
-		# Stale or failed auto-login (saved password no longer valid, server
-		# unreachable, …). Fall back to the main menu silently — greeting a
-		# returning player with an error popup on launch is a bad first beat.
-		# They can still log in manually from there.
+	var enter: Dictionary
+	if char_id == -1:
+		enter = await do_request(
+			HTTPClient.Method.METHOD_POST,
+			GatewayAPI.world_create_char(),
+			{
+				GatewayAPI.KEY_TOKEN_ID: session_id,
+				"data": {"name": _random_character_name(), "skin": selected_skin_id},
+				GatewayAPI.KEY_ACCOUNT_USERNAME: account_name,
+				GatewayAPI.KEY_WORLD_ID: world_id,
+			}
+		)
+	else:
+		enter = await do_request(
+			HTTPClient.Method.METHOD_POST,
+			GatewayAPI.world_enter(),
+			{
+				GatewayAPI.KEY_TOKEN_ID: session_id,
+				GatewayAPI.KEY_ACCOUNT_USERNAME: account_name,
+				GatewayAPI.KEY_WORLD_ID: world_id,
+				GatewayAPI.KEY_CHAR_ID: char_id,
+			}
+		)
+	if enter.has("error") or not enter.has("address"):
 		return false
-	handle_success_login(response)
+	Transition.start_world_load(enter["address"], enter["port"], enter["auth-token"], $Background.texture)
+	queue_free.call_deferred()
 	return true
 
 

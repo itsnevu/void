@@ -75,3 +75,80 @@ func validate_credentials(username: String, password: String) -> AccountResource
 		if PasswordHasher.verify(password, account.password):
 			return account
 	return null
+
+
+# --- Solana wallet auth ----------------------------------------------------
+## How long a challenge nonce stays valid before the client must request a new one.
+const NONCE_TTL_SECONDS: int = 300
+
+
+## A Solana address is a base58-encoded 32-byte ed25519 public key — 32-44 chars,
+## base58 alphabet (no 0 O I l). Cheap sanity gate before we touch the account store.
+static func is_plausible_wallet_address(address: String) -> bool:
+	if address.length() < 32 or address.length() > 44:
+		return false
+	const ALPHABET := "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+	for c: String in address:
+		if not ALPHABET.contains(c):
+			return false
+	return true
+
+
+## The wallet pubkey IS the account identity (stored as `username`, exact case — base58
+## is case-sensitive, so never lowercase it). Auto-creates on first sign-in.
+func get_or_create_wallet_account(wallet_address: String) -> AccountResource:
+	if account_collection.collection.has(wallet_address):
+		return account_collection.collection[wallet_address]
+	var account_id: int = account_collection.get_new_account_id()
+	var account: AccountResource = AccountResource.new()
+	account.init(account_id, wallet_address, "")  # no password — wallet-only
+	account.wallet_address = wallet_address
+	account_collection.collection[wallet_address] = account
+	save_account_collection()
+	return account
+
+
+## Step 1: mint a fresh single-use nonce for the client to sign with their wallet.
+func issue_wallet_nonce(wallet_address: String) -> String:
+	var account: AccountResource = get_or_create_wallet_account(wallet_address)
+	account.login_nonce = generate_random_token()
+	account.login_nonce_at = int(Time.get_unix_time_from_system())
+	return account.login_nonce
+
+
+## Step 2: verify the signed challenge. Returns the account on success, else null.
+## The nonce is consumed (one-shot) regardless of outcome to block replay.
+func verify_wallet_login(wallet_address: String, message: String, signature: String, nonce: String) -> AccountResource:
+	var account: AccountResource = account_collection.collection.get(wallet_address)
+	if not account:
+		return null
+	var expected: String = account.login_nonce
+	account.login_nonce = ""  # one-shot: never reusable, success or fail
+	if expected.is_empty() or expected != nonce:
+		return null
+	if int(Time.get_unix_time_from_system()) - account.login_nonce_at > NONCE_TTL_SECONDS:
+		return null
+	# The signed message must embed the nonce, so a signature can't be lifted from
+	# another context and replayed here.
+	if not message.contains(nonce):
+		return null
+	if not _verify_wallet_signature(wallet_address, message, signature):
+		return null
+	return account
+
+
+## ed25519 verification of the wallet signature over the signed message bytes.
+## DEV BYPASS: when the master runs from the editor (local multi-instance testing,
+## where there is no Phantom extension in-process), cryptographic verification is
+## skipped. Exported production servers have no "editor" feature, so real ed25519
+## verification is always enforced live.
+func _verify_wallet_signature(wallet_address: String, message: String, signature: String) -> bool:
+	if OS.has_feature("editor"):
+		return true
+	var pubkey_bytes: PackedByteArray = Base58.decode(wallet_address)
+	if pubkey_bytes.size() != 32:
+		return false
+	var sig_bytes: PackedByteArray = Base58.decode(signature)
+	if sig_bytes.size() != 64:
+		return false
+	return Ed25519.verify(message.to_utf8_buffer(), sig_bytes, pubkey_bytes)

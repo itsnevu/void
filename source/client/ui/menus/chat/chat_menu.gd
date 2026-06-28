@@ -271,6 +271,10 @@ func _on_chat_toggle_pressed() -> void:
 	_refresh_full_feed()
 	_refresh_title_and_input()
 	_update_input_enabled_state()
+	# Land the cursor in the message box so you can type immediately (the panel was
+	# opening without focus, so clicking the chat button "did nothing" until you also
+	# clicked the field).
+	full_feed_message_edit.grab_focus.call_deferred()
 
 
 func _input(event: InputEvent) -> void:
@@ -547,10 +551,6 @@ func _on_text_submitted(new_text: String, line_edit: LineEdit) -> void:
 
 	if current_conversation_id.begins_with("guild:") and _get_active_guild_id() <= 0:
 		_show_full_notice("You are not in a guild.")
-		return
-
-	if current_channel == CHANNEL_TEAM:
-		_show_full_notice("Team chat not implemented yet.")
 		return
 
 	_send_channel_message(current_channel, new_text)

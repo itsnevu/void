@@ -6,6 +6,12 @@ const KEY_TOKEN_ID: String = "t-id"
 const KEY_ACCOUNT_ID: String = "a-id"
 const KEY_ACCOUNT_USERNAME: String = "a-u"
 const KEY_ACCOUNT_PASSWORD: String  = "a-p"
+## Wallet auth (Solana / Phantom). The wallet pubkey (base58) is the account identity;
+## the client signs a server-issued nonce and the master verifies the ed25519 signature.
+const KEY_WALLET_PUBKEY: String = "w-pk"
+const KEY_WALLET_SIGNATURE: String = "w-sig"
+const KEY_WALLET_NONCE: String = "w-n"
+const KEY_WALLET_MESSAGE: String = "w-msg"
 const KEY_WORLD_ID: String = "w-id"
 const KEY_CHAR_ID: String = "c-id"
 ## Client build version (the project's config/version), sent on login so an
@@ -32,6 +38,8 @@ static func game_version() -> String:
 	return str(ProjectSettings.get_setting("application/config/version", ""))
 
 const ACTION_LOGIN := "login"
+const ACTION_WALLET_CHALLENGE := "wallet_challenge"
+const ACTION_WALLET_LOGIN := "wallet_login"
 const ACTION_CREATE_ACCOUNT := "create_account"
 const ACTION_CREATE_CHARACTER := "create_character"
 const ACTION_LIST_CHARACTERS := "list_characters"
@@ -40,8 +48,17 @@ const ACTION_DISCONNECT := "disconnect"
 
 
 static func base_url() -> String:
-	if OS.has_feature("ekonia") or OS.has_feature("release"):
-		return "https://ws.ekoniaonline.com"
+	# On web, ONE build serves both local testing and production: if the page is
+	# served from localhost we talk to the local gateway (so you can test the real
+	# Phantom flow on your machine), otherwise the live gateway. This avoids a
+	# separate "local web" export — the page's own origin decides.
+	if OS.has_feature("web"):
+		var host: String = str(JavaScriptBridge.eval("window.location.hostname", true))
+		if host == "localhost" or host == "127.0.0.1" or host.is_empty():
+			return "http://127.0.0.1:8088"
+		return "https://ws.mythreach.gg"
+	if OS.has_feature("mythreach") or OS.has_feature("release"):
+		return "https://ws.mythreach.gg"
 	return "http://127.0.0.1:8088"
 
 	# var command_line_arg: String = CmdlineUtils.get_parsed_args().get("api", "")
@@ -63,6 +80,16 @@ static func get_endpoint(path: String) -> String:
 # Endpoints
 static func login() -> String:
 	return get_endpoint("/v1/login")
+
+
+## Wallet sign-in step 1: ask the server for a fresh single-use nonce to sign.
+static func wallet_challenge() -> String:
+	return get_endpoint("/v1/wallet/challenge")
+
+
+## Wallet sign-in step 2: submit the signed nonce for ed25519 verification.
+static func wallet_login() -> String:
+	return get_endpoint("/v1/wallet/login")
 
 
 static func guest() -> String:

@@ -137,6 +137,11 @@ static func apply_turn_in(
 			resource.display_title = quest.grant_title
 		quest_messages.append("Title unlocked: %s" % quest.grant_title)
 
+	# Reaching the cap via quest xp is the same goal as via a kill: grant the
+	# one-time capstone title and surface it in the turn-in feedback.
+	if bool(progress.get("reached_max", false)) and LevelMilestoneService.grant_capstone(resource):
+		quest_messages.append("Title unlocked: %s" % LevelMilestoneService.CAPSTONE_TITLE)
+
 	if peer_id > 0:
 		WorldServer.curr.data_push.rpc_id(peer_id, &"combat.reward", {
 			"xp": quest.reward_xp,
@@ -145,6 +150,7 @@ static func apply_turn_in(
 			"points_gained": int(progress.get("points_gained", 0)),
 			"experience": resource.experience,
 			"xp_to_next": resource.level_xp_to_next(),
+			"reached_max": bool(progress.get("reached_max", false)),
 			"loot": loot,
 		})
 		WorldServer.curr.data_push.rpc_id(peer_id, &"quest.update", {"messages": quest_messages})

@@ -21,8 +21,8 @@ func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInsta
 		return "%s must be online." % target.label()
 
 	var new_level: int = args[2].to_int()
-	if new_level < 1 or new_level > 20:
-		return "Level must be between 1 and 20."
+	if new_level < 1 or new_level > PlayerResource.MAX_LEVEL:
+		return "Level must be between 1 and %d." % PlayerResource.MAX_LEVEL
 
 	var ws: WorldServer = server_instance.world_server
 	var res: PlayerResource = target.resource
@@ -34,6 +34,12 @@ func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInsta
 	if levels_jumped > 0:
 		res.available_attributes_points += levels_jumped * PlayerResource.ATTRIBUTE_POINTS_PER_LEVEL
 
+	# Jumping straight to the cap should grant the capstone title too, so the dev
+	# path matches the earned one.
+	var reached_max: bool = new_level >= PlayerResource.MAX_LEVEL and level_before < PlayerResource.MAX_LEVEL
+	if reached_max:
+		LevelMilestoneService.grant_capstone(res)
+
 	ws.data_push.rpc_id(target.peer_id, &"combat.reward", {
 		"xp": 0,
 		"level": res.level,
@@ -41,6 +47,7 @@ func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInsta
 		"points_gained": maxi(0, levels_jumped * PlayerResource.ATTRIBUTE_POINTS_PER_LEVEL),
 		"experience": 0,
 		"xp_to_next": res.level_xp_to_next(),
+		"reached_max": reached_max,
 		"loot": [],
 	})
 

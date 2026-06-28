@@ -11,6 +11,6 @@ slow_amount = 30.0
 slow_duration_s = 2.0
 name = "Crippling Strike"
 cooldown = 5.0
-mana_cost = 8
+stamina_cost = 8
 metadata/slug = &"crippling_strike"
 metadata/id = 14

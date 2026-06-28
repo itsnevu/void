@@ -70,16 +70,24 @@ func _on_status_tick() -> void:
 		# Status HUD snapshot (buffs / DoTs / in-combat) — after the expiry pass
 		# so dropped buffs vanish from the strip the same second they end.
 		StatusService.sync(player)
-		var mana_max: float = player.stats_component.get_stat(Stat.MANA_MAX)
-		if mana_max <= 0.0:
-			continue
-		var mana: float = player.stats_component.get_stat(Stat.MANA)
-		if mana >= mana_max:
-			continue
-		var regen: float = player.stats_component.get_stat(Stat.MANA_REGEN)
-		if regen <= 0.0:
-			continue
-		player.stats_component.set_stat(Stat.MANA, minf(mana_max, mana + regen))
+		# Mana (magic) and stamina/ENERGY (physical) both regen here off their own
+		# *_REGEN stats — itemizable, not constant.
+		_regen_resource(player, Stat.MANA, Stat.MANA_MAX, Stat.MANA_REGEN)
+		_regen_resource(player, Stat.ENERGY, Stat.ENERGY_MAX, Stat.ENERGY_REGEN)
+
+
+## Top up one current/max resource by its per-second regen, clamped to max.
+func _regen_resource(player: Player, cur_stat: StringName, max_stat: StringName, regen_stat: StringName) -> void:
+	var stat_max: float = player.stats_component.get_stat(max_stat)
+	if stat_max <= 0.0:
+		return
+	var current: float = player.stats_component.get_stat(cur_stat)
+	if current >= stat_max:
+		return
+	var regen: float = player.stats_component.get_stat(regen_stat)
+	if regen <= 0.0:
+		return
+	player.stats_component.set_stat(cur_stat, minf(stat_max, current + regen))
 
 
 func load_map(map_path: String) -> void:
@@ -209,7 +217,18 @@ func instantiate_player(peer_id: int) -> Player:
 				player_stats[stat_name] += stats_from_attributes[stat_name]
 			else:
 				player_stats[stat_name] = stats_from_attributes[stat_name]
-		
+
+		# Guaranteed per-level power: folded in the same way as the attribute
+		# stats, so every level makes you tougher / hit harder even before you
+		# spend a single attribute point. HP/MANA-to-max below runs AFTER this,
+		# so the bigger HEALTH_MAX still spawns the player at full health.
+		var stats_from_level: Dictionary[StringName, float] = player_resource.level_bonus_stats()
+		for stat_name: StringName in stats_from_level:
+			if player_stats.has(stat_name):
+				player_stats[stat_name] += stats_from_level[stat_name]
+			else:
+				player_stats[stat_name] = stats_from_level[stat_name]
+
 		player_resource.stats = player_stats
 
 		for stat_name: StringName in player_stats:
@@ -249,6 +268,11 @@ func instantiate_player(peer_id: int) -> Player:
 		new_player.stats_component.set_stat(
 			Stat.MANA,
 			new_player.stats_component.get_stat(Stat.MANA_MAX)
+		)
+		# And stamina (ENERGY) — spawn full.
+		new_player.stats_component.set_stat(
+			Stat.ENERGY,
+			new_player.stats_component.get_stat(Stat.ENERGY_MAX)
 		)
 		WorldServer.curr.data_push.rpc_id(peer_id, &"stats.get", new_player.stats_component.stats.values)
 	new_player.ready.connect(setup_new_player,CONNECT_ONE_SHOT)

@@ -28,6 +28,19 @@ var flipped: bool = false:
 var pivot: float = 0.0:
 	set = _set_pivot
 
+## Seated "resting" pose, replicated via :sitting so other players see it. There's
+## no sit animation in the sprite sheets, so the visual is faked: the body holds
+## idle and drops a few pixels (reads as sitting in this top-down view). Movement
+## is locked client-side by LocalPlayer while this is true.
+var sitting: bool = false:
+	set = _set_sitting
+
+## Spectator "fireball" form, replicated via :spectator so everyone sees it. When set
+## the normal body/weapon/bars are hidden and a glowing fire effect takes their place
+## (see _set_spectator). LocalPlayer also suppresses combat while spectating.
+var spectator: bool = false:
+	set = _set_spectator
+
 ## Per-ability cooldown memory (resource_path -> last_action_time seconds), banked
 ## by the weapon on use and restored when an ability is (re)mounted — so swapping a
 ## weapon out and back can't wipe cooldowns. Transient (per session); each machine
@@ -159,6 +172,10 @@ const COMBAT_LINGER_MS: int = 5000
 ## combat. Set on every hit for both attacker and victim.
 var combat_until_ms: int = 0
 
+## Dodge i-frames: server ticks_msec until which incoming damage is ignored. Set by
+## the dodge.gd handler when a player rolls; checked in take_damage.
+var dodge_invuln_until_ms: int = 0
+
 
 ## Server-side: true while a recent hit still keeps this character in combat.
 func is_in_combat() -> bool:
@@ -172,6 +189,9 @@ func is_in_combat() -> bool:
 ## live in one place.
 func take_damage(amount: float, attacker: Character = null, damage_type: StringName = CombatHit.DAMAGE_PHYSICAL) -> void:
 	if not multiplayer.is_server() or is_dead or amount <= 0.0:
+		return
+	# Dodge i-frames: a rolling player shrugs off everything during the window.
+	if Time.get_ticks_msec() < dodge_invuln_until_ms:
 		return
 	# Any landed hit puts BOTH sides in combat (locks gear swaps for a few
 	# seconds): the victim here, and the attacker so they can't tag-and-swap.
@@ -293,6 +313,111 @@ func _set_flip(new_flip: bool) -> void:
 func _set_pivot(new_pivot: float) -> void:
 	pivot = new_pivot
 	hand_pivot.rotation = new_pivot
+
+
+## The fake "sitting" pose (no sit animation): the body drops and squashes vertically
+## so it clearly reads as seated/crouched, plus movement is locked client-side.
+const SIT_SPRITE_DROP: float = 9.0
+const SIT_SQUASH_Y: float = 0.78
+var _sprite_rest_y: float = 0.0
+var _sprite_rest_scale_y: float = 1.0
+var _sprite_y_captured: bool = false
+var _sit_tween: Tween
+
+
+## Apply the seated visual when the replicated `sitting` flag flips (runs on every
+## client — local player and remotes alike). Server is a no-op (no rendering).
+func _set_sitting(value: bool) -> void:
+	sitting = value
+	if multiplayer.is_server() or animated_sprite == null:
+		return
+	if not _sprite_y_captured:
+		_sprite_rest_y = animated_sprite.position.y
+		_sprite_rest_scale_y = animated_sprite.scale.y
+		_sprite_y_captured = true
+	if _sit_tween != null and _sit_tween.is_running():
+		_sit_tween.kill()
+	var target_y: float = _sprite_rest_y + (SIT_SPRITE_DROP if value else 0.0)
+	var target_scale_y: float = _sprite_rest_scale_y * (SIT_SQUASH_Y if value else 1.0)
+	_sit_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE)
+	_sit_tween.tween_property(animated_sprite, ^"position:y", target_y, 0.15)
+	_sit_tween.tween_property(animated_sprite, ^"scale:y", target_scale_y, 0.15)
+
+
+## Toggle the spectator fireball look on every client. Hides the body / weapon / HP
+## bar and shows a glowing fire effect; restores them when cleared. Server no-op.
+func _set_spectator(value: bool) -> void:
+	spectator = value
+	if multiplayer.is_server():
+		return
+	if animated_sprite != null:
+		animated_sprite.visible = not value
+	if hand_offset != null:
+		hand_offset.visible = not value
+	if has_node(^"ProgressBar"):
+		($ProgressBar as Control).visible = not value
+	var existing: Node = get_node_or_null(^"FireballVisual")
+	if value and existing == null:
+		add_child(_make_fireball_visual())
+	elif not value and existing != null:
+		existing.queue_free()
+
+
+## A self-contained "bola api": rising fire particles + a soft glowing core, both
+## using a procedural radial dot (no art needed). Parented to the character.
+func _make_fireball_visual() -> Node2D:
+	var root: Node2D = Node2D.new()
+	root.name = "FireballVisual"
+	var dot: GradientTexture2D = _make_fire_dot()
+	# Soft glowing core that bobs.
+	var core: Sprite2D = Sprite2D.new()
+	core.texture = dot
+	core.modulate = Color(1.0, 0.75, 0.3, 0.95)
+	core.scale = Vector2(0.6, 0.6)
+	root.add_child(core)
+	var bob: Tween = core.create_tween().set_loops()
+	bob.tween_property(core, ^"position:y", -4.0, 0.6).set_trans(Tween.TRANS_SINE)
+	bob.tween_property(core, ^"position:y", 0.0, 0.6).set_trans(Tween.TRANS_SINE)
+	# Rising flame particles.
+	var fire: CPUParticles2D = CPUParticles2D.new()
+	fire.texture = dot
+	fire.amount = 30
+	fire.lifetime = 0.7
+	fire.local_coords = false
+	fire.spread = 22.0
+	fire.gravity = Vector2(0.0, -90.0)
+	fire.initial_velocity_min = 18.0
+	fire.initial_velocity_max = 46.0
+	fire.scale_amount_min = 0.18
+	fire.scale_amount_max = 0.42
+	fire.color_ramp = _make_fire_ramp()
+	root.add_child(fire)
+	return root
+
+
+func _make_fire_dot() -> GradientTexture2D:
+	var grad: Gradient = Gradient.new()
+	grad.offsets = PackedFloat32Array([0.0, 0.5, 1.0])
+	grad.colors = PackedColorArray([Color(1, 1, 1, 1), Color(1, 1, 1, 0.55), Color(1, 1, 1, 0.0)])
+	var tex: GradientTexture2D = GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 32
+	tex.height = 32
+	return tex
+
+
+func _make_fire_ramp() -> Gradient:
+	var ramp: Gradient = Gradient.new()
+	ramp.offsets = PackedFloat32Array([0.0, 0.45, 1.0])
+	ramp.colors = PackedColorArray([
+		Color(1.0, 0.9, 0.4, 1.0),   # bright yellow core
+		Color(1.0, 0.45, 0.1, 0.8),  # orange
+		Color(0.5, 0.1, 0.05, 0.0),  # fades to dark red, transparent
+	])
+	return ramp
 
 
 func _set_display_name(new_name: String) -> void:

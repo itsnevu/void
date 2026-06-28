@@ -41,6 +41,17 @@ static func _on_combat_hit_static(payload: Dictionary) -> void:
 	current._on_combat_hit(payload)
 
 
+## A player emoted nearby — pop the social bubble above their head (everyone in the
+## instance, the emoter included). Payload: {p: peer_id, e: emote_id}.
+static func _on_emote(payload: Dictionary) -> void:
+	if current == null:
+		return
+	var player: Player = current.players_by_peer_id.get(int(payload.get("p", 0)), null)
+	if player == null:
+		return
+	player.play_emote(int(payload.get("e", -1)))
+
+
 ## A channel started somewhere nearby — attach its cast aura to the casting
 ## player (every client, so you see allies/enemies channel too). The local
 ## caster's root + move-cancel is handled separately in LocalPlayer.
@@ -119,6 +130,7 @@ func _ready() -> void:
 		Client.subscribe(&"channel.end", _on_channel_end)
 		Client.subscribe(&"dungeon.room", _on_dungeon_room)
 		Client.subscribe(&"dungeon.left", _on_dungeon_left)
+		Client.subscribe(&"emote", _on_emote)
 		_subscribed = true
 
 	synchronizer_manager = StateSynchronizerManagerClient.new()

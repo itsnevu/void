@@ -203,13 +203,18 @@ func perform_action(action_index: int, direction: Vector2, released: bool = fals
 			_consume_mana(ability)
 
 
-## Server-authoritative mana payment for a just-completed ability. Clients see
-## the new value through the regular stat sync (their HUD bar updates itself).
+## Server-authoritative resource payment for a just-completed ability — mana for
+## magic, stamina (ENERGY) for physical. Clients see the new values through the
+## regular stat sync (their HUD bars update themselves).
 func _consume_mana(ability: AbilityResource) -> void:
-	if ability.mana_cost <= 0 or character == null or not GameMode.is_world_server():
+	if character == null or not GameMode.is_world_server():
 		return
-	var mana: float = character.stats_component.get_stat(Stat.MANA)
-	character.stats_component.set_stat(Stat.MANA, maxf(0.0, mana - ability.mana_cost))
+	if ability.mana_cost > 0:
+		var mana: float = character.stats_component.get_stat(Stat.MANA)
+		character.stats_component.set_stat(Stat.MANA, maxf(0.0, mana - ability.mana_cost))
+	if ability.stamina_cost > 0:
+		var energy: float = character.stats_component.get_stat(Stat.ENERGY)
+		character.stats_component.set_stat(Stat.ENERGY, maxf(0.0, energy - ability.stamina_cost))
 
 
 ## A complete one-shot attack for AI / auto use. Routes through the ability's

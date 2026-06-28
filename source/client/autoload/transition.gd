@@ -136,6 +136,12 @@ func _retry() -> void:
 	Client.connect_to_server(_address, _port, _token)
 
 
+## Public "Leave Game" (from the in-game menu): identical to the disconnect screen's
+## Back-to-login — drop the world connection and return to the title screen.
+func quit_to_login() -> void:
+	_back_to_login()
+
+
 func _back_to_login() -> void:
 	_active = false
 	Client.close_connection()

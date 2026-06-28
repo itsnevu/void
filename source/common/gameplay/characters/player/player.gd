@@ -367,3 +367,42 @@ func _set_overhead_text(display_text: String) -> void:
 	var half_w: int = int(round(_overhead_label.size.x * 0.5))
 	_overhead_label.position = Vector2(-half_w, OVERHEAD_OFFSET_Y)
 #endregion
+
+
+#region Emotes
+## Pops a one-shot emote bubble above this player's head — a social "look at me"
+## cue everyone nearby sees (driven by the :emote broadcast → InstanceClient._on_emote).
+## The glyph is plain text (EmoteRegistry), so it renders in any UI font. The label
+## pops in, floats up, fades, and frees itself — no persistent state.
+func play_emote(emote_id: int) -> void:
+	if multiplayer.is_server():
+		return
+	var emote: Dictionary = EmoteRegistry.get_emote(emote_id)
+	if emote.is_empty():
+		return
+	var label: Label = Label.new()
+	label.text = String(emote["glyph"])
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.z_index = 11
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override(&"font_size", 18)
+	label.add_theme_color_override(&"font_color", Color(1.0, 0.95, 0.72))
+	label.add_theme_color_override(&"font_outline_color", Color(0, 0, 0, 0.9))
+	label.add_theme_constant_override(&"outline_size", 4)
+	add_child(label)
+	label.reset_size()
+	var start_y: float = OVERHEAD_OFFSET_Y - 14.0
+	label.position = Vector2(-label.size.x * 0.5, start_y)
+	label.pivot_offset = label.size * 0.5
+	label.scale = Vector2(0.3, 0.3)
+	# Pop in + drift upward.
+	var rise: Tween = create_tween().set_parallel(true)
+	rise.tween_property(label, ^"scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	rise.tween_property(label, ^"position:y", start_y - 16.0, 1.5).set_trans(Tween.TRANS_SINE)
+	# Hold, then fade out and free.
+	var life: Tween = create_tween()
+	life.tween_interval(1.0)
+	life.tween_property(label, ^"modulate:a", 0.0, 0.5)
+	life.tween_callback(label.queue_free)
+#endregion

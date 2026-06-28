@@ -103,14 +103,46 @@ func _on_player_died(data: Dictionary) -> void:
 	death_screen.visible = false
 
 
+## Live xp-bar tween so the bar slides to its new value instead of snapping. Killed
+## and restarted on every push so a burst of kills (or a progression.get refetch
+## landing on top of a combat.reward) animates cleanly to the latest value rather
+## than fighting itself.
+var _xp_tween: Tween
+
+## The level cap is mirrored client-side only for the "(MAX)" label/full-bar
+## presentation — the server stays authoritative (it sends xp_to_next == 0 at cap).
+const MAX_LEVEL: int = 20
+
+
 ## Updates the xp bar + level label from progression.get or a combat.reward push.
 func _apply_progression(data: Dictionary) -> void:
+	var level: int = int(data.get("level", -1))
+	var xp_to_next: int = int(data.get("xp_to_next", -1))
+	# At the cap the server sends xp_to_next == 0 — show MAX instead of a fake
+	# threshold, and pin the bar full. This holds for both the combat.reward push
+	# and the progression.get refetch.
+	var at_max: bool = (data.has("xp_to_next") and xp_to_next <= 0) or (data.has("level") and level >= MAX_LEVEL)
+
 	if data.has("level"):
-		experience_level_label.text = "Lv %d" % int(data["level"])
+		experience_level_label.text = "Lv %d (MAX)" % MAX_LEVEL if at_max else "Lv %d" % level
+
+	# Resolve the target value/max first, then run a single tween to it.
+	if at_max:
+		experience_bar.max_value = maxi(1, int(experience_bar.max_value))
+		_tween_xp_bar(experience_bar.max_value)
+		return
 	if data.has("xp_to_next"):
-		experience_bar.max_value = maxi(1, int(data["xp_to_next"]))
+		experience_bar.max_value = maxi(1, xp_to_next)
 	if data.has("experience"):
-		experience_bar.value = int(data["experience"])
+		_tween_xp_bar(float(int(data["experience"])))
+
+
+## Slide the xp bar to [param target] over ~0.3s, replacing any in-flight tween.
+func _tween_xp_bar(target: float) -> void:
+	if _xp_tween != null and _xp_tween.is_valid():
+		_xp_tween.kill()
+	_xp_tween = create_tween()
+	_xp_tween.tween_property(experience_bar, ^"value", target, 0.3)
 
 
 func _on_input_type_changed(input_type: InputComponent.InputType) -> void:

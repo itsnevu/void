@@ -14,13 +14,13 @@ func _ready() -> void:
 	super._ready()
 	router.register_route(
 		HTTPClient.Method.METHOD_POST,
-		&"/v1/login",
-		handle_login
+		&"/v1/wallet/challenge",
+		handle_wallet_challenge
 	)
 	router.register_route(
 		HTTPClient.Method.METHOD_POST,
-		&"/v1/guest",
-		handle_guest
+		&"/v1/wallet/login",
+		handle_wallet_login
 	)
 	router.register_route(
 		HTTPClient.Method.METHOD_POST,
@@ -36,11 +36,6 @@ func _ready() -> void:
 		HTTPClient.Method.METHOD_POST,
 		&"/v1/world/characters",
 		handle_world_characters
-	)
-	router.register_route(
-		HTTPClient.Method.METHOD_POST,
-		&"/v1/account/create",
-		handle_account_creation
 	)
 	router.register_route(
 		HTTPClient.Method.METHOD_POST,
@@ -148,13 +143,27 @@ func handle_handshake(payload: Dictionary) -> Dictionary:
 	return {"ok": true}
 
 
-func handle_login(payload: Dictionary) -> Dictionary:
-	if not _rate_ok(payload, &"login", 10, 60000):
+## Wallet sign-in step 1: forward the pubkey to the master, which mints a single-use
+## nonce for the client to sign. No session yet — that's minted on a verified login.
+func handle_wallet_challenge(payload: Dictionary) -> Dictionary:
+	if not _rate_ok(payload, &"wallet_challenge", 20, 60000):
+		return {"error": GatewayAPI.ERR_RATE_LIMITED}
+	if not payload.has(GatewayAPI.KEY_WALLET_PUBKEY):
+		return {"error": "invalid_payload"}
+	return await send_request("wallet_challenge", payload)
+
+
+## Wallet sign-in step 2: forward the signed challenge to the master for ed25519
+## verification. On success the master returns the login payload; we mint the session.
+func handle_wallet_login(payload: Dictionary) -> Dictionary:
+	if not _rate_ok(payload, &"wallet_login", 10, 60000):
 		return {"error": GatewayAPI.ERR_RATE_LIMITED}
 	if not payload.has_all(
 		[
-			GatewayAPI.KEY_ACCOUNT_USERNAME,
-			GatewayAPI.KEY_ACCOUNT_PASSWORD
+			GatewayAPI.KEY_WALLET_PUBKEY,
+			GatewayAPI.KEY_WALLET_SIGNATURE,
+			GatewayAPI.KEY_WALLET_NONCE,
+			GatewayAPI.KEY_WALLET_MESSAGE,
 		]
 	):
 		return {"error": "invalid_payload"}
@@ -162,23 +171,11 @@ func handle_login(payload: Dictionary) -> Dictionary:
 	var version_check: Dictionary = _check_version(payload)
 	if not version_check.is_empty():
 		return version_check
-	var result: Dictionary = await send_request("login", payload)
+	var result: Dictionary = await send_request("wallet_login", payload)
 	var error: Error = result.get("error", 0)
 	if error != OK:
 		return result
-	
-	result["session_id"] = create_session(result)
-	return result
 
-
-func handle_guest(payload: Dictionary) -> Dictionary:
-	if not _rate_ok(payload, &"guest", 5, 60000):
-		return {"error": GatewayAPI.ERR_RATE_LIMITED}
-	var result: Dictionary = await send_request("guest", payload)
-	var error: Error = result.get("error", 0)
-	if error != OK:
-		return {"error": error}
-	
 	result["session_id"] = create_session(result)
 	return result
 
@@ -272,31 +269,5 @@ func _public_worlds(raw: Dictionary) -> Dictionary:
 	return out
 
 
-func handle_account_creation(payload: Dictionary) -> Dictionary:
-	if not _rate_ok(payload, &"account_create", 5, 300000):
-		return {"error": GatewayAPI.ERR_RATE_LIMITED}
-	if not payload.has_all(
-		[
-			GatewayAPI.KEY_ACCOUNT_USERNAME,
-			GatewayAPI.KEY_ACCOUNT_PASSWORD,
-		]
-	):
-		return {"error": "invalid_payload"}
-
-	# Validate server-side too — never trust the client's pre-check (length, chars,
-	# reserved names). Same CredentialsUtils the client uses, so messages match.
-	var username: String = str(payload.get(GatewayAPI.KEY_ACCOUNT_USERNAME, ""))
-	var password: String = str(payload.get(GatewayAPI.KEY_ACCOUNT_PASSWORD, ""))
-	var uname_check: Dictionary = CredentialsUtils.validate_username(username)
-	if uname_check.get("code", CredentialsUtils.UsernameError.EMPTY) != CredentialsUtils.UsernameError.OK:
-		return {"error": str(uname_check.get("message", "Invalid username."))}
-	var pass_check: Dictionary = CredentialsUtils.validate_password(password)
-	if pass_check.get("code", CredentialsUtils.UsernameError.EMPTY) != CredentialsUtils.UsernameError.OK:
-		return {"error": str(pass_check.get("message", "Invalid password."))}
-
-	var response: Dictionary = await send_request("create_account", payload)
-	var error: Error = response.get("error", 0)
-	if error != OK:
-		return {"error": error}
-
-	return response
+## NOTE: username/password account creation and guest login were removed — Mythreach
+## is wallet-only. See handle_wallet_challenge / handle_wallet_login above.

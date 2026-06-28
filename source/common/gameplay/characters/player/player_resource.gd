@@ -4,6 +4,20 @@ extends Resource
 
 const ATTRIBUTE_POINTS_PER_LEVEL: int = 3
 
+## The level cap. Reaching it is THE long-term goal of the game: it unlocks the
+## capstone "Ascendant" title and ends xp accumulation (the bar reads MAX from
+## here on). Every level until then grants attribute points AND guaranteed power
+## (see PER_LEVEL_* below), so the climb always reads as progress.
+const MAX_LEVEL: int = 20
+
+## Guaranteed power gained EVERY level, independent of how you spend attribute
+## points — so leveling matters even for a player who hoards their points. These
+## are flat per-level grants folded into the live stats at spawn (see
+## instance_server.setup_new_player / level_bonus_stats). Tuned small so attributes
+## + gear stay the bigger levers: at level 20 this is +152 HP and +19 AD.
+const PER_LEVEL_HEALTH: float = 8.0
+const PER_LEVEL_ATTACK_DAMAGE: float = 1.0
+
 ## Profile customization limits, shared by the client edit UI and server validator.
 const MAX_PROFILE_STATUS_LEN: int = 200
 const ALLOWED_PROFILE_ANIMATIONS: PackedStringArray = ["idle", "run", "death"]
@@ -23,6 +37,10 @@ const BASE_STATS: Dictionary[StringName, float] = {
 	# grows the pool.
 	Stat.MANA_MAX: 50.0,
 	Stat.MANA_REGEN: 0.5,
+	# Stamina gates PHYSICAL abilities (melee swings, charge shots). Bigger pool +
+	# faster regen than mana — martial kits spend it often, casters lean on mana.
+	Stat.ENERGY_MAX: 100.0,
+	Stat.ENERGY_REGEN: 8.0,
 	Stat.MOVE_SPEED: 90.0,
 	Stat.ATTACK_SPEED: 0.8
 }
@@ -173,8 +191,24 @@ func init(
 
 
 func level_up() -> void:
+	# Hard stop at the cap: no extra level, no extra points. add_experience also
+	# clamps the bar so xp can't pool past this.
+	if level >= MAX_LEVEL:
+		return
 	available_attributes_points += ATTRIBUTE_POINTS_PER_LEVEL
 	level += 1
+
+
+## Cumulative guaranteed power for the CURRENT level (level-1 grants nothing).
+## Folded into the live stats on spawn alongside AttributeMap.attr_to_stats, in
+## the same StringName->float shape the other stat dicts use, so leveling alone
+## makes you tougher and hit harder.
+func level_bonus_stats() -> Dictionary[StringName, float]:
+	var levels_above_first: int = maxi(0, level - 1)
+	return {
+		Stat.HEALTH_MAX: levels_above_first * PER_LEVEL_HEALTH,
+		Stat.AD: levels_above_first * PER_LEVEL_ATTACK_DAMAGE,
+	}
 
 
 ## Character xp to advance a level: one clean linear-incremental curve — level N
@@ -187,12 +221,13 @@ const LEVEL_XP_BASE: int = 70
 
 
 func level_xp_to_next() -> int:
+	# At the cap there's no "next" — return 0 so the HUD can render a MAX bar
+	# instead of an unreachable threshold.
+	if level >= MAX_LEVEL:
+		return 0
 	return LEVEL_XP_BASE * maxi(1, level)
 
 
-## Adds character experience, applying any level-ups (each grants attribute points via
-## level_up). Returns {"level", "experience", "levels_gained", "points_gained"} so the
-## caller can report progress to the client.
 # --- Quests ---
 
 func quest_state(quest_id: int) -> StringName:
@@ -235,20 +270,47 @@ func set_quest_ready_notified(quest_id: int, value: bool) -> void:
 		quests[quest_id]["ready_notified"] = value
 
 
+## Adds character experience, applying any level-ups (each grants attribute points
+## via level_up). Returns {"level", "experience", "levels_gained", "points_gained",
+## "at_max", "reached_max"} so the caller can report progress to the client.
+## "at_max" is true once the character is at MAX_LEVEL; "reached_max" is true ONLY
+## on the call that first crosses it (so the capstone reward fires exactly once).
 func add_experience(amount: int) -> Dictionary:
+	# Already capped: don't pool xp — keep the bar pinned full and report nothing
+	# gained. reached_max stays false (the cap was already passed on an earlier call).
+	if level >= MAX_LEVEL:
+		experience = 0
+		return {
+			"level": level, "experience": experience,
+			"levels_gained": 0, "points_gained": 0,
+			"at_max": true, "reached_max": false,
+		}
 	if amount <= 0:
-		return {"level": level, "experience": experience, "levels_gained": 0, "points_gained": 0}
+		return {
+			"level": level, "experience": experience,
+			"levels_gained": 0, "points_gained": 0,
+			"at_max": false, "reached_max": false,
+		}
 	experience += amount
 	var levels_gained: int = 0
-	while experience >= level_xp_to_next():
+	# Stop the loop at the cap: level_up() no-ops there and level_xp_to_next()
+	# returns 0, so without this guard the leftover xp would spin forever.
+	while level < MAX_LEVEL and experience >= level_xp_to_next():
 		experience -= level_xp_to_next()
 		level_up()
 		levels_gained += 1
+	var reached_max: bool = level >= MAX_LEVEL
+	if reached_max:
+		# Drop any overflow so the bar reads full at MAX, not part-way into a
+		# level that can never complete.
+		experience = 0
 	return {
 		"level": level,
 		"experience": experience,
 		"levels_gained": levels_gained,
 		"points_gained": levels_gained * ATTRIBUTE_POINTS_PER_LEVEL,
+		"at_max": reached_max,
+		"reached_max": reached_max,
 	}
 
 

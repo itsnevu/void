@@ -30,6 +30,9 @@ signal input_changed(input_type: InputComponent.InputType)
 
 var local_player: LocalPlayer
 var player_id: int
+## Set by the login screen's "Spectate" button: enter the world as a non-combatant
+## fireball that just floats around and watches. Read by LocalPlayer on spawn.
+var spectator: bool = false
 ## True while a blocking menu is open (NPC dialogue, shop, quest log, inventory).
 ## While set, the local player's movement and actions are suppressed, so you can't
 ## walk or fight with a menu up, and can't keep one open to act from afar. Only the
@@ -136,10 +139,21 @@ func _on_combat_reward(data: Dictionary) -> void:
 		lines.append("+%d XP" % xp)
 	for entry: Dictionary in data.get("loot", []):
 		lines.append("Looted %d %s" % [int(entry.get("amount", 1)), str(entry.get("name", "item"))])
+	# Reaching the cap is THE goal — give it its own prominent, longer-dwelling
+	# card instead of the ordinary level-up line (the normal card still fires for
+	# every level below the cap).
+	if bool(data.get("reached_max", false)):
+		Toaster.toast_group("MAX LEVEL!", PackedStringArray([
+			"You've reached level 20 — the pinnacle of Mythreach.",
+			"Title 'Ascendant' unlocked!",
+		]), 5.0)
+
 	# Level-up + mastery are rare, high-value one-offs: give them their OWN card so
 	# a stream of coalescing kills can't refresh the moment away.
 	var big: PackedStringArray = PackedStringArray()
-	if int(data.get("levels_gained", 0)) > 0:
+	# At the cap the MAX LEVEL! card above already covers the milestone, so skip
+	# the ordinary "Level N! +M attribute points" line to avoid a double card.
+	if int(data.get("levels_gained", 0)) > 0 and not bool(data.get("reached_max", false)):
 		big.append("Level %d! +%d attribute points" % [int(data.get("level", 1)), int(data.get("points_gained", 0))])
 	var mastery: Dictionary = data.get("mastery", {})
 	if bool(mastery.get("started", false)):
@@ -149,8 +163,13 @@ func _on_combat_reward(data: Dictionary) -> void:
 			str(mastery.get("category", "")).capitalize(),
 			int(mastery.get("level", 1)),
 		])
+	# Header reflects what's actually in this card: a "Level Up!" line means a
+	# real (non-cap) level happened; otherwise it's the mastery lane. At the cap
+	# the level line is suppressed above, so a remaining mastery line correctly
+	# reads as "Mastery".
 	if not big.is_empty():
-		Toaster.toast_group("Level Up!" if int(data.get("levels_gained", 0)) > 0 else "Mastery", big)
+		var leveled: bool = int(data.get("levels_gained", 0)) > 0 and not bool(data.get("reached_max", false))
+		Toaster.toast_group("Level Up!" if leveled else "Mastery", big)
 
 	if lines.is_empty() and enemy_type.is_empty():
 		return  # Nothing to show.

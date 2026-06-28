@@ -101,7 +101,7 @@ theme_override_constants/separation = 16
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_opc3y")
 theme_override_font_sizes/font_size = 34
-text = "Ekonia Online"
+text = "Mythreach"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="MainPanel/VBoxContainer" unique_id=281198905]
@@ -121,23 +121,7 @@ layout_mode = 2
 theme_type_variation = &"FrameButton"
 theme_override_fonts/font = ExtResource("6_tnybn")
 theme_override_font_sizes/font_size = 18
-text = "LOGIN"
-
-[node name="CreateAccountButton" type="Button" parent="MainPanel/VBoxContainer/VBoxContainer" unique_id=1337747159]
-custom_minimum_size = Vector2(420, 60)
-layout_mode = 2
-theme_type_variation = &"FrameButton"
-theme_override_fonts/font = ExtResource("6_tnybn")
-theme_override_font_sizes/font_size = 18
-text = "CREATE_ACC"
-
-[node name="GuestButton" type="Button" parent="MainPanel/VBoxContainer/VBoxContainer" unique_id=720776451]
-custom_minimum_size = Vector2(420, 60)
-layout_mode = 2
-theme_type_variation = &"FrameButton"
-theme_override_fonts/font = ExtResource("6_tnybn")
-theme_override_font_sizes/font_size = 18
-text = "PLAY_AS_GUEST"
+text = "CONNECT_WALLET"
 
 [node name="LoginPanel" type="PanelContainer" parent="." unique_id=1270181654]
 visible = false
@@ -694,7 +678,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_fonts/font = ExtResource("5_opc3y")
 theme_override_font_sizes/font_size = 24
-text = "Ekonia Online"
+text = "Mythreach"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="AlreadyConnectedPanel" unique_id=651861677]
@@ -888,8 +872,6 @@ visible = false
 layout_mode = 1
 
 [connection signal="pressed" from="MainPanel/VBoxContainer/VBoxContainer/LoginButton" to="." method="_on_login_button_pressed"]
-[connection signal="pressed" from="MainPanel/VBoxContainer/VBoxContainer/CreateAccountButton" to="." method="_on_create_account_button_pressed"]
-[connection signal="pressed" from="MainPanel/VBoxContainer/VBoxContainer/GuestButton" to="." method="_on_guest_button_pressed"]
 [connection signal="pressed" from="LoginPanel/VBoxContainer/VBoxContainer/LoginButton" to="." method="_on_login_login_button_pressed"]
 [connection signal="pressed" from="CreateAccountPanel/VBoxContainer/VBoxContainer/CreateAccountButton" to="." method="create_account"]
 [connection signal="pressed" from="CharacterCreation/VBoxContainer/VBoxContainer/CreateButton" to="." method="_on_create_character_button_pressed"]

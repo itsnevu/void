@@ -9,8 +9,13 @@ const MANA_MAX: StringName = &"mana_max"
 ## Mana restored per second by the instance status tick (base + Spirit + gear).
 const MANA_REGEN: StringName = &"mana_regen"
 
+## Stamina (shown as "Stamina"): the physical counterpart of mana. Melee/ranged
+## abilities cost ENERGY, magic costs MANA — so martial and caster builds gate their
+## power on different resources.
 const ENERGY: StringName = &"energy"
 const ENERGY_MAX: StringName = &"energy_max"
+## Stamina restored per second by the instance status tick.
+const ENERGY_REGEN: StringName = &"energy_regen"
 
 const SHIELD: StringName = &"shield"
 
@@ -40,6 +45,8 @@ const DISPLAY_NAMES: Dictionary = {
 	HEALTH_MAX: "Max Health",
 	MANA_MAX: "Max Mana",
 	MANA_REGEN: "Mana Regen",
+	ENERGY_MAX: "Max Stamina",
+	ENERGY_REGEN: "Stamina Regen",
 	ARMOR: "Armor",
 	MR: "Magic Resist",
 	AD: "Attack Damage",

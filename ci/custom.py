@@ -1,4 +1,4 @@
-# custom.py — SCons option defaults for slim Ekonia export-template builds.
+# custom.py — SCons option defaults for slim Mythreach export-template builds.
 #
 # Godot's SConstruct auto-loads a file named custom.py from the engine source
 # root; build-templates.yml copies this there before compiling. The game is

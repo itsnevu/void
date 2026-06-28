@@ -56,6 +56,10 @@ static func _reward(player: Player, npc: HostileNpc) -> void:
 
 	var level_before: int = resource.level
 	var progress: Dictionary = resource.add_experience(npc.xp_reward)
+	# Hitting the cap is THE goal: grant the one-time capstone title the same way
+	# quests grant vanity titles (free-form string + auto-equip if no banner set).
+	if bool(progress.get("reached_max", false)):
+		LevelMilestoneService.grant_capstone(resource)
 	var loot_gained: Array = _roll_loot(npc)
 	for entry: Dictionary in loot_gained:
 		Inventory.add_item(resource.inventory, int(entry["id"]), int(entry["amount"]))
@@ -76,6 +80,7 @@ static func _reward(player: Player, npc: HostileNpc) -> void:
 			"points_gained": int(progress.get("points_gained", 0)),
 			"experience": resource.experience,
 			"xp_to_next": resource.level_xp_to_next(),
+			"reached_max": bool(progress.get("reached_max", false)),
 			"loot": loot_gained,
 			"mastery": mastery,
 		})

@@ -10,6 +10,6 @@ ad_ratio = 2.0
 swing_animation = &"weapon/sword.special.spin"
 name = "Bladestorm"
 cooldown = 7.0
-mana_cost = 16
+stamina_cost = 16
 metadata/slug = &"bladestorm"
 metadata/id = 17

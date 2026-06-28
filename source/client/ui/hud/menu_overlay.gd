@@ -146,6 +146,20 @@ func _build() -> void:
 	close_button.pressed.connect(close)
 	vbox.add_child(close_button)
 
+	# Leave Game — drop the world connection and return to the title screen. Two-tap
+	# confirm so a stray click in the menu can't yeet you out of the game.
+	var leave_button: Button = Button.new()
+	leave_button.text = "Leave Game"
+	leave_button.custom_minimum_size = Vector2(0, 40)
+	var leave_style: StyleBoxFlat = StyleBoxFlat.new()
+	leave_style.bg_color = Color(0.46, 0.16, 0.16, 0.95)
+	leave_style.set_corner_radius_all(6)
+	leave_style.set_border_width_all(1)
+	leave_style.border_color = Color(0.8, 0.4, 0.4, 0.6)
+	leave_button.add_theme_stylebox_override(&"normal", leave_style)
+	leave_button.pressed.connect(_on_leave_pressed.bind(leave_button))
+	vbox.add_child(leave_button)
+
 
 ## Shared tile cards: opaque enough to read as distinct against the gradient panel (the old 0.4-alpha
 ## boxes melted into it), with a subtle light border, plus hover/pressed brightening for feedback.
@@ -222,6 +236,20 @@ func _make_tile(entry: Dictionary) -> Button:
 	else: # dev-only filler — no real menu behind it
 		tile.pressed.connect(func() -> void: Toaster.toast("Coming soon", 1.5))
 	return tile
+
+
+## Two-tap "Leave Game": first tap arms (3s), second tap actually leaves to the title.
+var _leave_armed: bool = false
+func _on_leave_pressed(button: Button) -> void:
+	if not _leave_armed:
+		_leave_armed = true
+		button.text = "Tap again to leave"
+		get_tree().create_timer(3.0).timeout.connect(func() -> void:
+			_leave_armed = false
+			if is_instance_valid(button):
+				button.text = "Leave Game")
+		return
+	Transition.quit_to_login()
 
 
 func _on_entry_pressed(menu_name: String) -> void:

@@ -16,6 +16,12 @@ static var _groups: Dictionary[int, Dictionary] = {}
 static var _peer_to_group: Dictionary[int, int] = {}
 static var _next_group_id: int = 1
 
+## Open-world parties (social grouping, distinct from dungeon co-op lobbies) share
+## the same membership store. Cap + pending invites live here.
+const MAX_PARTY: int = 5
+# invitee_peer -> group_id they were invited to (cleared on accept/decline).
+static var _pending_invites: Dictionary[int, int] = {}
+
 
 ## THE co-op allegiance check (used by CombatHit.are_allied): true only when both
 ## peers sit in the SAME group. Server-side — on a client _peer_to_group is empty,
@@ -48,6 +54,45 @@ static func create_group(peers: Array, leader: int) -> int:
 		members.append(peer)
 		_peer_to_group[peer] = group_id
 	_groups[group_id] = {"members": members, "leader": leader}
+	_broadcast_roster(group_id)
+	return group_id
+
+
+static func leader_of(group_id: int) -> int:
+	return int(_groups.get(group_id, {}).get("leader", 0))
+
+
+## Invite [param invitee_peer] to [param inviter_peer]'s party, creating a solo
+## party for the inviter if they have none. Returns the group id, or a negative
+## code: -1 invitee already grouped, -2 party full, -3 can't invite yourself.
+static func invite(inviter_peer: int, invitee_peer: int) -> int:
+	if inviter_peer == invitee_peer:
+		return -3
+	if group_of(invitee_peer) != 0:
+		return -1
+	var group_id: int = group_of(inviter_peer)
+	if group_id == 0:
+		group_id = create_group([inviter_peer], inviter_peer)
+	if members_of(group_id).size() >= MAX_PARTY:
+		return -2
+	_pending_invites[invitee_peer] = group_id
+	return group_id
+
+
+## Accept a pending invite. Returns the joined group id, or: 0 no pending invite,
+## -1 already grouped, -2 party full or gone.
+static func accept(invitee_peer: int) -> int:
+	var group_id: int = _pending_invites.get(invitee_peer, 0)
+	_pending_invites.erase(invitee_peer)
+	if group_id == 0 or not _groups.has(group_id):
+		return 0
+	if group_of(invitee_peer) != 0:
+		return -1
+	if members_of(group_id).size() >= MAX_PARTY:
+		return -2
+	var members: Array = members_of(group_id)
+	members.append(invitee_peer)
+	_peer_to_group[invitee_peer] = group_id
 	_broadcast_roster(group_id)
 	return group_id
 

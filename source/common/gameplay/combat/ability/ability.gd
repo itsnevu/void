@@ -16,6 +16,10 @@ extends Resource
 ## its synced mana; server is authoritative) and consumed server-side by the
 ## weapon right after use.
 @export var mana_cost: int = 0
+## Stamina cost (the physical counterpart of mana_cost). 0 = free. Use this on
+## melee/ranged abilities so martial kits spend ENERGY while casters spend MANA.
+## An ability should set ONE of mana_cost / stamina_cost, not both.
+@export var stamina_cost: int = 0
 
 ## --- Combat juice (read by weapon visuals like the hammer slam) ---
 ## Camera kick for the WIELDER when this lands (0 none … ~0.3 light, ~0.9 huge).
@@ -93,6 +97,9 @@ func can_use(user: Entity = null) -> bool:
 		return false
 	if mana_cost > 0 and user is Character:
 		if (user as Character).stats_component.get_stat(Stat.MANA) < mana_cost:
+			return false
+	if stamina_cost > 0 and user is Character:
+		if (user as Character).stats_component.get_stat(Stat.ENERGY) < stamina_cost:
 			return false
 	return true
 

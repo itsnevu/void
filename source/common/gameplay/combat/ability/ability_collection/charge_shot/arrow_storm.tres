@@ -15,6 +15,6 @@ spread_deg = 32.0
 damage_factor = 0.4
 name = "Arrow Storm"
 cooldown = 6.0
-mana_cost = 18
+stamina_cost = 18
 metadata/slug = &"arrow_storm"
 metadata/id = 15

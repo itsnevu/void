@@ -3,6 +3,11 @@ WELCOME,Welcome,Bem vindo!,Bienvenido
 LOGIN,Login,Entrar,Entrar
 CREATE_ACC,Create Account,Criar conta,Crear una cuenta
 PLAY_AS_GUEST,Play as Guest,Jogar como convidado,Jugar como visitante
+CONNECT_WALLET,Connect Wallet,Conectar carteira,Conectar billetera
+CONNECTING_WALLET,Connecting wallet…,Conectando carteira…,Conectando billetera…
+ERR_NO_WALLET,No Solana wallet found. Install Phantom to play.,Nenhuma carteira Solana encontrada. Instale a Phantom para jogar.,No se encontró una billetera Solana. Instala Phantom para jugar.
+ERR_WALLET_REJECTED,Wallet connection cancelled.,Conexão da carteira cancelada.,Conexión de la billetera cancelada.
+ERR_WALLET_SIGNATURE,Signature verification failed. Please try again.,Falha na verificação da assinatura. Tente novamente.,Error al verificar la firma. Inténtalo de nuevo.
 NO_CON_YET,Not connected yet,Ainda não conectado,Aún no conectado
 ACC_NAME,Account name,Nome da conta,Nombre de la cuenta
 ENTER_ACC_NAME,Enter your account name here,Digite aqui o nome da sua conta,Introduzca el nombre de su cuenta aquí
@@ -24,13 +29,13 @@ COMMUNITY,Community,Comunidade,Comunidad
 PATCH_NOTES,Patch notes,Notas de atualização,Notas de actualización
 LOGOUT,Log out,Sair,Salir
 CLOSE_GAME,Close game,Fechar jogo,Cerrar el juego
-CONNECTING,Connecting to Ekonia…,Conectando ao Ekonia…,Conectando a Ekonia…
-SERVER_ONLINE,Connected · Ekonia,Conectado · Ekonia,Conectado · Ekonia
+CONNECTING,Connecting to Mythreach…,Conectando ao Mythreach…,Conectando a Mythreach…
+SERVER_ONLINE,Connected · Mythreach,Conectado · Mythreach,Conectado · Mythreach
 STATUS_ONLINE,Connected,Conectado,Conectado
 STATUS_OFFLINE,Offline,Offline,Sin conexión
 NOT_LOGGED_IN,Not logged in,Não autenticado,No autenticado
 CANT_REACH_TITLE,Connection,Conexão,Conexión
-ERR_CANT_REACH,Couldn't reach Ekonia. Check your connection and retry.,Não foi possível conectar ao Ekonia. Verifique sua conexão e tente novamente.,No se pudo conectar a Ekonia. Verifica tu conexión e inténtalo de nuevo.
+ERR_CANT_REACH,Couldn't reach Mythreach. Check your connection and retry.,Não foi possível conectar ao Mythreach. Verifique sua conexão e tente novamente.,No se pudo conectar a Mythreach. Verifica tu conexión e inténtalo de nuevo.
 RETRY,Retry,Tentar novamente,Reintentar
 UPDATE_TITLE,Update required,Atualização necessária,Actualización requerida
 UPDATE,Update,Atualizar,Actualizar

@@ -1,0 +1,26 @@
+# Vercel hosts ONLY the prebuilt web client (exports/web). Keep the upload tiny by
+# excluding the Godot project source, engine cache, server-only exports, and assets.
+/source
+/addons
+/assets
+/data
+/ci
+/branding
+/.godot
+/.run-logs
+/.github
+# Other (non-web) export outputs — never served on Vercel.
+/exports/server
+/exports/windows
+/exports/linux
+/exports/android
+# Editor/import sidecars inside the web export (the browser never uses them).
+exports/web/*.import
+*.gd
+*.gd.uid
+*.tscn
+*.tres
+*.import
+project.godot
+export_presets.cfg
+*.sh

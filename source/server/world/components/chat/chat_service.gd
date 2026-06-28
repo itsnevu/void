@@ -126,11 +126,30 @@ func _handle_send_world(instance: ServerInstance, player: PlayerResource, text: 
 	)
 
 
+## Party (TEAM) chat: live broadcast to the sender's current party members (see
+## GroupService). Ephemeral like world chat — never persisted. Shows in the Team tab.
 func _handle_send_team(instance: ServerInstance, player: PlayerResource, text: String) -> Dictionary:
-	# Placeholder: until we have a team/party system.
-	# "team:<team_id>" later.
-	# For now: either reject or treat as instance-local.
-	return {"error": 30, "ok": false, "message": "Team chat not implemented yet."}
+	var peer_id: int = int(player.current_peer_id)
+	var group_id: int = GroupService.group_of(peer_id)
+	if group_id == 0:
+		return {"error": 30, "ok": false, "message": "You are not in a party. Use /party invite <name>."}
+
+	var convo_id: String = ChatConstants.channel_conversation_id(ChatConstants.CHANNEL_TEAM)
+	_world_msg_seq += 1
+	var pushed: Dictionary = {
+		"conversation_id": convo_id,
+		"text": text,
+		"channel": ChatConstants.CHANNEL_TEAM,
+		"name": player.display_name,
+		"id": player.player_id,
+		"peer_id": peer_id,
+		"title": player.display_title,
+		"msg_id": _world_msg_seq,
+		"time_ms": int(Time.get_unix_time_from_system() * 1000.0),
+	}
+	for member_peer: int in GroupService.members_of(group_id):
+		WorldServer.curr.data_push.rpc_id(member_peer, &"chat.message", pushed)
+	return {}
 
 
 func _handle_send_guild(instance: ServerInstance, player: PlayerResource, text: String) -> Dictionary:

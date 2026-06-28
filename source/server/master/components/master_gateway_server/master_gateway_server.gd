@@ -35,26 +35,22 @@ func gateway_request(request_id: int, request: Dictionary) -> void:
 		return
 	var action: String = request.get("action", "")
 	match action:
-		"login":
+		"wallet_challenge":
 			gateway_response.rpc_id(
 				gateway_id,
 				request_id,
-				login_request(
-					request[GatewayAPI.KEY_ACCOUNT_USERNAME],
-					request[GatewayAPI.KEY_ACCOUNT_PASSWORD]
+				wallet_challenge_request(request.get(GatewayAPI.KEY_WALLET_PUBKEY, ""))
+			)
+		"wallet_login":
+			gateway_response.rpc_id(
+				gateway_id,
+				request_id,
+				wallet_login_request(
+					request.get(GatewayAPI.KEY_WALLET_PUBKEY, ""),
+					request.get(GatewayAPI.KEY_WALLET_MESSAGE, ""),
+					request.get(GatewayAPI.KEY_WALLET_SIGNATURE, ""),
+					request.get(GatewayAPI.KEY_WALLET_NONCE, "")
 				)
-			)
-		"guest":
-			gateway_response.rpc_id(
-				gateway_id,
-				request_id,
-				create_account_request("", "", true)
-			)
-		"create_account":
-			gateway_response.rpc_id(
-				gateway_id,
-				request_id,
-				create_account_request(request[GatewayAPI.KEY_ACCOUNT_USERNAME], request[GatewayAPI.KEY_ACCOUNT_PASSWORD], false)
 			)
 		"create_character":
 			create_player_character_request(
@@ -91,14 +87,30 @@ func update_worlds_info(_worlds_info: Dictionary) -> void:
 	pass
 
 
-func login_request(username: String, password: String) -> Dictionary:
-	var account: AccountResource = authentication_manager.validate_credentials(
-		username, password
-	)
+## Wallet sign-in step 1: hand the client a fresh nonce to sign with their wallet.
+func wallet_challenge_request(wallet_address: String) -> Dictionary:
+	if not AuthenticationManager.is_plausible_wallet_address(wallet_address):
+		return {"error": GatewayAPI.ERR_BAD_CREDENTIALS, "msg": "invalid wallet address"}
+	var nonce: String = authentication_manager.issue_wallet_nonce(wallet_address)
+	return {GatewayAPI.KEY_WALLET_NONCE: nonce}
 
+
+## Wallet sign-in step 2: verify the signature, then finalize login like any account.
+func wallet_login_request(wallet_address: String, message: String, signature: String, nonce: String) -> Dictionary:
+	if not AuthenticationManager.is_plausible_wallet_address(wallet_address):
+		return {"error": GatewayAPI.ERR_BAD_CREDENTIALS, "msg": "invalid wallet address"}
+	var account: AccountResource = authentication_manager.verify_wallet_login(
+		wallet_address, message, signature, nonce
+	)
 	if not account:
-		return {"error": GatewayAPI.ERR_BAD_CREDENTIALS}
-	elif account.peer_id:
+		return {"error": GatewayAPI.ERR_BAD_CREDENTIALS, "msg": "signature verification failed"}
+	return _finalize_login(account)
+
+
+## Shared post-auth path: boot any stale session, register the active account, and
+## build the world-list / last-character response the client expects.
+func _finalize_login(account: AccountResource) -> Dictionary:
+	if account.peer_id:
 		# Last-login-wins. peer_id marks the account connected, but the ONLY thing
 		# that clears it is a world-side game-peer disconnect (player_disconnected).
 		# A drop during the world handoff (token issued, client never reached the
@@ -130,22 +142,6 @@ func login_request(username: String, password: String) -> Dictionary:
 		"character_id": account.last_character_id,
 		"w": world_manager.get_public_worlds()
 	}
-
-
-func create_account_request(username: String, password: String, is_guest: bool) -> Dictionary:
-	var result_code: int
-	var return_data: Dictionary
-	var result: AccountResource = authentication_manager.create_account(username, password, is_guest)
-	if result == null:
-		result_code = GatewayAPI.ERR_ACCOUNT_CREATE_FAILED
-		return_data = {"error": result_code, "msg": "Couldn't create account."}
-	else:
-		return_data = {
-			"name": result.username,
-			"id": result.id,
-			"w": world_manager.get_public_worlds()
-		}
-	return return_data
 
 
 func create_player_character_request(

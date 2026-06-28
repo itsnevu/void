@@ -22,6 +22,19 @@ var input_direction: Vector2 = Vector2.ZERO
 var look_direction: Vector2 = Vector2.ZERO
 var action_input: bool = false
 
+# --- Dodge roll (Space) -----------------------------------------------------
+## A stamina-fuelled burst in the move/aim direction with brief i-frames (the
+## server grants the invuln; see dodge.gd). Movement is client-authoritative, so
+## the dash itself just overrides velocity and syncs via position like normal.
+const DODGE_SPEED: float = 360.0
+const DODGE_DURATION_S: float = 0.18
+const DODGE_COOLDOWN_S: float = 0.7
+## Must match dodge.gd's server-side cost — the client only PREDICTS the gate.
+const DODGE_STAMINA: int = 25
+var _dodge_until_ms: int = 0
+var _dodge_cooldown_until_ms: int = 0
+var _dodge_dir: Vector2 = Vector2.RIGHT
+
 ## While dead, input/movement are locked so the player can't act or drift; the respawn
 ## teleport is applied locally (position is client-authoritative).
 var _dead: bool = false
@@ -36,6 +49,8 @@ var fid_position: int
 var fid_flipped: int
 var fid_anim: int
 var fid_pivot: int
+var fid_sitting: int
+var fid_spectator: int
 
 var synchronizer_manager: StateSynchronizerManagerClient
 
@@ -56,6 +71,14 @@ func _ready() -> void:
 	fid_flipped = PathRegistry.id_of(":flipped")
 	fid_anim = PathRegistry.id_of(":anim")
 	fid_pivot = PathRegistry.id_of(":pivot")
+	fid_sitting = PathRegistry.id_of(":sitting")
+	fid_spectator = PathRegistry.id_of(":spectator")
+
+	# Spectator mode (entered via the login "Spectate" button): become a fireball
+	# that floats and watches — no combat. The synced :spectator field makes other
+	# players see the fireball too.
+	if ClientState.spectator:
+		spectator = true
 	
 	_apply_settings()
 	ClientState.settings.setting_changed.connect(_on_settings_changed)
@@ -325,7 +348,12 @@ func _notify_zone_transition() -> void:
 
 
 func process_movement() -> void:
-	if _dead or _channeling or ClientState.menu_open or Time.get_ticks_msec() < _movement_lock_until_ms:
+	# Dodge dash overrides normal movement for its short window (client-authoritative).
+	if not _dead and Time.get_ticks_msec() < _dodge_until_ms:
+		velocity = _dodge_dir * DODGE_SPEED
+		move_and_slide()
+		return
+	if _dead or _channeling or sitting or ClientState.menu_open or Time.get_ticks_msec() < _movement_lock_until_ms:
 		velocity = Vector2.ZERO
 		return
 	# Read the server-synced MOVE_SPEED stat so AGILITY (and speed gear) actually
@@ -342,9 +370,33 @@ func process_input() -> void:
 		action_input = false
 		return
 
+	# Sit toggle (default X): a rest emote you can pop anywhere — synced via :sitting
+	# so other players see you seated.
+	if Input.is_action_just_pressed(&"player_sit"):
+		sitting = not sitting
+
 	input_direction = controller.get_move_direction()
 	look_direction = controller.get_look_direction()
+
+	# Seated: any move input stands you up (and you move this same frame); otherwise
+	# you're rooted and can't attack or use abilities.
+	if sitting:
+		if input_direction != Vector2.ZERO:
+			sitting = false
+		else:
+			action_input = false
+			return
+
+	# Spectator fireball: free to float around, but never attacks or uses abilities.
+	if spectator:
+		action_input = false
+		return
+
 	action_input = controller.is_attack_pressed()
+
+	# Dodge roll (Space / gamepad): a stamina burst with brief i-frames.
+	if Input.is_action_just_pressed(&"player_dodge"):
+		_try_dodge()
 
 	# Mid weapon-draw / drink-cast: abilities are locked (the server gates too). A
 	# weapon draw stays move-free; a drink roots via the movement lock above.
@@ -376,6 +428,37 @@ func process_input() -> void:
 		{"d": look_direction, "i": 0}, InstanceClient.current.name)
 
 
+## Start a dodge if off cooldown and we have the stamina (predicted from the synced
+## ENERGY stat). The server (dodge.gd) deducts stamina + grants the i-frames; here we
+## just kick off the local dash + ask the server. Direction = movement, else aim.
+func _try_dodge() -> void:
+	var now: int = Time.get_ticks_msec()
+	if now < _dodge_cooldown_until_ms or _channeling or sitting or spectator or is_equip_drawing():
+		return
+	if stats_component.get_stat(Stat.ENERGY) < float(DODGE_STAMINA):
+		return
+	var dir: Vector2 = input_direction
+	if dir == Vector2.ZERO:
+		dir = look_direction
+	if dir == Vector2.ZERO:
+		dir = Vector2.RIGHT if not flipped else Vector2.LEFT
+	_dodge_dir = dir.normalized()
+	_dodge_until_ms = now + int(DODGE_DURATION_S * 1000.0)
+	_dodge_cooldown_until_ms = now + int(DODGE_COOLDOWN_S * 1000.0)
+	if InstanceClient.current != null:
+		Client.request_data(&"dodge", Callable(), {}, InstanceClient.current.name)
+	_play_dodge_visual()
+
+
+## Juice: a quick translucent "afterimage" flash on the sprite during the roll.
+func _play_dodge_visual() -> void:
+	if animated_sprite == null:
+		return
+	var tween: Tween = create_tween()
+	tween.tween_property(animated_sprite, ^"modulate:a", 0.45, 0.06)
+	tween.tween_property(animated_sprite, ^"modulate:a", 1.0, DODGE_DURATION_S)
+
+
 func process_animation(delta: float) -> void:
 	if _dead:
 		# Play (and hold) the death pose instead of input-driven locomotion. Synced to
@@ -405,6 +488,8 @@ func process_synchronization() -> void:
 		[fid_flipped, flipped],
 		[fid_anim, anim],
 		[fid_pivot, snappedf(hand_pivot.rotation, 0.05)],
+		[fid_sitting, sitting],
+		[fid_spectator, spectator],
 	]
 	state_synchronizer.mark_many_by_id(pairs, true)
 	var collected_pairs: Array = state_synchronizer.collect_dirty_pairs()

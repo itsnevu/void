@@ -15,6 +15,6 @@ dot_dps = 5.0
 dot_duration_s = 4.0
 name = "Venom Shot"
 cooldown = 4.0
-mana_cost = 12
+stamina_cost = 12
 metadata/slug = &"venom_shot"
 metadata/id = 16

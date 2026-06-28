@@ -15,7 +15,7 @@ Join or found a guild, then take a territory by capturing its banner, and earn G
 [b]Community and feedback[/b]
 This is an alpha, so expect rough edges, and patch notes land in your Mailbox.
 Found a bug or have an idea? Type /feedback in chat to send it straight to us.
-Come say hi: join our [url=https://discord.gg/QE5JwpFzgK][color=#6cc5ff]Discord[/color][/url] or visit the [url=https://ekoniaonline.com][color=#6cc5ff]website[/color][/url]."""
+Come say hi: join our [url=https://discord.gg/QE5JwpFzgK][color=#6cc5ff]Discord[/color][/url] or visit the [url=https://mythreach.gg][color=#6cc5ff]website[/color][/url]."""
 
 
 func _ready() -> void:

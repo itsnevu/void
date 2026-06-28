@@ -1,1 +1,1 @@
-Configuration files for Ekonia Online.
+Configuration files for Mythreach Online.

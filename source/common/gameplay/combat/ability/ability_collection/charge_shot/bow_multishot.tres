@@ -12,6 +12,6 @@ projectile_count = 3
 damage_factor = 0.4
 name = "Multishot"
 cooldown = 1.8
-mana_cost = 12
+stamina_cost = 12
 metadata/slug = &"bow_multishot"
 metadata/id = 3
