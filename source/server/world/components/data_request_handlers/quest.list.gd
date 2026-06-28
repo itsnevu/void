@@ -102,6 +102,6 @@ func _quest_view(resource: PlayerResource, quest_id: int, quest_ref: QuestResour
 		"min_level": quest.min_level,
 		"meets_level": resource.level >= quest.min_level,
 		# 0 = ALL objectives required, 1 = ANY single objective is enough. Lets
-		# the client tweak the objective list label ("Speak with any of these…").
+		# the client tweak the objective list label ("Speak with any of these...").
 		"completion": int(quest.completion),
 	}

@@ -14,9 +14,9 @@ extends Area2D
 
 ## Damage dealt to Character bodies + flags. Kept low — a tool is a weak weapon.
 var character_damage: float = 2.0
-## Extraction damage per swing to MineableNodes (wooden = 1, iron = 2, …).
+## Extraction damage per swing to MineableNodes (wooden = 1, iron = 2, ...).
 var extraction_damage: int = 1
-## Which tool this swing represents (&"pickaxe", &"sickle", …) — checked against
+## Which tool this swing represents (&"pickaxe", &"sickle", ...) — checked against
 ## a MineableNode's required_tool.
 var tool_type: StringName = &"pickaxe"
 var source: Character

@@ -284,7 +284,7 @@ func _make_action(quest_id: int, state: String, complete: bool, meets_level: boo
 				turn_in.pressed.connect(_on_turn_in.bind(quest_id))
 				return turn_in
 			var in_progress: Label = Label.new()
-			in_progress.text = "In progress…"
+			in_progress.text = "In progress..."
 			in_progress.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			in_progress.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			in_progress.add_theme_color_override(&"font_color", COLOR_ACTIVE)

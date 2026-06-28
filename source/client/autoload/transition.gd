@@ -81,7 +81,7 @@ func _show_loading() -> void:
 	visible = true
 	_root.modulate.a = 1.0
 	_bloom.modulate.a = 0.0  # bloom only appears on the reveal
-	_label.text = "Entering the world…"
+	_label.text = "Entering the world..."
 	_spinner.visible = true
 	_buttons.visible = false
 

@@ -17,7 +17,7 @@ const DAMAGE_PHYSICAL: StringName = &"physical"
 const DAMAGE_MAGIC: StringName = &"magic"
 
 enum Result {
-	IGNORED,  ## pass through — not a valid target (self, friendly, safe zone…)
+	IGNORED,  ## pass through — not a valid target (self, friendly, safe zone...)
 	DAMAGED,  ## a combatant or flag took the hit
 	BLOCKED,  ## a solid non-combatant (wall / door) — a projectile should stop here
 }
@@ -66,7 +66,7 @@ static func try_damage(source: Character, body: Node2D, damage: float, damage_ty
 
 ## The single melee-detection path. Server-only. Runs a deterministic physics
 ## shape query against [param hitbox]'s "CollisionShape2D" child and returns the
-## bodies currently inside it. Every melee weapon (sword, pickaxe, sickle, …)
+## bodies currently inside it. Every melee weapon (sword, pickaxe, sickle, ...)
 ## routes through this, so they all hit the same things — STILL targets included
 ## (a territory flag, a motionless mob), which an Area2D's enter-events and
 ## get_overlapping_bodies() miss for a hitbox spawned on top of them. Must be

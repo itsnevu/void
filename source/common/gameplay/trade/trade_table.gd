@@ -203,7 +203,7 @@ func _on_table_state(data: Dictionary) -> void:
 	for i: int in _seat_labels.size():
 		_seat_labels[i].text = _format_seat(seats[i]) if i < seats.size() else ""
 	var countdown: int = int(data.get("countdown", 0))
-	_countdown_label.text = "Trading in %d…" % countdown if countdown > 0 else ""
+	_countdown_label.text = "Trading in %d..." % countdown if countdown > 0 else ""
 
 
 func _format_seat(seat: Dictionary) -> String:

@@ -5,7 +5,7 @@ extends Control
 ## their lore lines inline with a typewriter reveal — click to skip to the full
 ## line, click again to advance. Routing options hand off to their menus.
 ##
-## Text is a RichTextLabel with bbcode, so lines can use [color], [wave], [shake]…
+## Text is a RichTextLabel with bbcode, so lines can use [color], [wave], [shake]...
 ## No backdrop: real-time MMO, the world stays visible + playable; only the box +
 ## buttons eat clicks.
 ##

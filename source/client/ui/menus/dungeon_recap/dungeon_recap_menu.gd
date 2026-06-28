@@ -27,7 +27,7 @@ func open(data: Dictionary) -> void:
 		_render_reward(data.get("reward", {}) as Dictionary)
 
 	var eject: int = int(data.get("eject_in", 15))
-	_line("Returning to town in ~%ds…" % eject, Color(0.7, 0.74, 0.82))
+	_line("Returning to town in ~%ds..." % eject, Color(0.7, 0.74, 0.82))
 
 	var close: Button = Button.new()
 	close.text = "Close"

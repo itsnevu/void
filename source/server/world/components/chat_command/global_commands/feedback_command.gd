@@ -67,8 +67,8 @@ func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInsta
 
 	# Discord — fire-and-forget; silently no-ops if this process has no webhook.
 	# Labeled metadata, then the message in a blockquote so it visually stands
-	# apart from the context. "…(truncated)" flags a clipped report.
-	var trunc_note: String = "  …*(truncated)*" if truncated else ""
+	# apart from the context. "...(truncated)" flags a clipped report.
+	var trunc_note: String = "  ...*(truncated)*" if truncated else ""
 	DiscordNotifier.notify(
 		"📝 Player feedback",
 		"**Player:** %s  (%s · #%d)\n**Version:** v%s\n**Instance:** %s\n**Position:** %s\n\n> %s%s" % [

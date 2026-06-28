@@ -185,7 +185,7 @@ func _render(data: Dictionary) -> void:
 	_seated = not mine.is_empty()
 
 	var countdown: int = int(data.get("countdown", 0))
-	_countdown_label.text = "Trade completes in %d…" % countdown if countdown > 0 else ""
+	_countdown_label.text = "Trade completes in %d..." % countdown if countdown > 0 else ""
 
 	if _seated:
 		_table_label.text = _format_offer(other, "They offer")
@@ -336,7 +336,7 @@ func _format_offer(seat: Dictionary, prefix: String) -> String:
 	# refactors can't accidentally reach for `self.name` and get the wrong thing.
 	var seat_name: String = str(seat.get("name", ""))
 	if seat_name.is_empty():
-		return "Waiting for another player…"
+		return "Waiting for another player..."
 	var text: String = "%s — %s%s:" % [seat_name, prefix, " ✓" if seat.get("accepted", false) else ""]
 	for item: Dictionary in seat.get("items", []):
 		text += "\n  %dx %s" % [int(item.get("amount", 1)), str(item.get("name", ""))]

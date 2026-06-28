@@ -30,7 +30,7 @@ var _focus_nav: bool = false
 var _focus_highlight: Panel
 # Boot intro ("the menu assembles") — a one-shot Tween, editor-disabled + skippable.
 var _intro_tween: Tween
-# Boot "Connecting…" — a centered, pulsing label (no panel), code-built like
+# Boot "Connecting..." — a centered, pulsing label (no panel), code-built like
 # Toaster/Transition. Shown during the handshake, dropped on reveal.
 var _connecting_label: Label
 var _connecting_pulse: Tween
@@ -101,7 +101,7 @@ var _skin_name_label: Label
 
 
 func _ready() -> void:
-	# During boot, show only a centered "Connecting…" over the backdrop — the menu and
+	# During boot, show only a centered "Connecting..." over the backdrop — the menu and
 	# the corner chrome (More / ConnectionInfo) stay hidden until the handshake passes,
 	# so nothing flashes before we know the gateway's reachable + our build matches.
 	main_panel.hide()
@@ -141,7 +141,7 @@ func _ready() -> void:
 	# shows. Blocks (update) or retries on failure; else resumes or reveals the menu.
 	if not await _boot_handshake():
 		return
-	# Keep "Connecting…" up through sign-in; the reveal (menu or resume) ends boot.
+	# Keep "Connecting..." up through sign-in; the reveal (menu or resume) ends boot.
 	if not await try_auto_login():
 		_reveal_main_menu()
 
@@ -183,7 +183,7 @@ func _request_handshake() -> Dictionary:
 	)
 
 
-## Centered "Connecting…" over the backdrop during boot — a plain pulsing label (no
+## Centered "Connecting..." over the backdrop during boot — a plain pulsing label (no
 ## panel), up from the first frame so the player sees we're connecting immediately.
 func _show_connecting() -> void:
 	if _connecting_label == null:
@@ -413,7 +413,7 @@ func _play_intro(elements: Array[CanvasItem]) -> void:
 ## and buttons / cards. Uses the panel's content column (its first VBoxContainer if
 ## it has one, else the panel itself) and flattens one level of button/card rows so
 ## they stagger individually. Replaces the old per-screen hardcoded lists, so every
-## screen (world / character select, character creation, …) animates for free.
+## screen (world / character select, character creation, ...) animates for free.
 func _screen_elements(panel: Control) -> Array[CanvasItem]:
 	var column: Node = panel
 	for child: Node in panel.get_children():
@@ -573,7 +573,7 @@ func _do_wallet_login(pubkey: String, silent: bool, dev_sign: bool = false) -> b
 	)
 	if challenge.has("error"):
 		if not silent:
-			_hide_connecting()  # drop "Connecting…" so it doesn't overlap the error popup
+			_hide_connecting()  # drop "Connecting..." so it doesn't overlap the error popup
 			await popup_panel.confirm_message(GatewayError.humanize(challenge))
 		return false
 	var nonce: String = str(challenge.get(GatewayAPI.KEY_WALLET_NONCE, ""))
@@ -590,7 +590,7 @@ func _do_wallet_login(pubkey: String, silent: bool, dev_sign: bool = false) -> b
 		signature = await _wallet_sign(message)
 	if signature.is_empty():
 		if not silent:
-			_hide_connecting()  # drop "Connecting…" so it doesn't overlap the error popup
+			_hide_connecting()  # drop "Connecting..." so it doesn't overlap the error popup
 			await popup_panel.confirm_message(tr("ERR_WALLET_REJECTED"))
 		return false
 
@@ -608,7 +608,7 @@ func _do_wallet_login(pubkey: String, silent: bool, dev_sign: bool = false) -> b
 	)
 	if response.has("error"):
 		if not silent:
-			_hide_connecting()  # drop "Connecting…" so it doesn't overlap the error popup
+			_hide_connecting()  # drop "Connecting..." so it doesn't overlap the error popup
 			await popup_panel.confirm_message(GatewayError.humanize(response))
 		return false
 
@@ -1131,7 +1131,7 @@ func _advance_logo_frame() -> void:
 	_logo_rect.texture = _logo_frames[_logo_frame_index]
 
 
-## Load the extracted logo video frames (f_001.png, f_002.png, …) by index until a
+## Load the extracted logo video frames (f_001.png, f_002.png, ...) by index until a
 ## gap. ResourceLoader.exists + load resolve imported textures in editor AND export,
 ## so we avoid fragile DirAccess enumeration of res://.
 func _load_logo_frames() -> Array[Texture2D]:
@@ -1296,11 +1296,11 @@ func _close_whitepaper() -> void:
 	_whitepaper_overlay = null
 
 
-## Shorten a base58 wallet address for display ("9xQe…4kT2"). Leaves shorter names as-is.
+## Shorten a base58 wallet address for display ("9xQe...4kT2"). Leaves shorter names as-is.
 func _short_wallet(name: String) -> String:
 	if name.length() <= 12:
 		return name
-	return "%s…%s" % [name.substr(0, 4), name.substr(name.length() - 4)]
+	return "%s...%s" % [name.substr(0, 4), name.substr(name.length() - 4)]
 
 
 func add_world_card(world_info: Dictionary, world_id: int) -> Button:
@@ -1427,7 +1427,7 @@ func _logout() -> void:
 	_refresh_connection_info()
 	_set_more_open(false)
 	# Logout can be triggered from any screen (world/character select, character
-	# creation, …), so hide them all — not just the resume panel — before returning
+	# creation, ...), so hide them all — not just the resume panel — before returning
 	# to the main menu, or the old screen stays visible and clickable on top.
 	for panel: Control in [
 		login_panel, $CreateAccountPanel, $WorldSelection,

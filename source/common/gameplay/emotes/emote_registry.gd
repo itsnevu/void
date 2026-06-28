@@ -4,7 +4,7 @@ class_name EmoteRegistry
 ##
 ## Emotes are one-shot social "pops" above the head — purely cosmetic, broadcast
 ## to everyone in the instance. Triggered by chat commands (/wave, /emote dance,
-## …) so they work on desktop, web AND mobile (no extra input/UI needed).
+## ...) so they work on desktop, web AND mobile (no extra input/UI needed).
 ##
 ## NOTE: glyphs are plain text/symbols, not color emoji — the project's UI fonts
 ## (Cinzel / Atkinson) don't ship an emoji set, so emoji would render as tofu.

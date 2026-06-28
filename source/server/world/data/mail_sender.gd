@@ -11,7 +11,7 @@ const DEFAULT_SENDER: String = "System"
 
 ## Sends a mail. subject/body are plain strings — the composer supplies them as
 ## separate fields; the chat command pipe-splits them first. extras_text is the
-## comma-separated token string (gold:100, item:1x3, title:Name, from:Sender, …).
+## comma-separated token string (gold:100, item:1x3, title:Name, from:Sender, ...).
 static func compose(target: String, subject: String, body: String, extras_text: String, caller_peer_id: int, instance: ServerInstance, sender_override: String = "") -> Dictionary:
 	var t: String = target.strip_edges()
 	if t.is_empty() or subject.strip_edges().is_empty() or body.strip_edges().is_empty():

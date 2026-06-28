@@ -13,6 +13,6 @@ metadata/_custom_type_script = "uid://cb4eeew5u1da1"
 [resource]
 script = ExtResource("3_llnij")
 npc_name = "Charter Clerk"
-greeting = "Up already? Good... hold still. …Number's assigned. Your name's your own business; the Charter doesn't need it. You're a Hero now: you work the frontier till the war's won, and then you're free. Stairs are behind you. Mind the step."
+greeting = "Up already? Good... hold still. ...Number's assigned. Your name's your own business; the Charter doesn't need it. You're a Hero now: you work the frontier till the war's won, and then you're free. Stairs are behind you. Mind the step."
 interactions = Array[ExtResource("1_tf42x")]([SubResource("Resource_lw3op")])
 metadata/_custom_type_script = "uid://ddps5vwhnf048"

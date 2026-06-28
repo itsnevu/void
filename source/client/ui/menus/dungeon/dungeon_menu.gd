@@ -240,7 +240,7 @@ func _build_leaderboard_panel() -> void:
 	heading.add_theme_color_override(&"font_color", Color(1.0, 0.92, 0.55))
 	vbox.add_child(heading)
 	var status: Label = Label.new()
-	status.text = "Loading…"
+	status.text = "Loading..."
 	status.modulate = Color(1, 1, 1, 0.6)
 	vbox.add_child(status)
 	Client.request_data(

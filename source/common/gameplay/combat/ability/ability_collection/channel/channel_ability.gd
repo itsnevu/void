@@ -19,7 +19,7 @@ extends AbilityResource
 @export var channel_duration_s: float = 6.0
 ## Seconds between effect ticks (also the heal-number / mana-drain cadence).
 @export var tick_interval_s: float = 1.0
-## Effect radius (heal-aura reach, …) — also sizes the client aura visual.
+## Effect radius (heal-aura reach, ...) — also sizes the client aura visual.
 @export var radius: float = 60.0
 ## Mana drained per tick. 0 = free; > 0 self-limits the channel (running dry
 ## cancels it) and is the cleaner cost for a sustained channel than an upfront lump.

@@ -30,7 +30,7 @@ func _ready() -> void:
 	col.add_child(search_bar)
 
 	_search_field = LineEdit.new()
-	_search_field.placeholder_text = "Search players…  (@name for account)"
+	_search_field.placeholder_text = "Search players...  (@name for account)"
 	_search_field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_search_field.clear_button_enabled = true
 	_search_field.text_submitted.connect(_on_search_submitted)
@@ -110,7 +110,7 @@ func _on_search_submitted(text: String) -> void:
 	if query.is_empty():
 		_refresh()
 		return
-	_set_status("Searching…")
+	_set_status("Searching...")
 	Client.request_data(&"friend.search", _fill_search_results, {"query": query})
 
 

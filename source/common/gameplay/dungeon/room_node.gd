@@ -114,7 +114,7 @@ func _resolve_difficulty(map: Node) -> void:
 	_dmg_mult = dres.hard_damage_mult if dres != null else DungeonService.HARD_DAMAGE_MULT
 
 
-## Group SpawnMarker children into _waves by their `wave` index (0,1,2…); markers without an enemy
+## Group SpawnMarker children into _waves by their `wave` index (0,1,2...); markers without an enemy
 ## type are skipped. _waves[w] is the (possibly empty) list of markers for wave w.
 func _build_waves() -> void:
 	_waves = []

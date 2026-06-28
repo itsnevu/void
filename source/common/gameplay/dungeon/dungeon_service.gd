@@ -597,7 +597,7 @@ static func _fail_run(group_id: int) -> void:
 		if player != null:
 			player.revive() # arrive home alive, not a corpse
 		WorldServer.curr.data_push.rpc_id(peer, &"dungeon.failed", {"failed": true, "dungeon": dungeon_name, "seconds": seconds, "eject_in": int(FAIL_EJECT_DELAY_S)})
-	_notify_party(group_id, "The party has fallen — the run failed. Returning to town…")
+	_notify_party(group_id, "The party has fallen — the run failed. Returning to town...")
 	WorldServer.curr.get_tree().create_timer(FAIL_EJECT_DELAY_S).timeout.connect(
 		func() -> void: _eject_run(group_id), CONNECT_ONE_SHOT
 	)

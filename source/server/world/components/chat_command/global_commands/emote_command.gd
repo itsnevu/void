@@ -1,7 +1,7 @@
 extends ChatCommand
 ## Player emote: pops a one-shot social bubble above your head that everyone in the
 ## instance sees. Works everywhere (desktop/web/mobile) since it's a chat command.
-## Favourites also have their own shortcut commands (/wave, /dance, …).
+## Favourites also have their own shortcut commands (/wave, /dance, ...).
 
 
 func _init() -> void:

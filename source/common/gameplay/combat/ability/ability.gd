@@ -22,7 +22,7 @@ extends Resource
 @export var stamina_cost: int = 0
 
 ## --- Combat juice (read by weapon visuals like the hammer slam) ---
-## Camera kick for the WIELDER when this lands (0 none … ~0.3 light, ~0.9 huge).
+## Camera kick for the WIELDER when this lands (0 none ... ~0.3 light, ~0.9 huge).
 @export_group("Impact")
 @export var impact_shake: float = 0.0
 ## Shockwave-ring radius. KEEP IT EQUAL TO THE HITBOX so the ring reads as the
@@ -34,7 +34,7 @@ extends Resource
 ## (Kept distinct from the future RED cast-telegraph, which is a pre-hit danger
 ## zone — impact rings are post-hit, so they never read as "dodge this".)
 @export var impact_color: Color = Color(1.0, 0.92, 0.55, 0.9)
-## Concentric ripples on impact — escalate per tier (1 basic … 3 ultimate).
+## Concentric ripples on impact — escalate per tier (1 basic ... 3 ultimate).
 @export var impact_rings: int = 1
 @export_group("")
 

@@ -4,7 +4,7 @@ LOGIN,Login,Entrar,Entrar
 CREATE_ACC,Create Account,Criar conta,Crear una cuenta
 PLAY_AS_GUEST,Play as Guest,Jogar como convidado,Jugar como visitante
 CONNECT_WALLET,Connect Wallet,Conectar carteira,Conectar billetera
-CONNECTING_WALLET,Connecting wallet…,Conectando carteira…,Conectando billetera…
+CONNECTING_WALLET,Connecting wallet...,Conectando carteira...,Conectando billetera...
 ERR_NO_WALLET,No Solana wallet found. Install Phantom to play.,Nenhuma carteira Solana encontrada. Instale a Phantom para jogar.,No se encontró una billetera Solana. Instala Phantom para jugar.
 ERR_WALLET_REJECTED,Wallet connection cancelled.,Conexão da carteira cancelada.,Conexión de la billetera cancelada.
 ERR_WALLET_SIGNATURE,Signature verification failed. Please try again.,Falha na verificação da assinatura. Tente novamente.,Error al verificar la firma. Inténtalo de nuevo.
@@ -29,7 +29,7 @@ COMMUNITY,Community,Comunidade,Comunidad
 PATCH_NOTES,Patch notes,Notas de atualização,Notas de actualización
 LOGOUT,Log out,Sair,Salir
 CLOSE_GAME,Close game,Fechar jogo,Cerrar el juego
-CONNECTING,Connecting to Mythreach…,Conectando ao Mythreach…,Conectando a Mythreach…
+CONNECTING,Connecting to Mythreach...,Conectando ao Mythreach...,Conectando a Mythreach...
 SERVER_ONLINE,Connected · Mythreach,Conectado · Mythreach,Conectado · Mythreach
 STATUS_ONLINE,Connected,Conectado,Conectado
 STATUS_OFFLINE,Offline,Offline,Sin conexión
@@ -64,7 +64,7 @@ ERR_ALREADY_CONNECTED,This account is already in game. Try again in a moment.,Es
 ERR_ACCOUNT_CREATE_FAILED,Couldn't create the account. That name may already be taken.,Não foi possível criar a conta. Esse nome pode já estar em uso.,No se pudo crear la cuenta. Ese nombre puede estar en uso.
 ERR_CONNECTION,Couldn't reach the server. Check your connection and try again.,Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.,No se pudo conectar al servidor. Comprueba tu conexión e inténtalo de nuevo.
 ERR_GENERIC,Something went wrong. Please try again.,Algo deu errado. Tente novamente.,Algo salió mal. Inténtalo de nuevo.
-NO_WORLDS_ONLINE,No worlds are online right now. Trying again shortly…,Nenhum mundo está online no momento. Tentando novamente em breve…,No hay mundos en línea ahora mismo. Reintentando en breve…
+NO_WORLDS_ONLINE,No worlds are online right now. Trying again shortly...,Nenhum mundo está online no momento. Tentando novamente em breve...,No hay mundos en línea ahora mismo. Reintentando en breve...
 ERR_RATE_LIMITED,Too many attempts. Please wait a moment and try again.,Muitas tentativas. Aguarde um momento e tente novamente.,Demasiados intentos. Espera un momento e inténtalo de nuevo.
 SHOW_PASSWORD,Show password,Mostrar senha,Mostrar contraseña
 CONNECTED_AS,Connected · %s,Conectado · %s,Conectado · %s

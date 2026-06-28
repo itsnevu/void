@@ -24,7 +24,7 @@ func open(master_id: int) -> void:
 	_master_id = master_id
 	_your_team = -1
 	_build_shell()
-	_set_message("Loading…")
+	_set_message("Loading...")
 	_refresh()
 
 

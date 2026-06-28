@@ -272,7 +272,7 @@ func _show_compose() -> void:
 	body_label.add_theme_color_override(&"font_color", Color(0.6, 0.65, 0.75))
 	_detail.add_child(body_label)
 	_compose_body = TextEdit.new()
-	_compose_body.placeholder_text = "Write your message…"
+	_compose_body.placeholder_text = "Write your message..."
 	_compose_body.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
 	_compose_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_compose_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -312,7 +312,7 @@ func _on_send() -> void:
 	if target.is_empty() or subject.is_empty() or body.is_empty():
 		_set_compose_status("Target, subject and body are required.", false)
 		return
-	_set_compose_status("Sending…", true)
+	_set_compose_status("Sending...", true)
 	var result: Array = await Client.request_data_await(&"mail.send", {
 		"target": target,
 		"from": _compose_from.text.strip_edges(),

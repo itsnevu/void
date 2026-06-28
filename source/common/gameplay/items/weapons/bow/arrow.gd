@@ -16,7 +16,7 @@ var piercing: bool = false
 var pierce_left: int = 0
 var source: Node
 
-## Server-authoritative damage on impact, set by the spawning weapon (charge ratio, multishot…).
+## Server-authoritative damage on impact, set by the spawning weapon (charge ratio, multishot...).
 var damage: float = 5.0
 ## Mitigation channel: ARMOR for physical (arrows), MR for magic (wand bolts).
 var damage_type: StringName = CombatHit.DAMAGE_PHYSICAL
