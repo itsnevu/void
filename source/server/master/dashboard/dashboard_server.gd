@@ -6,7 +6,7 @@ extends "res://addons/httpserver/http_server.gd"
 ## Routes — mounted under /v1 by convention (REST versioning), but the HTTP
 ## addon now tries routes before static so any prefix works.
 ##   GET  /v1/status              — master uptime + connected worlds count
-##   GET  /v1/worlds              — per-world snapshot (population, uptime, …)
+##   GET  /v1/worlds              — per-world snapshot (population, uptime, ...)
 ##   GET  /v1/players             — merged online roster across all worlds
 ##   GET  /v1/chat                — merged recent channel messages across worlds
 ##   GET  /v1/logs                — master log tail (in-memory ring)

@@ -42,7 +42,7 @@ var spectator: bool = false:
 	set = _set_spectator
 
 ## Per-ability cooldown memory (resource_path -> last_action_time seconds), banked
-## by the weapon on use and restored when an ability is (re)mounted — so swapping a
+## by the weapon on use and restored when an ability is (re)mounted - so swapping a
 ## weapon out and back can't wipe cooldowns. Transient (per session); each machine
 ## keeps its own (server authoritative, the client mirrors it for prediction).
 var ability_cooldowns: Dictionary = {}
@@ -71,18 +71,18 @@ const BAR_COLOR_NEUTRAL: Color = Color(0.82, 0.82, 0.86) # other players
 const BAR_COLOR_HOSTILE: Color = Color(0.86, 0.33, 0.28) # mobs / default
 
 ## The local viewer's tagged guild, mirrored here from ClientState. Static so
-## Player can read it WITHOUT referencing ClientState — that reference would close
-## a ClientState → LocalPlayer → Player → ClientState compile cycle.
+## Player can read it WITHOUT referencing ClientState - that reference would close
+## a ClientState -> LocalPlayer -> Player -> ClientState compile cycle.
 static var local_viewer_guild_id: int = 0
 
 ## Peer ids of the local player's CURRENT spar teammates / opponents (empty when
 ## not in a match). Same static-mirror pattern as local_viewer_guild_id; set by
 ## LocalPlayer from the sparring.match.state push. While a match is live these
-## override guild colors on health bars — an opposing guildmate reads hostile.
+## override guild colors on health bars - an opposing guildmate reads hostile.
 static var spar_ally_peers: Array = []
 static var spar_opponent_peers: Array = []
 
-## Peer ids of the local player's CURRENT co-op group (empty when not grouped) —
+## Peer ids of the local player's CURRENT co-op group (empty when not grouped) -
 ## the dungeon allegiance, mirrored client-side from the group.roster push, same
 ## pattern as spar peers. Groupmates read as allies regardless of guild.
 static var group_peers: Array = []
@@ -98,7 +98,7 @@ func _ready() -> void:
 
 
 ## Client: paint the over-head HP bar fill a solid color. Always SET (never
-## remove the override — that reverts to the theme's gray default). Square,
+## remove the override - that reverts to the theme's gray default). Square,
 ## anti-aliasing off so edges stay crisp on a low-res pixel-art canvas.
 func set_health_bar_fill(color: Color) -> void:
 	if not has_node(^"ProgressBar"):
@@ -113,7 +113,7 @@ func set_health_bar_fill(color: Color) -> void:
 ## Last seen HEALTH value, used to detect *decreases* so we only trigger hit
 ## feedback on incoming damage, never on regen / respawn / heals.
 var _last_health_seen: float = -1.0
-## Sound path played on each hit. Spatial — SfxPool culls distance via the
+## Sound path played on each hit. Spatial - SfxPool culls distance via the
 ## LocalPlayer's position so off-screen hits don't make noise. Drop the
 ## file under this path later and it'll just start working.
 const HIT_SOUND_PATH: String = "res://assets/audio/sfx/hit.wav"
@@ -129,7 +129,7 @@ var _hit_flash_tween: Tween
 func _on_stat_changed(stat_name: StringName, value: float) -> void:
 	if stat_name == Stat.HEALTH:
 		$ProgressBar.value = value
-		# Hit feedback fires on net HP decrease only — regen, idle-heal,
+		# Hit feedback fires on net HP decrease only - regen, idle-heal,
 		# respawn-snap-to-full would otherwise spam flash/sound.
 		if _last_health_seen >= 0.0 and value < _last_health_seen:
 			_play_hit_feedback()
@@ -183,8 +183,8 @@ func is_in_combat() -> bool:
 
 
 ## Server-only. Applies [param amount] raw damage from [param attacker], mitigated by
-## the matching resistance — ARMOR for physical, MR for magic (see CombatHit's
-## damage-type constants) — then triggers death at zero health. Every attack
+## the matching resistance - ARMOR for physical, MR for magic (see CombatHit's
+## damage-type constants) - then triggers death at zero health. Every attack
 ## (projectiles, melee, NPC hits) routes through here so damage/death/attribution
 ## live in one place.
 func take_damage(amount: float, attacker: Character = null, damage_type: StringName = CombatHit.DAMAGE_PHYSICAL) -> void:
@@ -208,7 +208,7 @@ func take_damage(amount: float, attacker: Character = null, damage_type: StringN
 	stats_component.set_stat(Stat.HEALTH, new_health)
 
 	# Broadcast a hit event so clients can render damage numbers, screen
-	# shake, hit pause, sound — anything game-feel piggybacks off the same
+	# shake, hit pause, sound - anything game-feel piggybacks off the same
 	# server push. We send the post-mitigation number so what players see
 	# matches the HP actually lost.
 	_broadcast_hit_feedback(mitigated)
@@ -228,7 +228,7 @@ func _broadcast_hit_feedback(mitigated_amount: float) -> void:
 	# Character is parented under Map, which is parented under ServerInstance.
 	# Walk up two steps to find the instance to scope the broadcast to. We
 	# don't type-check ServerInstance here because common-side code mustn't
-	# import server-only classes — propagate_rpc just needs the instance
+	# import server-only classes - propagate_rpc just needs the instance
 	# name (a String) and gracefully falls back if not found.
 	var maybe_map: Node = get_parent()
 	if maybe_map == null:
@@ -250,13 +250,13 @@ func die(_killer: Character) -> void:
 	pass
 
 
-## Plays a short "action" animation (weapon swing, charge, cast — anything
+## Plays a short "action" animation (weapon swing, charge, cast - anything
 ## abilities want to surface visually). Stamps the animation name into the
 ## InteruptAnimation slot and triggers InteruptShot, which is the only
 ## branch of the AnimationTree currently routed to the output.
 ##
 ## anim_name uses Godot's library/animation form, e.g. &"weapon/sword.swing".
-## The animation must have been added to the AnimationPlayer first — weapons
+## The animation must have been added to the AnimationPlayer first - weapons
 ## do this on equip via add_animation_library.
 ##
 ## Server-side is a no-op; animation work is purely cosmetic.
@@ -326,7 +326,7 @@ var _sit_tween: Tween
 
 
 ## Apply the seated visual when the replicated `sitting` flag flips (runs on every
-## client — local player and remotes alike). Server is a no-op (no rendering).
+## client - local player and remotes alike). Server is a no-op (no rendering).
 func _set_sitting(value: bool) -> void:
 	sitting = value
 	if multiplayer.is_server() or animated_sprite == null:

@@ -1,11 +1,11 @@
 class_name UISound
 ## Shared UI sound cues for the IN-GAME interface, routed through the AudioManager's polyphonic UI
-## player — the same Sound bus + settings-bound volume the gateway uses. Static: call UISound.click()
+## player - the same Sound bus + settings-bound volume the gateway uses. Static: call UISound.click()
 ## etc. from anywhere; the HUD auto-wires button taps/hovers to these. No-ops when audio isn't up (a
 ## headless / muted test client frees the AudioManager). Cue files live in assets/audio/sfx/ui/.
 ##
 ## The in-game UI fires a LOT (every button under the HUD), so each cue is trimmed a few dB under the
-## bus volume here — softer than the gateway's deliberate, sparser clicks. Tune the *_DB consts.
+## bus volume here - softer than the gateway's deliberate, sparser clicks. Tune the *_DB consts.
 
 const CLICK: String = "res://assets/audio/sfx/ui/ui_click.wav"
 const BACK: String = "res://assets/audio/sfx/ui/ui_back.wav"

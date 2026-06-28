@@ -3,7 +3,7 @@ class_name BlockList
 ## dictionary lookup on the hot path. Authoritative storage is
 ## PlayerResource.blocked_ids (persisted as a JSON column on the players row,
 ## see world_store_sqlite.gd). This cache is hydrated when a player connects
-## and cleared on disconnect — both wired in WorldServer.
+## and cleared on disconnect - both wired in WorldServer.
 ##
 ## Asymmetric "ghost block": when X blocks Y, only X's view filters Y's
 ## chat. Y never knows. Standard social-MMO pattern to avoid retaliation
@@ -14,7 +14,7 @@ static var _by_blocker: Dictionary[int, Dictionary]
 
 
 ## Returns true if [param blocker] has [param target] in their block list.
-## Hot path — called on every chat broadcast per recipient.
+## Hot path - called on every chat broadcast per recipient.
 static func is_blocked(blocker: int, target: int) -> bool:
 	if blocker <= 0 or target <= 0:
 		return false

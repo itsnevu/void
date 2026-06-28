@@ -1,6 +1,6 @@
 extends Control
 ## Centered, non-blocking trade panel. Opening (clicking a table) just views it; you
-## explicitly Join a seat (costs gold). Closing the panel does NOT leave your seat —
+## explicitly Join a seat (costs gold). Closing the panel does NOT leave your seat -
 ## your offer stays on the world table; reopen to adjust or Leave (or walk away). Only
 ## the card itself blocks input, so you can still move/chat while it's open.
 
@@ -332,12 +332,12 @@ func _on_trade_result(data: Dictionary) -> void:
 # --- Formatting ---
 
 func _format_offer(seat: Dictionary, prefix: String) -> String:
-	# Local was named `name` which shadowed Node.name — renamed so future
+	# Local was named `name` which shadowed Node.name - renamed so future
 	# refactors can't accidentally reach for `self.name` and get the wrong thing.
 	var seat_name: String = str(seat.get("name", ""))
 	if seat_name.is_empty():
 		return "Waiting for another player..."
-	var text: String = "%s — %s%s:" % [seat_name, prefix, " ✓" if seat.get("accepted", false) else ""]
+	var text: String = "%s - %s%s:" % [seat_name, prefix, " v" if seat.get("accepted", false) else ""]
 	for item: Dictionary in seat.get("items", []):
 		text += "\n  %dx %s" % [int(item.get("amount", 1)), str(item.get("name", ""))]
 	var gold: int = int(seat.get("gold", 0))

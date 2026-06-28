@@ -2,7 +2,7 @@ class_name Projectile
 extends Area2D
 ## Base for EVERY fired projectile (arrows, wand bolts, heal bolts, and any future one). It owns the
 ## whole hit pipeline in ONE place: move, detect, and react. Detection is a per-frame SHAPE QUERY
-## (the same mechanism melee uses) rather than area/body_entered — enter-events only fire on a
+## (the same mechanism melee uses) rather than area/body_entered - enter-events only fire on a
 ## boundary crossing, so they miss a target the projectile spawns INSIDE (point-blank / packed mobs)
 ## or blows past in a single frame. The query catches them all, at any speed.
 ##
@@ -27,23 +27,23 @@ var burn_dps: float = 0.0
 var burn_duration_s: float = 0.0
 var dot_kind: StringName = &"burn"
 
-## Seconds a projectile flies before despawning if it hits nothing (speed × this ≈ max range).
+## Seconds a projectile flies before despawning if it hits nothing (speed x this ~ max range).
 const LIFETIME: float = 1.2
 
 ## Max distance moved between hit checks. A fast projectile (or a frame-time spike under load) moves
-## speed×frametime per frame; if that exceeds the hit shape, a point-blank target can fall BETWEEN two
-## static overlap checks and get skipped. Sub-stepping the move to ≤ this (half the 16px hit shape)
-## makes detection continuous — speed- and framerate-independent. 1 step at normal speed, so ~free.
+## speedxframetime per frame; if that exceeds the hit shape, a point-blank target can fall BETWEEN two
+## static overlap checks and get skipped. Sub-stepping the move to <= this (half the 16px hit shape)
+## makes detection continuous - speed- and framerate-independent. 1 step at normal speed, so ~free.
 const MAX_STEP_PX: float = 8.0
 
-## Colliders already handled this flight (instance_id) — so a piercing shot hits each target once
+## Colliders already handled this flight (instance_id) - so a piercing shot hits each target once
 ## and a lingering overlap isn't re-resolved every frame.
 var _hit_ids: Dictionary[int, bool] = {}
 
 
 func _ready() -> void:
 	# What a hit can land on: hurtboxes (damage) + flags (capture) + world (block). NOT character
-	# navigation bodies — attacks hit the body-sized HurtBox area instead. See docs/combat_layers.md.
+	# navigation bodies - attacks hit the body-sized HurtBox area instead. See docs/combat_layers.md.
 	collision_mask = CombatHit.TARGET_MASK
 	if not multiplayer.is_server():
 		var vosn: VisibleOnScreenNotifier2D = VisibleOnScreenNotifier2D.new()
@@ -62,7 +62,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	# Move in sub-steps no bigger than MAX_STEP_PX, running the shape query after each, so a fast shot
 	# (or a frame-time spike under load) can't jump PAST a point-blank target between two checks. The
-	# per-frame shape query alone is STATIC — that's what let fast bolts (380) and charged arrows (400)
+	# per-frame shape query alone is STATIC - that's what let fast bolts (380) and charged arrows (400)
 	# skip close targets while slow taps (200) landed. Runs on both peers: the server applies damage,
 	# the client stops its own visual (take_damage is gated). collide_with_areas catches HurtBoxes;
 	# bodies catch walls/flags.
@@ -94,14 +94,14 @@ func _handle_collision(node: Node2D) -> void:
 		if overflow <= 0.0:
 			queue_free() # fully absorbed
 			return
-		damage = overflow # reduced — keep flying to whatever's behind the wall
+		damage = overflow # reduced - keep flying to whatever's behind the wall
 		return
 
 	match _resolve_hit(node):
 		CombatHit.Result.IGNORED:
-			return # friendly / safe-zone / non-target — keep flying
+			return # friendly / safe-zone / non-target - keep flying
 		CombatHit.Result.BLOCKED:
-			queue_free() # wall / door — stop here
+			queue_free() # wall / door - stop here
 		CombatHit.Result.DAMAGED:
 			# Ride a burn on top if this projectile carries one (server applies; clients see the sync).
 			if burn_dps > 0.0 and multiplayer.is_server():
@@ -118,6 +118,6 @@ func _handle_collision(node: Node2D) -> void:
 ## What this projectile DOES to [param node], returning how the base reacts: IGNORED = pass through,
 ## DAMAGED = consumed (or pierce), BLOCKED = stop. Default = deal damage via CombatHit (which
 ## resolves a HurtBox to its Character, applies the target rules, and deals the hit). Override for a
-## different effect — see HealBolt. Server-authoritative: damage is gated inside take_damage.
+## different effect - see HealBolt. Server-authoritative: damage is gated inside take_damage.
 func _resolve_hit(node: Node2D) -> CombatHit.Result:
 	return CombatHit.try_damage(source as Character, node, damage, damage_type)

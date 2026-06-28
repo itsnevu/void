@@ -1,14 +1,14 @@
 class_name Campfire
 extends Node2D
-## An animated campfire that casts a warm, flickering light — place it in dark maps (a night forest,
+## An animated campfire that casts a warm, flickering light - place it in dark maps (a night forest,
 ## a camp, a cave). Two looping AnimatedSprite2D layers (logs + flame, autoplayed) plus a PointLight2D
 ## whose energy wavers like a real fire.
 ##
 ## ALSO a slow REST AURA: on the SERVER it tops up HP + mana for living players lingering within
-## [member heal_radius] every [member heal_interval] seconds (a fire doubles as a rest spot — refill
+## [member heal_radius] every [member heal_interval] seconds (a fire doubles as a rest spot - refill
 ## between fights, save potions), popping a green "+N" per tick via the shared combat.hit heal path.
 ## On the CLIENT a soft green glow fades IN while the LOCAL player is resting here (in range + not full)
-## and fades OUT otherwise — pure local inference, no server messages. Set BOTH per-tick amounts to 0
+## and fades OUT otherwise - pure local inference, no server messages. Set BOTH per-tick amounts to 0
 ## for a cosmetic-only fire (the server frees it, and no glow is built).
 
 ## Soft radial reused for the heal glow (same texture the firelight uses).
@@ -48,7 +48,7 @@ func _ready() -> void:
 			return
 		set_process(false) # the flicker + glow are client-only
 		for child: Node in get_children():
-			child.queue_free() # Base / Fire / Light — nothing to render headless
+			child.queue_free() # Base / Fire / Light - nothing to render headless
 		_build_heal_aura()
 		return
 	_phase = randf() * TAU # desync multiple campfires so they don't flicker in lockstep
@@ -99,7 +99,7 @@ func _heal_tick() -> void:
 			_heal_one(body as Player)
 
 
-## Top up one player's HP + mana (clamped to max) and pop a green "+N" for the HP gained — reusing the
+## Top up one player's HP + mana (clamped to max) and pop a green "+N" for the HP gained - reusing the
 ## combat.hit heal path the hammer aura uses, so everyone in the instance sees it. Mana fills its bar
 ## silently (there's no blue-number convention).
 func _heal_one(player: Player) -> void:

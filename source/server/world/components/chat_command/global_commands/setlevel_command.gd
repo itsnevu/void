@@ -1,5 +1,5 @@
 extends ChatCommand
-## Jump straight to a level (1–20). Useful for testing high-level content without
+## Jump straight to a level (1-20). Useful for testing high-level content without
 ## grinding XP. Resets experience to 0 within the new level and grants the
 ## attribute points the jump would have earned.
 

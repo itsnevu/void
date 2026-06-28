@@ -10,7 +10,7 @@ const MANA_MAX: StringName = &"mana_max"
 const MANA_REGEN: StringName = &"mana_regen"
 
 ## Stamina (shown as "Stamina"): the physical counterpart of mana. Melee/ranged
-## abilities cost ENERGY, magic costs MANA — so martial and caster builds gate their
+## abilities cost ENERGY, magic costs MANA - so martial and caster builds gate their
 ## power on different resources.
 const ENERGY: StringName = &"energy"
 const ENERGY_MAX: StringName = &"energy_max"

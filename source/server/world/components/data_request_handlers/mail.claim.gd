@@ -1,6 +1,6 @@
 extends DataRequestHandler
 ## Claims one mail's reward attachments for the requesting character. Reuses the
-## redeem grant pipeline: validate → apply → mark claimed. The claimed guard
+## redeem grant pipeline: validate -> apply -> mark claimed. The claimed guard
 ## (SQL-level) stops double-claims, including one-claim-per-player on broadcasts.
 ## Returns {"ok": true, "rewards": [...]} or {"ok": false, "reason": ...}.
 ## See docs/mailbox.md.

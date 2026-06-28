@@ -1,10 +1,10 @@
 extends PanelContainer
-## Read-only stat readout for the Character → Stats tab. Builds its own
+## Read-only stat readout for the Character -> Stats tab. Builds its own
 ## two-column grid (stat name / value) so it fills the left half of the tab
 ## and stays legible, and live-updates when the watched player's stats change.
 
 ## [label, color, primary Stat key, optional secondary key for "cur / max"].
-## Secondary == null → single value. Strings are used for non-enum keys.
+## Secondary == null -> single value. Strings are used for non-enum keys.
 const _ROWS: Array = [
 	["Health", Color("#3de600"), Stat.HEALTH, Stat.HEALTH_MAX],
 	["Mana", Color("#33b5e5"), Stat.MANA_MAX, null],

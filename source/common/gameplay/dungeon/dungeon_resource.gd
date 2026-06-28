@@ -4,7 +4,7 @@ extends InstanceResource
 ## instance_collection (DungeonResource IS an InstanceResource, so the collection
 ## scan registers it automatically). This puts the reward / description / levels /
 ## difficulty in ONE file instead of scattering them across the map scene's
-## RoomNodes — the map scene keeps only encounter authoring (SpawnMarkers), and
+## RoomNodes - the map scene keeps only encounter authoring (SpawnMarkers), and
 ## DungeonService reads the reward off the RUN's resource on clear.
 
 ## Pretty name shown in the lobby title (falls back to instance_name if blank).
@@ -30,6 +30,6 @@ extends InstanceResource
 @export var hard_damage_mult: float = 1.5
 
 
-## The lobby title — the pretty display_name, or the instance_name id if unset.
+## The lobby title - the pretty display_name, or the instance_name id if unset.
 func title() -> String:
 	return display_name if not display_name.is_empty() else str(instance_name)

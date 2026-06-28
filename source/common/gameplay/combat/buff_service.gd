@@ -1,11 +1,11 @@
 class_name BuffService
-## Timed stat buffs — the minimal seed: a buff is {stat, amount, expires_ms}
+## Timed stat buffs - the minimal seed: a buff is {stat, amount, expires_ms}
 ## stored on the PlayerResource (runtime-only, so it survives instance changes
 ## within a session and dies naturally on logout). Applied via modify_stat,
 ## expired by the instance StatusTick. Potions use it today; campfires,
 ## fountains, auras and food are the same mechanism later.
 ##
-## Server-side only — all entry points are server handlers / server ticks.
+## Server-side only - all entry points are server handlers / server ticks.
 
 
 ## Grants [param stat] +[param amount] for [param duration_s] seconds.
@@ -40,7 +40,7 @@ static func tick(player: Player) -> void:
 
 ## Puts live buffs back on top of a FRESHLY REBUILT stat block (spawn after an
 ## instance change rebuilds stats from base + attributes + gear, wiping buff
-## bonuses). Drops anything that expired in transit; does NOT revert first —
+## bonuses). Drops anything that expired in transit; does NOT revert first -
 ## the rebuild already started from clean numbers.
 static func reapply(player: Player) -> void:
 	if player == null or player.player_resource == null:

@@ -107,7 +107,7 @@ func _on_gateway_manager_client_response_received(request_id: int, response: Dic
 
 
 # Per-IP throttle for the brute-forceable / spammable auth endpoints. __ip__ is the
-# real client even behind Caddy — the HTTP addon reads the X-Real-IP header Caddy
+# real client even behind Caddy - the HTTP addon reads the X-Real-IP header Caddy
 # stamps (header_up X-Real-IP {remote_host}), falling back to the socket host. So
 # loopback stays exempt only for local multi-instance testing (no proxy header).
 func _rate_ok(payload: Dictionary, endpoint: StringName, max_calls: int, window_ms: int) -> bool:
@@ -128,7 +128,7 @@ func _check_version(payload: Dictionary) -> Dictionary:
 	var have: String = client_version if not client_version.is_empty() else "unknown"
 	return {
 		"error": GatewayAPI.ERR_OUTDATED_VERSION,
-		"msg": "Outdated game version — please update. (server %s, you have %s)" % [server_version, have],
+		"msg": "Outdated game version - please update. (server %s, you have %s)" % [server_version, have],
 	}
 
 
@@ -144,7 +144,7 @@ func handle_handshake(payload: Dictionary) -> Dictionary:
 
 
 ## Wallet sign-in step 1: forward the pubkey to the master, which mints a single-use
-## nonce for the client to sign. No session yet — that's minted on a verified login.
+## nonce for the client to sign. No session yet - that's minted on a verified login.
 func handle_wallet_challenge(payload: Dictionary) -> Dictionary:
 	if not _rate_ok(payload, &"wallet_challenge", 20, 60000):
 		return {"error": GatewayAPI.ERR_RATE_LIMITED}
@@ -167,7 +167,7 @@ func handle_wallet_login(payload: Dictionary) -> Dictionary:
 		]
 	):
 		return {"error": "invalid_payload"}
-	# Version gate (shared with the boot handshake) — reject a mismatched build.
+	# Version gate (shared with the boot handshake) - reject a mismatched build.
 	var version_check: Dictionary = _check_version(payload)
 	if not version_check.is_empty():
 		return version_check
@@ -254,7 +254,7 @@ func handle_worlds(_payload: Dictionary) -> Dictionary:
 
 ## Whitelist only what a world card needs. The cached roster also carries each
 ## world's address, port and full heartbeat snapshot (player rosters, chat tail,
-## server logs) — never ship those to a game client.
+## server logs) - never ship those to a game client.
 func _public_worlds(raw: Dictionary) -> Dictionary:
 	var out: Dictionary = {}
 	for world_id: Variant in raw:
@@ -269,5 +269,5 @@ func _public_worlds(raw: Dictionary) -> Dictionary:
 	return out
 
 
-## NOTE: username/password account creation and guest login were removed — Mythreach
+## NOTE: username/password account creation and guest login were removed - Mythreach
 ## is wallet-only. See handle_wallet_challenge / handle_wallet_login above.

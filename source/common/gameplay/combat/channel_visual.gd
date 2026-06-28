@@ -2,7 +2,7 @@ class_name ChannelVisual
 extends Node2D
 ## Client-side cast visual for an active channel (see [ChannelAbility]). Attached
 ## to the casting Character on the channel.start push and removed on channel.end
-## (or self-expires at duration as a safety net). Renders the &"heal_aura" look —
+## (or self-expires at duration as a safety net). Renders the &"heal_aura" look -
 ## a soft green pulsing ground ring sized to the heal radius, so allies can read
 ## "stand here to be healed." Pure visual; add a branch per [member kind] as more
 ## channels ship (recall = a cast bar + rune, etc.).
@@ -24,7 +24,7 @@ func _ready() -> void:
 		_spawn_motes()
 
 
-## Soft green motes that rise and fade across the aura — the "life returning"
+## Soft green motes that rise and fade across the aura - the "life returning"
 ## particle layer (web-safe CPUParticles2D, like the slam debris). Emits
 ## continuously for the channel's life; stops when this node frees.
 func _spawn_motes() -> void:
@@ -54,7 +54,7 @@ func _process(delta: float) -> void:
 	_elapsed += delta
 	queue_redraw()
 	if _elapsed >= duration:
-		queue_free() # safety — the channel.end push normally frees us first
+		queue_free() # safety - the channel.end push normally frees us first
 
 
 func _draw() -> void:
@@ -84,7 +84,7 @@ func _draw_recall() -> void:
 	draw_rect(Rect2(top_left, Vector2(BAR_W, BAR_H)), Color(rune, 0.55), false, 1.0)
 
 
-## A neutral amber draw bar over the head — the "drawing my weapon" read. No
+## A neutral amber draw bar over the head - the "drawing my weapon" read. No
 ## ground runes (equipping isn't a grounded channel), just the timed fill.
 func _draw_equip() -> void:
 	var t: float = clampf(_elapsed / duration, 0.0, 1.0)
@@ -98,13 +98,13 @@ func _draw_equip() -> void:
 
 
 func _draw_heal_aura() -> void:
-	# A gentle breathing pulse so it reads as a sustained, friendly effect —
+	# A gentle breathing pulse so it reads as a sustained, friendly effect -
 	# deliberately unlike the sharp one-shot expand of an impact ring.
 	var pulse: float = 0.5 + 0.5 * sin(_elapsed * 4.0)
 	var fill_a: float = 0.06 + 0.05 * pulse
 	draw_circle(Vector2.ZERO, radius, Color(HEAL_TINT, fill_a))
 	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(HEAL_TINT, 0.5 + 0.3 * pulse), 2.0, true)
-	# A rising inner ring — cheap "life lifting back up" read without particles.
+	# A rising inner ring - cheap "life lifting back up" read without particles.
 	var t: float = fposmod(_elapsed * 0.6, 1.0)
 	var inner: float = lerpf(radius * 0.2, radius * 0.85, t)
 	draw_arc(Vector2.ZERO, inner, 0.0, TAU, 40, Color(HEAL_TINT, 0.35 * (1.0 - t)), 1.5, true)

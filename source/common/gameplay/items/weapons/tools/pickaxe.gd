@@ -1,6 +1,6 @@
 class_name Pickaxe
 extends Weapon
-## Visible-in-hand pickaxe. No combat abilities — it's a tool. play_pick_swing
+## Visible-in-hand pickaxe. No combat abilities - it's a tool. play_pick_swing
 ## is called by MineableNode.on_click so the player gets a "swing" feedback
 ## animation regardless of whether the gather succeeds (failed gathers still
 ## feel like an attempt that missed instead of a dead click).

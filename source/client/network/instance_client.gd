@@ -15,7 +15,7 @@ var synchronizer_manager: StateSynchronizerManagerClient
 var instance_map: Map
 
 
-## Static dispatchers — called via the singleton subscriptions wired below.
+## Static dispatchers - called via the singleton subscriptions wired below.
 ## They look up the LIVE InstanceClient via [member current] every time,
 ## so we never hold a callable bound to a freed-instance `self`. That was
 ## the root cause of "I shoot but see no arrow after switching maps": the
@@ -41,7 +41,7 @@ static func _on_combat_hit_static(payload: Dictionary) -> void:
 	current._on_combat_hit(payload)
 
 
-## A player emoted nearby — pop the social bubble above their head (everyone in the
+## A player emoted nearby - pop the social bubble above their head (everyone in the
 ## instance, the emoter included). Payload: {p: peer_id, e: emote_id}.
 static func _on_emote(payload: Dictionary) -> void:
 	if current == null:
@@ -52,7 +52,7 @@ static func _on_emote(payload: Dictionary) -> void:
 	player.play_emote(int(payload.get("e", -1)))
 
 
-## A channel started somewhere nearby — attach its cast aura to the casting
+## A channel started somewhere nearby - attach its cast aura to the casting
 ## player (every client, so you see allies/enemies channel too). The local
 ## caster's root + move-cancel is handled separately in LocalPlayer.
 static func _on_channel_start(payload: Dictionary) -> void:
@@ -78,7 +78,7 @@ static func _on_channel_start(payload: Dictionary) -> void:
 			weapon.set_channeling_pose(true)
 
 
-## Channel ended (completed, cancelled, caster died) — drop the aura.
+## Channel ended (completed, cancelled, caster died) - drop the aura.
 static func _on_channel_end(payload: Dictionary) -> void:
 	if current == null:
 		return
@@ -93,11 +93,11 @@ static func _on_channel_end(payload: Dictionary) -> void:
 		weapon.set_channeling_pose(false)
 
 
-## A dungeon room sealed or opened — toggle its doors on every client. Movement is
+## A dungeon room sealed or opened - toggle its doors on every client. Movement is
 ## client-authoritative, so the collision change must happen here, not on the
 ## server. The push carries the door node paths (relative to the map); the server
 ## picks which doors. (The doors are authored into the map, so they already exist
-## on the client — we just flip them.)
+## on the client - we just flip them.)
 static func _on_dungeon_room(payload: Dictionary) -> void:
 	if current == null or current.instance_map == null:
 		return
@@ -108,13 +108,13 @@ static func _on_dungeon_room(payload: Dictionary) -> void:
 			door.set_open(is_open)
 
 
-## Left a dungeon run (exit NPC or recall) — confirm it. Subscribed statically so
+## Left a dungeon run (exit NPC or recall) - confirm it. Subscribed statically so
 ## the push lands even mid instance-switch (a per-instance node would be torn down).
 static func _on_dungeon_left(payload: Dictionary) -> void:
 	Toaster.toast("Left %s." % str(payload.get("dungeon", "the dungeon")))
 
 
-## Guard so we only subscribe ONCE per process — Client lives in the
+## Guard so we only subscribe ONCE per process - Client lives in the
 ## autoload and outlives any InstanceClient, so re-subscribing on every
 ## instance switch would either pile up callables or churn unsubscribe
 ## races against in-flight RPCs.
@@ -172,7 +172,7 @@ func spawn_player(player_id: int) -> void:
 	if not new_player.is_inside_tree():
 		instance_map.add_child(new_player)
 		# Click-to-inspect: the player scene carries a ClickableArea (ProfileClickArea).
-		# Wire its `clicked` to open the profile — the GATE (holster-mode) lives in the
+		# Wire its `clicked` to open the profile - the GATE (holster-mode) lives in the
 		# handler, in CLIENT code, because Player.gd must not reference ClientState (cycle).
 		# Connect once: the local player node is reused across map changes.
 		if not new_player.has_meta(&"profile_click_wired"):
@@ -185,7 +185,7 @@ func spawn_player(player_id: int) -> void:
 	synchronizer_manager.add_entity(player_id, sync)
 
 
-## A player's ClickableArea (ProfileClickArea) was clicked → open their profile, but ONLY
+## A player's ClickableArea (ProfileClickArea) was clicked -> open their profile, but ONLY
 ## while the local player has no weapon out (holster-mode), so a click during a fight
 ## stays a shot. [param peer_id] is sent to the server, which resolves it to the
 ## persistent player_id (the client doesn't carry it).

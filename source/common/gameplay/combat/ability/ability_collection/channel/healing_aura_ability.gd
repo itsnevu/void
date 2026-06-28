@@ -1,7 +1,7 @@
 class_name HealingAuraAbility
 extends ChannelAbility
 ## A rooted healing channel: every tick, restore [member heal_per_tick] HP to the
-## caster AND to nearby players within [member radius]. Slow but steady — the
+## caster AND to nearby players within [member radius]. Slow but steady - the
 ## tank-cleric's sustain. You're planted while it runs (moving cancels it), which
 ## is the counterplay. Tiers grow the heal + radius as an upgrade chain in the
 ## hammer Resolve branch.
@@ -18,7 +18,7 @@ func channel_tick(caster: Character) -> void:
 		return
 	# Always heal the channeler; then every living ALLY within radius. "Ally" is
 	# the shared CombatHit.are_allied rule (spar teammates in a match, guildmates
-	# otherwise) — the same definition the wand heal + damage gate use, so it's
+	# otherwise) - the same definition the wand heal + damage gate use, so it's
 	# correct in cross-guild spar teams and never tops up an enemy. Mobs aren't
 	# Player nodes, so the type filter excludes them too.
 	_heal(caster)

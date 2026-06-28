@@ -22,7 +22,7 @@ var _selected_gear_slot: StringName
 var wallet_icon: TextureRect
 var wallet_amount: Label
 ## "Hotkey" button in the detail strip (created next to ActionButton at
-## runtime) — assigns the selected bag item to a HUD quick slot.
+## runtime) - assigns the selected bag item to a HUD quick slot.
 var hotkey_button: Button
 ## Crisp pixel preview mounted onto %DetailIcon (used as a sizing host; its own texture stays null).
 var _detail_pixel: TextureRect
@@ -58,7 +58,7 @@ func _ready() -> void:
 
 	hotkey_button = Button.new()
 	hotkey_button.text = "Hotkey"
-	# Twin of ActionButton — same size and centering, consistent tap target.
+	# Twin of ActionButton - same size and centering, consistent tap target.
 	hotkey_button.custom_minimum_size = action_button.custom_minimum_size
 	hotkey_button.size_flags_vertical = action_button.size_flags_vertical
 	hotkey_button.disabled = true
@@ -171,7 +171,7 @@ func _on_bag_item_pressed(item_id: int, item: Item) -> void:
 		action_button.text = "Hold"
 		action_button.disabled = false
 	else:
-		action_button.text = "—"
+		action_button.text = "-"
 		action_button.disabled = true
 	# Anything you can equip / use / hold can sit on a quick slot.
 	hotkey_button.disabled = action_button.disabled
@@ -197,7 +197,7 @@ func _on_gear_slot_pressed(slot_button: GearSlotButton) -> void:
 	detail_description.text = ItemTooltip.body(item)
 	action_button.text = "Unequip"
 	action_button.disabled = false
-	hotkey_button.disabled = true # bag items only — equipped gear isn't in the bag
+	hotkey_button.disabled = true # bag items only - equipped gear isn't in the bag
 
 
 func _clear_detail() -> void:
@@ -223,7 +223,7 @@ func _on_hotkey_button_pressed() -> void:
 	for i: int in 3:
 		var occupant: Item = ClientState.quick_slots.get_key(i) as Item
 		var occupant_name: String = String(occupant.item_name) if occupant != null else "empty"
-		entries.append("Slot %d (key %d)  —  %s" % [i + 1, i + 1, occupant_name])
+		entries.append("Slot %d (key %d)  -  %s" % [i + 1, i + 1, occupant_name])
 	SlotPickerOverlay.open(self, "Place %s on which quick slot?" % item.item_name, entries,
 		func(slot: int) -> void:
 			var occupant: Item = ClientState.quick_slots.get_key(slot) as Item

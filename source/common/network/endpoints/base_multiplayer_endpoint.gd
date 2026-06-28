@@ -64,8 +64,8 @@ func create(role: Role, address: String, port: int, tls_options: TLSOptions = nu
 	match role:
 		Role.CLIENT:
 			# `address` may be either:
-			#   (a) a bare host like "127.0.0.1" — build a URL from scheme + port
-			#   (b) a full URL like "wss://ws.example.com/world/1" — use as-is
+			#   (a) a bare host like "127.0.0.1" - build a URL from scheme + port
+			#   (b) a full URL like "wss://ws.example.com/world/1" - use as-is
 			# (b) is what production deploys behind a reverse proxy (Caddy/nginx)
 			# send, because the path discriminates which world and the port is
 			# part of the proxy's public binding.

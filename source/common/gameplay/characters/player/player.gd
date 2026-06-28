@@ -4,8 +4,8 @@ extends Character
 
 var player_resource: PlayerResource
 
-## Synced guild tag — drives the blue ally health-bar tint guildmates see on each
-## other. Synced like display_name (set_by_path → baseline + live dirty).
+## Synced guild tag - drives the blue ally health-bar tint guildmates see on each
+## other. Synced like display_name (set_by_path -> baseline + live dirty).
 var active_guild_id: int = 0:
 	set = _set_active_guild_id
 
@@ -28,7 +28,7 @@ func _init() -> void:
 
 ## Seconds the player stays down before a no-penalty respawn at the map spawn point.
 const RESPAWN_DELAY: float = 3.0
-## Grace window after respawn where the player can't traverse warpers — the map spawn point can sit
+## Grace window after respawn where the player can't traverse warpers - the map spawn point can sit
 ## on a warper (e.g. forest↔overworld), and without this the first step off re-warps the player.
 const RESPAWN_WARP_GRACE_MS: int = 2000
 
@@ -43,7 +43,7 @@ func die(killer: Character) -> void:
 	# killers are filtered out inside record_pvp_kill.
 	LeaderboardService.record_pvp_kill(killer)
 
-	# Hardcore dungeon: a death spends a shared revive. If the pool's empty the whole run fails —
+	# Hardcore dungeon: a death spends a shared revive. If the pool's empty the whole run fails -
 	# DungeonService revives + ejects the party to town, so skip the normal respawn here.
 	if DungeonService.register_dungeon_death(self):
 		return
@@ -80,7 +80,7 @@ func die(killer: Character) -> void:
 		return # left the game while down
 
 	revive()
-	# The respawn lands on the map spawn point, which may sit on a warper — lock warper traversal
+	# The respawn lands on the map spawn point, which may sit on a warper - lock warper traversal
 	# briefly so stepping off doesn't immediately warp the player (their idea; mirrors spawn_player).
 	mark_just_teleported(RESPAWN_WARP_GRACE_MS)
 
@@ -106,7 +106,7 @@ func _ready() -> void:
 
 
 ## Mana regen lives in ServerInstance's 1 Hz status tick (one timer per instance,
-## not a per-frame poll on every player node) — see instance_server.gd.
+## not a per-frame poll on every player node) - see instance_server.gd.
 
 
 func _set_active_guild_id(value: int) -> void:
@@ -114,9 +114,9 @@ func _set_active_guild_id(value: int) -> void:
 	_apply_team_bar_color()
 
 
-## Client-only: color this (remote) player's HP bar — blue for a guildmate, neutral
+## Client-only: color this (remote) player's HP bar - blue for a guildmate, neutral
 ## otherwise. Reads Character.local_viewer_guild_id (a static mirror of ClientState)
-## so Player never references ClientState — see the cycle note on that static.
+## so Player never references ClientState - see the cycle note on that static.
 ## LocalPlayer overrides this to "self" (green). Re-applied for everyone on a local
 ## guild change by ClientState._retint_local_players.
 func _apply_team_bar_color() -> void:
@@ -124,7 +124,7 @@ func _apply_team_bar_color() -> void:
 		return
 	# Spar team overrides guild for the duration of a match: an opposing
 	# guildmate reads hostile, a non-guild teammate reads ally. (Client Player
-	# nodes are named by peer id — see InstanceClient.)
+	# nodes are named by peer id - see InstanceClient.)
 	var peer: int = name.to_int()
 	if Character.spar_opponent_peers.has(peer):
 		set_health_bar_fill(BAR_COLOR_HOSTILE)
@@ -165,10 +165,10 @@ func is_equip_casting() -> bool:
 	return Time.get_ticks_msec() < _equip_cast_until_ms
 
 
-## Server: draw [param item_id] into the HAND over the equip-cast (a short charge —
+## Server: draw [param item_id] into the HAND over the equip-cast (a short charge -
 ## bar + ability lock, but move-free). On landing the hand slot becomes that item, so
 ## it MOUNTS (weapon, potion, anything) through _on_slot_changed -> item.equip. A newer
-## draw abandons this one (token). Identical for every item type — the unified hand.
+## draw abandons this one (token). Identical for every item type - the unified hand.
 func begin_hand_draw(item_id: int, duration_ms: int = WEAPON_DRAW_MS) -> void:
 	if not GameMode.is_world_server():
 		return
@@ -187,9 +187,9 @@ func begin_hand_draw(item_id: int, duration_ms: int = WEAPON_DRAW_MS) -> void:
 		WorldServer.curr.data_push.rpc_id(peer, &"equip.done", {})
 
 
-## Server: the draw landed — put [param item_id] in the HAND slot (it mounts via
+## Server: the draw landed - put [param item_id] in the HAND slot (it mounts via
 ## _on_slot_changed) and reconcile the bag. A WEAPON (gear) moves bag<->hand; a
-## consumable / material is REFERENCED — it STAYS in the bag (you hold the stack and
+## consumable / material is REFERENCED - it STAYS in the bag (you hold the stack and
 ## consume from it), so only a previous WEAPON returns to the bag. Bails if the item
 ## left the inventory during the draw.
 func _complete_hand_draw(item_id: int) -> void:
@@ -204,7 +204,7 @@ func _complete_hand_draw(item_id: int) -> void:
 		and ContentRegistryHub.load_by_id(&"items", previous_id) is GearItem
 	equipment_component.set_hand(item_id)
 	# A WEAPON (gear) moves bag->hand: removed from the bag and PERSISTED as equipment.
-	# A consumable / material is REFERENCED — it stays in the bag, so it must NOT be
+	# A consumable / material is REFERENCED - it stays in the bag, so it must NOT be
 	# persisted as equipment, or the relog / instance-change re-equip loop would
 	# equip_item()-fail on the non-gear id and add a DUPLICATE back to the bag.
 	if item is GearItem:
@@ -229,13 +229,13 @@ const OVERHEAD_MAX_CHARS: int = 60
 ## Text used for the "is typing" indicator. Reuses the overhead bubble.
 const TYPING_INDICATOR_TEXT: String = "..."
 ## Fade-out duration when the typing indicator clears. Quick, not a real
-## message — no need to linger.
+## message - no need to linger.
 const TYPING_FADE_SEC: float = 0.25
 ## When a real message was shown less than this ago, the typing indicator
 ## defers itself by the remaining time so the recipient gets a moment to
 ## read the previous message instead of seeing it instantly steamrolled by
 ## "...". Peek-feed history covers the worst case; this just smooths the
-## common "send → immediately compose follow-up" pattern.
+## common "send -> immediately compose follow-up" pattern.
 const POST_MESSAGE_GRACE_MS: int = 1500
 
 var _overhead_label: Label
@@ -245,7 +245,7 @@ var _overhead_tween: Tween
 ## a chat message that might have just replaced it.
 var _typing_indicator_active: bool = false
 ## Latest desired typing state. Read by the grace-period deferred apply so
-## a fast type → un-focus during the grace window doesn't flash "...".
+## a fast type -> un-focus during the grace window doesn't flash "...".
 var _typing_requested: bool = false
 ## Ticks_msec at which the last real chat message was set as the overhead.
 ## Used to compute the grace window.
@@ -254,7 +254,7 @@ var _last_real_message_at_ms: int = 0
 
 ## Shows a short-lived chat bubble above this player's head. Used for
 ## world-channel messages so nearby chatter feels alive. A new message
-## replaces any currently displayed bubble — no queue.
+## replaces any currently displayed bubble - no queue.
 func show_overhead(text: String) -> void:
 	if multiplayer.is_server():
 		return  # Headless server doesn't draw bubbles.
@@ -282,7 +282,7 @@ func show_overhead(text: String) -> void:
 
 ## Toggle the "is typing" bubble above this player's head. Driven by
 ## chat.typing pushes from the server (focus_entered / focus_exited on the
-## chat input). Shares the overhead Label slot with show_overhead — a real
+## chat input). Shares the overhead Label slot with show_overhead - a real
 ## chat message landing replaces "..." automatically.
 func set_typing(is_typing: bool) -> void:
 	if multiplayer.is_server():
@@ -332,7 +332,7 @@ func _show_typing_now() -> void:
 		_overhead_tween.kill()
 	_typing_indicator_active = true
 	_set_overhead_text(TYPING_INDICATOR_TEXT)
-	# No hold-then-fade — the indicator stays until set_typing(false) or a
+	# No hold-then-fade - the indicator stays until set_typing(false) or a
 	# real message replaces it. Disconnect cleans up via despawn.
 
 
@@ -370,10 +370,10 @@ func _set_overhead_text(display_text: String) -> void:
 
 
 #region Emotes
-## Pops a one-shot emote bubble above this player's head — a social "look at me"
-## cue everyone nearby sees (driven by the :emote broadcast → InstanceClient._on_emote).
+## Pops a one-shot emote bubble above this player's head - a social "look at me"
+## cue everyone nearby sees (driven by the :emote broadcast -> InstanceClient._on_emote).
 ## The glyph is plain text (EmoteRegistry), so it renders in any UI font. The label
-## pops in, floats up, fades, and frees itself — no persistent state.
+## pops in, floats up, fades, and frees itself - no persistent state.
 func play_emote(emote_id: int) -> void:
 	if multiplayer.is_server():
 		return

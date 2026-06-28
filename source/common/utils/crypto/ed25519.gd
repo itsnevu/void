@@ -160,7 +160,7 @@ static func _recover_x(y: Array, sign: int) -> Array:
 
 
 # ===========================================================================
-# POINT ARITHMETIC — twisted Edwards extended homogeneous coordinates.
+# POINT ARITHMETIC - twisted Edwards extended homogeneous coordinates.
 # Point = [X, Y, Z, T] with x = X/Z, y = Y/Z, T = XY/Z.
 # Curve: -x^2 + y^2 = 1 + d x^2 y^2  (a = -1).
 # Formulas: RFC 8032, "add-2008-hwcd-3" style.

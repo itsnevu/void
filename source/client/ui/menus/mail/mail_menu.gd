@@ -3,7 +3,7 @@ extends MenuShell
 ## read on open, previews + claims reward attachments (server reuses the redeem
 ## grant pipeline), and soft-deletes. The detail's Claim/Delete bar is pinned
 ## below a scrolling body, so it stays visible no matter how long the message.
-## Content-heavy, so it's a full MenuShell — unlike the tiny redeem popup.
+## Content-heavy, so it's a full MenuShell - unlike the tiny redeem popup.
 ## See docs/mailbox.md.
 
 var _list: VBoxContainer
@@ -12,7 +12,7 @@ var _detail: VBoxContainer
 var _mails: Array = []
 var _selected_id: int = 0
 
-# GM compose form — the "New mail" button + fields appear only for senior-admins
+# GM compose form - the "New mail" button + fields appear only for senior-admins
 # (mail.list reports can_send; mail.send re-checks server-side).
 var _compose_button: Button
 var _compose_target: LineEdit
@@ -30,7 +30,7 @@ func _ready() -> void:
 		if visible:
 			_refresh())
 	# First open: the menu starts visible, so the launcher's show() is a no-op and
-	# visibility_changed never fires — seed the inbox here. Reopens use the signal.
+	# visibility_changed never fires - seed the inbox here. Reopens use the signal.
 	_refresh()
 
 
@@ -106,10 +106,10 @@ func _make_row(mail: Dictionary) -> Button:
 	row.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	row.clip_text = true
 	var unread: bool = not bool(mail.get("read", false))
-	# Reward dot shows only while there's an UNCLAIMED reward — clears once claimed.
+	# Reward dot shows only while there's an UNCLAIMED reward - clears once claimed.
 	var has_unclaimed: bool = not (mail.get("rewards", []) as Array).is_empty() and not bool(mail.get("claimed", false))
-	var prefix: String = "• " if unread else "    "
-	row.text = "%s%s%s" % [prefix, str(mail.get("subject", "(no subject)")), "  ●" if has_unclaimed else ""]
+	var prefix: String = "- " if unread else "    "
+	row.text = "%s%s%s" % [prefix, str(mail.get("subject", "(no subject)")), "  -" if has_unclaimed else ""]
 	row.pressed.connect(_on_select.bind(int(mail.get("mail_id", 0))))
 	return row
 
@@ -148,7 +148,7 @@ func _show_detail(mail: Dictionary) -> void:
 	# --- Body (+ reward preview) in a RichTextLabel: it wraps to its own width and
 	# scrolls itself, so long mail reflows reliably, and it expands to push the
 	# action bar to the bottom. (A plain Label inside a ScrollContainer would NOT
-	# wrap — the scroll sizes its child to content width, defeating autowrap.) ---
+	# wrap - the scroll sizes its child to content width, defeating autowrap.) ---
 	var rewards: Array = mail.get("rewards", [])
 	var rtl: RichTextLabel = RichTextLabel.new()
 	rtl.bbcode_enabled = true
@@ -163,7 +163,7 @@ func _show_detail(mail: Dictionary) -> void:
 		var claimed: bool = bool(mail.get("claimed", false))
 		text += "\n\n[color=#d9dbeb]%s[/color]" % ("Claimed rewards:" if claimed else "Rewards:")
 		for r: Variant in rewards:
-			text += "\n[color=#f2ebc7]•  %s[/color]" % _bb(RewardFormat.describe(r as Dictionary))
+			text += "\n[color=#f2ebc7]-  %s[/color]" % _bb(RewardFormat.describe(r as Dictionary))
 	rtl.text = text
 	_detail.add_child(rtl)
 
@@ -210,13 +210,13 @@ func _on_claim(mail_id: int) -> void:
 			mail["claimed"] = true
 			_rebuild_rows() # clears the reward dot in the list
 			if _selected_id == mail_id:
-				_show_detail(mail) # Claim → "Claimed", preview heading flips
+				_show_detail(mail) # Claim -> "Claimed", preview heading flips
 	else:
 		Toaster.toast("Couldn't claim that mail.")
 
 
 func _on_delete(mail_id: int, button: Button, has_unclaimed: bool) -> void:
-	# Two-step guard ONLY when an unclaimed reward would be lost — first press arms
+	# Two-step guard ONLY when an unclaimed reward would be lost - first press arms
 	# the button, second deletes. Claimed / reward-less mail deletes in one press.
 	# The armed flag lives on the button, so reselecting (fresh button) resets it.
 	if has_unclaimed and not bool(button.get_meta("armed", false)):
@@ -256,7 +256,7 @@ func _show_compose() -> void:
 
 	_compose_target = LineEdit.new()
 	_compose_target.text = "self"
-	_compose_target.placeholder_text = "self · #id · @account · all · online"
+	_compose_target.placeholder_text = "self - #id - @account - all - online"
 	_detail.add_child(_field_row("To", _compose_target))
 
 	_compose_from = LineEdit.new()

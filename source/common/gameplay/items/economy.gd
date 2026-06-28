@@ -1,7 +1,7 @@
 class_name Economy
 ## Currency helpers. Gold (and other currencies) are normal items flagged
 ## `is_currency`; the player's balance is the amount held in inventory. The default
-## currency is the item with slug "gold" — create it in the editor and reindex items.
+## currency is the item with slug "gold" - create it in the editor and reindex items.
 
 
 const GOLD_SLUG: StringName = &"gold"

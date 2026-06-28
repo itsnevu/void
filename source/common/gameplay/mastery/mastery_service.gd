@@ -30,7 +30,7 @@ static func tree_for(category: StringName) -> MasteryTreeResource:
 
 
 ## Points spent in a tree = sum of owned nodes' tiers. Ids of nodes that no
-## longer exist (removed content) cost nothing — they just stop counting.
+## longer exist (removed content) cost nothing - they just stop counting.
 static func spent_cost(entry: Dictionary, tree: MasteryTreeResource) -> int:
 	var total: int = 0
 	var spent: Dictionary = entry.get("spent", {})
@@ -41,7 +41,7 @@ static func spent_cost(entry: Dictionary, tree: MasteryTreeResource) -> int:
 	return total
 
 
-## 1 point per mastery level (level 1 included — the first tier-1 pick is
+## 1 point per mastery level (level 1 included - the first tier-1 pick is
 ## meant to be near-immediate, see docs/mastery.md).
 static func available_points(entry: Dictionary, tree: MasteryTreeResource) -> int:
 	var level: int = mini(int(entry.get("level", 1)), PlayerResource.MASTERY_LEVEL_CAP)
@@ -49,7 +49,7 @@ static func available_points(entry: Dictionary, tree: MasteryTreeResource) -> in
 
 
 ## Buys a tree node. The category entry is only CREATED by practice (first
-## kill with the weapon — add_mastery_xp), never by the menu: the first point
+## kill with the weapon - add_mastery_xp), never by the menu: the first point
 ## must be earned, even if earning it takes one kill. Keeps the "you get good
 ## at what you practice" fantasy honest from first contact.
 static func spend(resource: PlayerResource, category: StringName, node_id: StringName) -> Dictionary:
@@ -77,7 +77,7 @@ static func spend(resource: PlayerResource, category: StringName, node_id: Strin
 
 
 ## Wipes a category's spent points AND its loadout pick. Free during alpha so
-## testers experiment — pricing comes later if it matters.
+## testers experiment - pricing comes later if it matters.
 static func reset(resource: PlayerResource, category: StringName) -> Dictionary:
 	if not resource.masteries.has(category):
 		return {"ok": false, "reason": "no_mastery"}
@@ -124,7 +124,7 @@ static func effective_special_ids(resource: PlayerResource, weapon_item: WeaponI
 	return out
 
 
-## The base (lowest) node of [param node]'s upgrade chain — follow `upgrades`
+## The base (lowest) node of [param node]'s upgrade chain - follow `upgrades`
 ## down until a node with none. Standalone abilities return themselves.
 static func _chain_root_id(tree: MasteryTreeResource, node: MasteryNode) -> StringName:
 	var cur: MasteryNode = node
@@ -136,7 +136,7 @@ static func _chain_root_id(tree: MasteryTreeResource, node: MasteryNode) -> Stri
 	return cur.id if cur != null else node.id
 
 
-## The chain root id for a node — exposed for the loadout handler's dedupe and
+## The chain root id for a node - exposed for the loadout handler's dedupe and
 ## the panel's grouping.
 static func chain_root_of(tree: MasteryTreeResource, node: MasteryNode) -> StringName:
 	return _chain_root_id(tree, node)
@@ -146,7 +146,7 @@ static func chain_root_of(tree: MasteryTreeResource, node: MasteryNode) -> Strin
 ## special-slot ability id and the passive stat modifiers of the wielded
 ## category. Server-side only (stats are authoritative there); call after the
 ## spawn stat rebuild, on weapon swaps, and after spend/respec/loadout changes.
-## Idempotent — previously applied passives are removed before re-applying.
+## Idempotent - previously applied passives are removed before re-applying.
 static func refresh(player: Player) -> void:
 	if player == null or not player.multiplayer.is_server():
 		return
@@ -184,7 +184,7 @@ static func refresh(player: Player) -> void:
 
 
 ## When a max stat changed (a +/- max-health passive equipped/removed), shift
-## the current value by the same delta and clamp — so gaining max HP heals you
+## the current value by the same delta and clamp - so gaining max HP heals you
 ## by that much and losing it trims you, instead of desyncing the bar. Skips the
 ## spawn pass (current still 0, refilled to max afterward).
 static func _carry_current_to_max(player: Player, current: StringName, maxs: StringName, old_max: float) -> void:
@@ -194,13 +194,13 @@ static func _carry_current_to_max(player: Player, current: StringName, maxs: Str
 		return
 	var cur: float = player.stats_component.get_stat(current)
 	if cur <= 0.0:
-		return # dead / pre-spawn — leave it to the spawn refill
+		return # dead / pre-spawn - leave it to the spawn refill
 	player.stats_component.set_stat(current, clampf(cur + delta, 0.0, new_max))
 
 
 static func _load_trees() -> void:
 	_trees_loaded = true
-	# Trees ship per-category (pilot: wand + sword) — the folder may not exist
+	# Trees ship per-category (pilot: wand + sword) - the folder may not exist
 	# yet, and list_directory on a missing dir spams errors, so probe first.
 	if not DirAccess.dir_exists_absolute(TREES_DIR):
 		return

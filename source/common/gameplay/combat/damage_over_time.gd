@@ -2,7 +2,7 @@ class_name DamageOverTime
 extends Node
 ## A server-side damage tick (burn, poison, ...) attached to its VICTIM as a
 ## child node, so it dies with the victim's node and needs no manager. One
-## node per effect kind — re-applying the same kind REFRESHES duration and
+## node per effect kind - re-applying the same kind REFRESHES duration and
 ## ownership instead of stacking (bolt spam can't pile burns).
 ##
 ## Damage goes through Character.take_damage directly: the zone/PvP gates ran
@@ -13,7 +13,7 @@ extends Node
 var source: Character
 var damage_per_tick: float
 var damage_type: StringName = CombatHit.DAMAGE_MAGIC
-## Effect family (&"burn", &"poison", ...) — the node name carries it for
+## Effect family (&"burn", &"poison", ...) - the node name carries it for
 ## refresh lookups, this exposes it for the status HUD.
 var kind: StringName
 var _remaining_ticks: int

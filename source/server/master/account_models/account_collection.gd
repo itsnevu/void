@@ -4,7 +4,7 @@ extends Resource
 
 @export var collection: Dictionary[StringName, AccountResource]
 
-## Starts at 2 so the first account never claims id=1 — that value collides
+## Starts at 2 so the first account never claims id=1 - that value collides
 ## with the server's authoritative Godot-multiplayer peer_id, which the chat
 ## (and other systems) treat as "system / server" speaker. Reserving 1 keeps
 ## that semantics clean.

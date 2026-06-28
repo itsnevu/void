@@ -1,12 +1,12 @@
 extends MenuShell
 ## Full-screen dungeon manager. Opened by clicking a DungeonMaster
 ## (open_menu_requested(&"dungeon", master_id)). LEFT: the dungeon's info (from its
-## DungeonResource). RIGHT: three header tabs —
+## DungeonResource). RIGHT: three header tabs -
 ##   Party       public queue (its roster) + Hard toggle + Join / Solo / Start
 ##   Private     create a code-only room or join one by its 2-digit code; once in,
 ##               the roster + Start (leader) / Leave
 ##   Leaderboard this dungeon's fastest Hard clears
-## A player is in at most one lobby — the server cross-evicts (public queue vs room).
+## A player is in at most one lobby - the server cross-evicts (public queue vs room).
 
 var _station: String = "" # the station's node name (auto id; no manual master_id)
 var _dungeon_name: String = "Dungeon" # instance_name, for the leaderboard board id
@@ -121,8 +121,8 @@ func _render_info(info: Dictionary) -> void:
 	var desc: String = str(info.get("description", ""))
 	if not desc.is_empty():
 		_info_line(desc, Color(0.82, 0.84, 0.9), 12).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_info_line("Reward: %s" % str(info.get("reward", "—")), Color(0.8, 0.9, 0.8), 12)
-	_info_line("Hard: %s" % str(info.get("hard_reward", "—")), Color(0.86, 0.7, 0.5), 12)
+	_info_line("Reward: %s" % str(info.get("reward", "-")), Color(0.8, 0.9, 0.8), 12)
+	_info_line("Hard: %s" % str(info.get("hard_reward", "-")), Color(0.86, 0.7, 0.5), 12)
 
 
 func _on_lobby_update(payload: Dictionary) -> void:
@@ -145,7 +145,7 @@ func _select_tab(tab: StringName) -> void:
 		_refresh() # pull a fresh public roster each time the tab is opened
 
 
-## Rebuild the right panel for the current tab (no re-request — callers update the
+## Rebuild the right panel for the current tab (no re-request - callers update the
 ## backing state first). Kept separate from _select_tab so the public-tab refresh
 ## doesn't loop.
 func _render_active_tab() -> void:
@@ -166,7 +166,7 @@ func _build_party_panel() -> void:
 	var vbox: VBoxContainer = _panel_body()
 	_add_roster(vbox, "Public party", _members, _capacity, true)
 	var note: Label = Label.new()
-	note.text = "Normal mode — drop in with anyone. (Hard mode lives in Private rooms.)"
+	note.text = "Normal mode - drop in with anyone. (Hard mode lives in Private rooms.)"
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	note.modulate = Color(1, 1, 1, 0.55)
 	vbox.add_child(note)
@@ -216,7 +216,7 @@ func _build_private_panel() -> void:
 
 	# In a room.
 	var code_label: Label = Label.new()
-	code_label.text = "Room code:  %s" % str(_room.get("code", "—"))
+	code_label.text = "Room code:  %s" % str(_room.get("code", "-"))
 	code_label.add_theme_font_size_override(&"font_size", 18)
 	code_label.add_theme_color_override(&"font_color", Color(1.0, 0.92, 0.55))
 	vbox.add_child(code_label)
@@ -256,7 +256,7 @@ func _render_leaderboard(vbox: VBoxContainer, status: Label, response: Dictionar
 		return
 	var entries: Array = response.get("entries", [])
 	if entries.is_empty():
-		status.text = "No clears yet — be the first."
+		status.text = "No clears yet - be the first."
 		return
 	status.text = ""
 	for i: int in entries.size():
@@ -264,7 +264,7 @@ func _render_leaderboard(vbox: VBoxContainer, status: Label, response: Dictionar
 		var row: Label = Label.new()
 		var seconds: int = int(entry.get("score", 0))
 		@warning_ignore("integer_division")
-		row.text = "%d. %s — %d:%02d" % [i + 1, str(entry.get("name", "?")), seconds / 60, seconds % 60]
+		row.text = "%d. %s - %d:%02d" % [i + 1, str(entry.get("name", "?")), seconds / 60, seconds % 60]
 		if i < 3:
 			row.add_theme_color_override(&"font_color", [Color(1.0, 0.84, 0.3), Color(0.8, 0.82, 0.88), Color(0.82, 0.56, 0.35)][i])
 		vbox.add_child(row)
@@ -273,7 +273,7 @@ func _render_leaderboard(vbox: VBoxContainer, status: Label, response: Dictionar
 # --- requests --------------------------------------------------------------
 
 func _send(action: String) -> void:
-	# Public party is always Normal — Hard is private-rooms only (no griefing noobs
+	# Public party is always Normal - Hard is private-rooms only (no griefing noobs
 	# into hardmode from a public Start).
 	Client.request_data(
 		&"dungeon.queue", _apply_state,
@@ -346,7 +346,7 @@ func _on_room_update(payload: Dictionary) -> void:
 
 # --- helpers ---------------------------------------------------------------
 
-## A padded VBox filling the right panel — the body every tab builds into.
+## A padded VBox filling the right panel - the body every tab builds into.
 func _panel_body() -> VBoxContainer:
 	var pad: MarginContainer = MarginContainer.new()
 	pad.add_theme_constant_override(&"margin_left", 14)
@@ -361,7 +361,7 @@ func _panel_body() -> VBoxContainer:
 	return vbox
 
 
-## Roster block: "<title>  (N/cap)" + a row per member, plus empty "—" slots when
+## Roster block: "<title>  (N/cap)" + a row per member, plus empty "-" slots when
 ## [param show_empty] (the public queue shows them; a room doesn't).
 func _add_roster(vbox: VBoxContainer, title: String, members: Array, capacity: int, show_empty: bool) -> void:
 	var header: Label = Label.new()
@@ -371,12 +371,12 @@ func _add_roster(vbox: VBoxContainer, title: String, members: Array, capacity: i
 	vbox.add_child(header)
 	for member: Variant in members:
 		var row: Label = Label.new()
-		row.text = "• " + str(member)
+		row.text = "- " + str(member)
 		vbox.add_child(row)
 	if show_empty:
 		for _i: int in range(members.size(), capacity):
 			var slot: Label = Label.new()
-			slot.text = "• —"
+			slot.text = "- -"
 			slot.modulate.a = 0.35
 			vbox.add_child(slot)
 

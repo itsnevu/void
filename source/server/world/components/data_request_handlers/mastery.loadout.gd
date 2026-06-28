@@ -1,9 +1,9 @@
 extends DataRequestHandler
 ## Sets a category's special-ability loadout: an ORDERED array of owned
-## ability-node ids (max 2 — slot POSITION maps to the Q / E inputs; "" marks
+## ability-node ids (max 2 - slot POSITION maps to the Q / E inputs; "" marks
 ## a deliberately empty slot so a pick can sit on E with Q free). An empty
-## array clears everything. Works from anywhere — the server is the
-## authority, no NPC gatekeeper — EXCEPT mid-spar/duel, where swapping
+## array clears everything. Works from anywhere - the server is the
+## authority, no NPC gatekeeper - EXCEPT mid-spar/duel, where swapping
 ## abilities would dodge the fight you signed up for.
 ##
 ## No capacity check here on purpose: a too-heavy pick is stored but inert
@@ -45,7 +45,7 @@ func data_request_handler(
 	for pick in picks:
 		var node_id: String = str(pick)
 		if node_id.is_empty():
-			validated.append("") # deliberate hole — keeps later picks on their key
+			validated.append("") # deliberate hole - keeps later picks on their key
 			continue
 		if validated.has(node_id):
 			return {"ok": false, "reason": "duplicate"}
@@ -54,7 +54,7 @@ func data_request_handler(
 			return {"ok": false, "reason": "unknown_node"}
 		if not spent.has(node_id):
 			return {"ok": false, "reason": "not_owned"}
-		# A signature move occupies ONE slot — can't slot two tiers of it.
+		# A signature move occupies ONE slot - can't slot two tiers of it.
 		var root: String = String(MasteryService.chain_root_of(tree, node))
 		if seen_chains.has(root):
 			return {"ok": false, "reason": "same_chain"}
@@ -63,7 +63,7 @@ func data_request_handler(
 		# lighter tier of a chain to free weapon power for another ability.
 		validated.append(node_id)
 
-	# Trailing holes carry no information — trim so "cleared everything"
+	# Trailing holes carry no information - trim so "cleared everything"
 	# stores as no entry at all.
 	while not validated.is_empty() and str(validated[validated.size() - 1]).is_empty():
 		validated.pop_back()

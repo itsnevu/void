@@ -70,14 +70,14 @@ func _on_connection_succeeded() -> void:
 	is_connected_to_server = true
 
 	# Area music: crossfade to each map's track as the player enters it. Connect once
-	# (idempotent across reconnects). Replaces the old stop_music placeholder — the area
+	# (idempotent across reconnects). Replaces the old stop_music placeholder - the area
 	# track now takes over from the gateway music instead of fading to silence.
 	if not instance_manager.instance_changed.is_connected(_on_instance_changed):
 		instance_manager.instance_changed.connect(_on_instance_changed)
 	# Boss-event music cues (world boss, dungeon boss): fight / victory / end.
 	# subscribe() dedupes, so re-running it on each reconnect is safe.
 	subscribe(&"boss.music", _on_boss_music)
-	# Ambient weather overlay — created once, driven by Map.weather on each area change.
+	# Ambient weather overlay - created once, driven by Map.weather on each area change.
 	if _weather_layer == null:
 		_weather_layer = WeatherLayer.new()
 		add_child(_weather_layer)

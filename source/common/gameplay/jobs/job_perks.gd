@@ -2,7 +2,7 @@ class_name JobPerks
 extends Resource
 ## Data-driven definition of one job's progression: baseline rates, perk
 ## tree, and the human-readable UI lines. Every job is now a `.tres` file
-## referencing this script — adding a new job is a content edit, not new
+## referencing this script - adding a new job is a content edit, not new
 ## code.
 ##
 ## Two effect domains coexist on the same class so gathering and crafting
@@ -25,7 +25,7 @@ extends Resource
 
 @export var job_slug: StringName
 @export var display_name: String
-## &"gathering" or &"crafting" — drives Jobs-panel grouping.
+## &"gathering" or &"crafting" - drives Jobs-panel grouping.
 @export var category: StringName
 ## Sort order WITHIN the category (lower = higher in the list). Lets us
 ## pin Mining above Harvesting even though the registry dict is iterated
@@ -36,7 +36,7 @@ extends Resource
 ## One perk point granted every N levels.
 @export var perk_every_levels: int = 3
 
-@export_group("Baseline (gathering only — leave 0 for crafting jobs)")
+@export_group("Baseline (gathering only - leave 0 for crafting jobs)")
 @export var cooldown_reduction_per_level: float = 0.0
 @export var min_cooldown_factor: float = 0.5
 @export var bonus_yield_per_level: float = 0.0
@@ -53,18 +53,18 @@ extends Resource
 
 @export_group("Content preview (Jobs UI)")
 ## Items players can gather to feed THIS job's XP. Shown in the "Sources"
-## tab — the client renders icon + item_name + (Lv X from [member
+## tab - the client renders icon + item_name + (Lv X from [member
 ## source_levels]). Bake tool fills this from MineableNodeResource scans
 ## (`source/common/gameplay/jobs/bake_source_slugs.gd`).
 @export var source_items: Array[Item] = []
-## Parallel to [member source_items] — the required job-level the source
+## Parallel to [member source_items] - the required job-level the source
 ## was gated behind on its MineableNodeResource. Length must match
 ## source_items; 0 = no requirement.
 @export var source_levels: Array[int] = []
 ## Items this job can craft (the recipe outputs). Shown in the "Recipes"
 ## tab the same way. Bake tool fills from CraftingStationResource scans.
 @export var recipe_items: Array[Item] = []
-## Parallel to [member recipe_items] — the required job-level on each
+## Parallel to [member recipe_items] - the required job-level on each
 ## recipe. 0 = no requirement.
 @export var recipe_levels: Array[int] = []
 
@@ -88,7 +88,7 @@ func earned_points(level: int) -> int:
 	if perk_every_levels <= 0:
 		return 0
 	@warning_ignore("integer_division")
-	return level / perk_every_levels # floored on purpose — N levels per perk point
+	return level / perk_every_levels # floored on purpose - N levels per perk point
 
 
 func spent_points(player_perks: Dictionary) -> int:
@@ -107,7 +107,7 @@ func rank(player_perks: Dictionary, perk_id: StringName) -> int:
 
 
 # ---------------------------------------------------------------------------
-# Generic effect sum — adds up (per_rank × player's rank) over every perk
+# Generic effect sum - adds up (per_rank x player's rank) over every perk
 # whose effect matches. Returns 0.0 for effects no perk targets, so a
 # crafting job calling sum_effect(&"cooldown") just gets 0 cleanly.
 # ---------------------------------------------------------------------------
@@ -132,7 +132,7 @@ func sum_effect(player_perks: Dictionary, effect: StringName) -> float:
 # ---------------------------------------------------------------------------
 
 func cooldown_factor(level: int) -> float:
-	# Baseline-only — used by the gather-speed UI line as a "before perks" reference.
+	# Baseline-only - used by the gather-speed UI line as a "before perks" reference.
 	return clampf(1.0 - cooldown_reduction_per_level * float(level - 1), min_cooldown_factor, 1.0)
 
 
@@ -180,7 +180,7 @@ func describe(level: int, player_perks: Dictionary) -> PackedStringArray:
 
 
 # ---------------------------------------------------------------------------
-# Compatibility shim — older code calls perks_class.PERKS expecting a dict.
+# Compatibility shim - older code calls perks_class.PERKS expecting a dict.
 # Returns a generated dict keyed by perk id so the perk-picker UI keeps
 # working without a rewrite. New code should iterate the [member perks]
 # Array directly.

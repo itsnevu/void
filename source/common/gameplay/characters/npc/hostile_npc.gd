@@ -9,16 +9,16 @@ enum EnemyState {
 	CHASE,
 	ATTACK,
 	DEAD,
-	# Appended (don't reorder — the int value is state-synced to clients):
+	# Appended (don't reorder - the int value is state-synced to clients):
 	LUNGE_WINDUP, ## planted, telegraphing the pounce zone
 	LUNGING,      ## dashing to the locked spot
 }
 
 ## Flip to true to dump every meaningful NPC state transition. Server lines
-## use [SRV NPC <type>] tags, client lines use [CLI NPC <type>] — grep one
+## use [SRV NPC <type>] tags, client lines use [CLI NPC <type>] - grep one
 ## or the other in journalctl / the editor console depending on which side
 ## you're investigating. Leave off in normal play; the printerr volume
-## scales with NPC count. (Was used to nail the chase_on_area zombie bug —
+## scales with NPC count. (Was used to nail the chase_on_area zombie bug -
 ## kept wired so the next mystery is one constant flip away.)
 const DEBUG_NPC: bool = false
 
@@ -32,7 +32,7 @@ const RETURN_SPEED_MULTIPLIER: float = 1.4
 ## without being instant.
 const RETURN_REGEN_RATE: float = 0.25
 
-## % of max HP regenerated per second while idling — catches the edge case
+## % of max HP regenerated per second while idling - catches the edge case
 ## of a sniped mob taking damage from outside its detection ring, since
 ## that hit can't trigger CHASE if the attacker stays out of range. ~5%/s
 ## means a mob recovers from a missed snipe over 5-10 seconds.
@@ -46,7 +46,7 @@ const SPAWN_FREEZE_S: float = 0.5
 
 ## Toggle in the inspector to render the leash + detection rings around
 ## this NPC. The script is @tool so the circles appear in-editor as soon
-## as you flick this on — no need to run the scene. The setter calls
+## as you flick this on - no need to run the scene. The setter calls
 ## queue_redraw so it updates the moment you tick the box.
 @export var debug_draw_ranges: bool = false:
 	set(value):
@@ -62,7 +62,7 @@ signal was_attacked(attacker: Character)
 
 ## Data-driven definition. REQUIRED: every HostileNpc instance must point at an
 ## EnemyTypeResource. All combat/AI fields below are populated from it at
-## _ready, so per-instance inspector tweaks are deliberately not supported —
+## _ready, so per-instance inspector tweaks are deliberately not supported -
 ## edit the .tres if you want to change behaviour, and every spawn of that
 ## archetype picks up the change. Per-instance overrides invite the exact
 ## "enemy_type says 'mobs' but the kill registers as 'bandit'" confusion we
@@ -70,7 +70,7 @@ signal was_attacked(attacker: Character)
 @export var enemy_data: EnemyTypeResource
 
 ## ContentRegistry `enemy_types` slug of this NPC's archetype. Setting it resolves
-## [member enemy_data] from the registry — lets a dynamically-spawned NPC (e.g. a
+## [member enemy_data] from the registry - lets a dynamically-spawned NPC (e.g. a
 ## guild guard) carry its archetype over the wire as a short slug instead of a
 ## resource path. Applied BEFORE add_child on both sides so _ready sees
 ## enemy_data. Authored mobs set enemy_data directly and leave this empty.
@@ -84,11 +84,11 @@ var enemy_type_slug: StringName = &"":
 
 ## Owning guild / faction (0 = none). When > 0 this NPC is a guild defender: it
 ## ignores players tagged into that guild and is single-life (despawns on death,
-## no respawn). Set on spawn by the flag (server-only — clients just render).
+## no respawn). Set on spawn by the flag (server-only - clients just render).
 var owner_guild_id: int = 0
 
 ## Server-only aggro trigger. Built programmatically in _ready (server)
-## from max_distance_from_spawn × DETECTION_RADIUS_FACTOR — no scene
+## from max_distance_from_spawn x DETECTION_RADIUS_FACTOR - no scene
 ## wiring, no client-side cost. The radius is the only meaningful tuning
 ## knob here; if you ever want a non-circular detection (cone, vision),
 ## swap the CollisionShape2D's shape after construction.
@@ -116,18 +116,18 @@ var mr: float = 0.0
 @export var weapon: WeaponItem
 var xp_reward: int = 25
 ## peer_id -> total damage dealt this life (cleared on respawn). Drives the
-## participation reward split — see RewardService.
+## participation reward split - see RewardService.
 var _contributors: Dictionary[int, float] = {}
 ## Whether this mob respawns after death (driven by enemy_data.respawns). False =
 ## single-life: the body is removed, no return (dungeon mobs, one-off bosses).
 var respawns: bool = true
 
 ## Emitted on death, server-side. The CONTEXT that spawned the mob wires the
-## consequence — a dungeon connects its boss's `died` → clear; a world-boss event
-## connects it → its own handler. Keeps death-consequences OUT of the mob class.
+## consequence - a dungeon connects its boss's `died` -> clear; a world-boss event
+## connects it -> its own handler. Keeps death-consequences OUT of the mob class.
 signal died(killer: Character)
 
-## Leash radius used to mean "infinite" — set when enemy_data.leashes is false so
+## Leash radius used to mean "infinite" - set when enemy_data.leashes is false so
 ## the mob commits and fights to the death instead of walking home.
 const NO_LEASH_DISTANCE: int = 1_000_000
 ## Seconds before a killed enemy respawns at its spawn point.
@@ -138,7 +138,7 @@ var move_speed: int = 20
 var distance_to_attack: int = 20
 ## If the NPC strays this far from its spawn, it disengages and returns.
 var max_distance_from_spawn: int = 300
-## Aggro radius — how far the mob "sees". Must be smaller than the leash
+## Aggro radius - how far the mob "sees". Must be smaller than the leash
 ## so the mob can reach anything it spots before the leash trips. Driven
 ## by enemy_data.detection_radius.
 var detection_radius: int = 150
@@ -151,17 +151,17 @@ var lunge_windup_s: float = 0.55
 var lunge_speed_multiplier: float = 5.0
 var lunge_cooldown: float = 5.0
 
-## Where the pounce will land — locked at windup start, NOT homing (that's what
+## Where the pounce will land - locked at windup start, NOT homing (that's what
 ## makes it dodgeable).
 var _lunge_target_position: Vector2
-## Dash heading, locked at windup start — the dash flies STRAIGHT, never
+## Dash heading, locked at windup start - the dash flies STRAIGHT, never
 ## re-aims mid-flight (re-aiming is what made it jitter around a point it
 ## couldn't reach when that point sat inside the player's collider).
 var _lunge_direction: Vector2
 var _lunge_phase_until_ms: int
 var _lunge_deadline_ms: int
 var _lunge_ready_at_ms: int
-## Players already hit by the CURRENT dash (instance id -> true) — the sweep
+## Players already hit by the CURRENT dash (instance id -> true) - the sweep
 ## damages anyone the dash runs over, but each victim only once per lunge.
 var _lunge_hit: Dictionary = {}
 
@@ -169,7 +169,7 @@ var _lunge_hit: Dictionary = {}
 ## Copy archetype fields onto this instance. Called once at _ready so the rest
 ## of HostileNpc can keep reading its local fields unchanged.
 func _apply_enemy_data() -> void:
-	assert(enemy_data != null, "HostileNpc requires an enemy_data resource — see characters/npc/types/.")
+	assert(enemy_data != null, "HostileNpc requires an enemy_data resource - see characters/npc/types/.")
 	enemy_type = enemy_data.enemy_type
 	display_name = enemy_data.display_name # drives the shared over-head name label
 	max_health = enemy_data.max_health
@@ -186,7 +186,7 @@ func _apply_enemy_data() -> void:
 	distance_to_attack = enemy_data.distance_to_attack
 	max_distance_from_spawn = enemy_data.max_distance_from_spawn
 	respawns = enemy_data.respawns
-	# A non-leashing mob (bosses; trash in bounded dungeon rooms) commits — an
+	# A non-leashing mob (bosses; trash in bounded dungeon rooms) commits - an
 	# effectively-infinite leash so the distance check never walks it home.
 	if not enemy_data.leashes:
 		max_distance_from_spawn = NO_LEASH_DISTANCE
@@ -199,15 +199,15 @@ func _apply_enemy_data() -> void:
 	lunge_cooldown = enemy_data.lunge_cooldown
 	if enemy_data.skin != null:
 		skin_id = 0 # disable id-based skin; we're driving it directly
-		# animated_sprite (from Character) is @onready — already assigned by the
+		# animated_sprite (from Character) is @onready - already assigned by the
 		# time _ready (and therefore this) runs.
 		animated_sprite.sprite_frames = enemy_data.skin
-	# Visual size (a boss reads bigger) — SPRITE only, never the node (a scaled
+	# Visual size (a boss reads bigger) - SPRITE only, never the node (a scaled
 	# node inflates collision so it can't reach melee range). Applied on both
 	# server + client since enemy_data resolves on both.
 	if enemy_data.visual_scale != 1.0:
 		animated_sprite.scale *= enemy_data.visual_scale
-		# A big sprite swallows the head-bar — lift it clear of the enlarged sprite
+		# A big sprite swallows the head-bar - lift it clear of the enlarged sprite
 		# and scale it up so a boss reads as a boss. Scale around the bar's own
 		# centre so it stays horizontally centred over the mob.
 		if has_node(^"ProgressBar"):
@@ -247,7 +247,7 @@ func _ready() -> void:
 		queue_redraw()
 		return
 	# Pull archetype values from enemy_data BEFORE Character._ready reads any
-	# stats — so a data-driven NPC's @exports already reflect the resource.
+	# stats - so a data-driven NPC's @exports already reflect the resource.
 	_apply_enemy_data()
 	# Character._ready wires the client-side health bar (stat_changed -> ProgressBar);
 	# without this the NPC's bar is never initialised or connected. On the server it
@@ -274,7 +274,7 @@ func _ready() -> void:
 	
 	# Build the detection trigger here so the scene is lean (no Area2D node
 	# shipped to clients for nothing) and the radius can be derived from
-	# the leash distance — single source of truth, can't drift.
+	# the leash distance - single source of truth, can't drift.
 	_build_detection_area()
 	detection_area.body_entered.connect(_on_body_entered)
 	detection_area.body_exited.connect(_on_body_exited)
@@ -294,7 +294,7 @@ func _ready() -> void:
 	stats_component.set_stat(Stat.HEALTH, max_health)
 	stats_component.set_stat(Stat.AD, attack_damage)
 	# AP mirrors AD so a magic weapon (wand bolt scales off AP) hits with the
-	# same tuned attack_damage as any other armament — mob power is ONE number.
+	# same tuned attack_damage as any other armament - mob power is ONE number.
 	stats_component.set_stat(Stat.AP, attack_damage)
 	stats_component.set_stat(Stat.ARMOR, armor)
 	stats_component.set_stat(Stat.MR, mr)
@@ -321,7 +321,7 @@ func _apply_ally_bar_tint() -> void:
 		($ProgressBar as CanvasItem).show() # ally guards stay visible
 
 
-## Server-set: while this timestamp is in the future the body holds position — a
+## Server-set: while this timestamp is in the future the body holds position - a
 ## BossController commits it to a telegraphed cast instead of strolling out of its
 ## own danger ring. Generic, like the lunge windup's root but driven from outside
 ## the state machine.
@@ -381,18 +381,18 @@ func _on_body_entered(body: Node) -> void:
 
 	# CRITICAL: don't yank a dead NPC out of DEAD state into CHASE. Without
 	# this, a player walking back into the detection area during the respawn
-	# timer flips enemy_state → CHASE, _process_death never runs, is_dead and
+	# timer flips enemy_state -> CHASE, _process_death never runs, is_dead and
 	# HEALTH=0 get stuck forever, and every subsequent take_damage early-
 	# returns. That's the "zombie NPC" symptom (empty bar, no kill credit,
 	# happens only for chase_on_area=true mobs). _find_targets already has
-	# the same DEAD guard — this one was just missing.
+	# the same DEAD guard - this one was just missing.
 	if DEBUG_NPC and enemy_state == EnemyState.DEAD and chase_on_area:
-		printerr("[SRV NPC %s] body_entered while DEAD — guard prevented zombie" % enemy_type)
+		printerr("[SRV NPC %s] body_entered while DEAD - guard prevented zombie" % enemy_type)
 	if chase_on_area and not targeted_player and enemy_state != EnemyState.DEAD:
 		targeted_player = body
 		enemy_state = EnemyState.CHASE
 		if DEBUG_NPC:
-			printerr("[SRV NPC %s] body_entered → CHASE (target=%s)" % [enemy_type, body.name])
+			printerr("[SRV NPC %s] body_entered -> CHASE (target=%s)" % [enemy_type, body.name])
 
 
 func _on_body_exited(body: Node) -> void:
@@ -430,7 +430,7 @@ func _find_targets() -> void:
 
 	# Self-heal the cached list against the physics truth first: a player who never
 	# LEFT the area after we dropped them is invisible to us otherwise. stop_chase
-	# erases the old target, and body_entered only fires on a boundary CROSSING — so
+	# erases the old target, and body_entered only fires on a boundary CROSSING - so
 	# a player we de-aggroed (leash, respawn) while they stood in range never gets
 	# re-added. That's the long-standing "can't re-aggro by standing there, but
 	# hitting me works (take_damage sets the target directly)" bug.
@@ -446,7 +446,7 @@ func _find_targets() -> void:
 
 
 ## Fold any player currently overlapping our detection area back into
-## possible_targets. Additions only — body_exited handles removals. Cheap (a
+## possible_targets. Additions only - body_exited handles removals. Cheap (a
 ## handful of bodies) and only runs while we're hunting (no target, not returning).
 func _resync_possible_targets() -> void:
 	if detection_area == null:
@@ -460,7 +460,7 @@ func _resync_possible_targets() -> void:
 ## guild. Regular mobs are hostile to all players.
 func _is_hostile_to(player: Player) -> bool:
 	if owner_guild_id <= 0:
-		return true # Ordinary mob — hostile to every player.
+		return true # Ordinary mob - hostile to every player.
 	if player == null or player.player_resource == null:
 		return true
 	return player.player_resource.active_guild_id != owner_guild_id
@@ -475,7 +475,7 @@ func _is_target_valid(player: Player) -> bool:
 			and not player.is_dead and player.get_viewport() == get_viewport()
 
 
-## A player can't MOVE more than a couple of px per physics tick — a bigger jump
+## A player can't MOVE more than a couple of px per physics tick - a bigger jump
 ## means they TELEPORTED (death respawn, warp, /goto, spar start...). Server-side
 ## death + respawn happens within one frame, so is_dead is never observably true;
 ## perceiving the position discontinuity is the intuitive, mechanism-agnostic way
@@ -487,7 +487,7 @@ var _tracked_target_position: Vector2
 
 func _target_escaped() -> bool:
 	if targeted_player != _tracked_target:
-		# New target — start tracking from wherever they are now.
+		# New target - start tracking from wherever they are now.
 		_tracked_target = targeted_player
 		_tracked_target_position = targeted_player.global_position
 		return false
@@ -498,12 +498,12 @@ func _target_escaped() -> bool:
 
 # --- Telegraphed lunge -------------------------------------------------------
 
-## Lock the pounce at the target's CURRENT position (not homing — that's the
+## Lock the pounce at the target's CURRENT position (not homing - that's the
 ## dodge), show the zone on every client, and start the windup.
 func _begin_lunge() -> void:
 	# Charge THROUGH the target's spot, not TO it: the landing point overshoots
 	# behind the player (relative to us), so backing straight away stays inside
-	# the corridor — the only real dodge is stepping OUT of it sideways. Also
+	# the corridor - the only real dodge is stepping OUT of it sideways. Also
 	# keeps the landing point out of the player's collider.
 	_lunge_direction = global_position.direction_to(targeted_player.global_position)
 	_lunge_target_position = targeted_player.global_position + _lunge_direction * (lunge_radius * 2.0)
@@ -511,7 +511,7 @@ func _begin_lunge() -> void:
 	enemy_state = EnemyState.LUNGE_WINDUP
 	velocity = Vector2.ZERO
 	_lunge_hit.clear()
-	# Corridor telegraph (wolf → landing spot) so players see WHO is charging
+	# Corridor telegraph (wolf -> landing spot) so players see WHO is charging
 	# and which strip of ground to vacate. Lives through windup + travel time.
 	container.queue_op(_prop_id, "rp_lunge_telegraph", [
 		_lunge_target_position, lunge_radius, lunge_windup_s + 0.45
@@ -528,8 +528,8 @@ func _process_lunge_windup() -> void:
 
 func _process_lunging() -> void:
 	# Straight-line dash with the heading locked at windup. Termination is by
-	# PROJECTION onto that heading — once we reach or pass the landing plane
-	# (even after sliding around a collider) the dash is over. No re-aiming →
+	# PROJECTION onto that heading - once we reach or pass the landing plane
+	# (even after sliding around a collider) the dash is over. No re-aiming ->
 	# no jitter, ever.
 	var remaining: float = (_lunge_target_position - global_position).dot(_lunge_direction)
 	if remaining <= 8.0 or Time.get_ticks_msec() >= _lunge_deadline_ms:
@@ -538,7 +538,7 @@ func _process_lunging() -> void:
 	velocity = _lunge_direction * move_speed * lunge_speed_multiplier
 	move_and_slide()
 	# The DASH is the attack: anyone the wolf runs over inside the corridor
-	# takes the hit (once per lunge). Per-tick distance check is sweep-safe —
+	# takes the hit (once per lunge). Per-tick distance check is sweep-safe -
 	# at ~5px of travel per physics tick the radius can't tunnel past a player.
 	var damage: float = stats_component.get_stat(Stat.AD)
 	for candidate: Player in _strike_candidates():
@@ -551,10 +551,10 @@ func _process_lunging() -> void:
 
 
 ## Touchdown: start the cooldown and hand control back to the normal brain.
-## (Damage already happened in-flight — the dash itself is the hitbox.)
+## (Damage already happened in-flight - the dash itself is the hitbox.)
 func _land_lunge() -> void:
 	_lunge_ready_at_ms = Time.get_ticks_msec() + int(lunge_cooldown * 1000.0)
-	# The windup+dash took ~a second — the target legitimately moved meanwhile.
+	# The windup+dash took ~a second - the target legitimately moved meanwhile.
 	# Reset the escape tracker so that movement isn't misread as a teleport.
 	_tracked_target = null
 	if _is_target_valid(targeted_player):
@@ -564,7 +564,7 @@ func _land_lunge() -> void:
 
 
 ## Client-visual: the red dodge corridor from this wolf to the locked landing
-## spot — shows WHO is charging and the exact strip of ground to vacate.
+## spot - shows WHO is charging and the exact strip of ground to vacate.
 func rp_lunge_telegraph(to_position: Vector2, radius: float, duration: float) -> void:
 	if multiplayer.is_server():
 		return
@@ -578,7 +578,7 @@ func rp_lunge_telegraph(to_position: Vector2, radius: float, duration: float) ->
 
 
 ## Client-visual: a FILLING danger ring (CastTelegraph) for a telegraphed boss
-## slam — it fills + sweeps a clock-wedge over [param duration] so players read
+## slam - it fills + sweeps a clock-wedge over [param duration] so players read
 ## exactly when the hit lands, then vanishes as the impact takes over. World-
 ## pinned at the cast origin (the boss is rooted during the wind-up anyway).
 func rp_cast_telegraph(center: Vector2, radius: float, duration: float) -> void:
@@ -592,7 +592,7 @@ func rp_cast_telegraph(center: Vector2, radius: float, duration: float) -> void:
 	tele.global_position = center
 
 
-## Client-visual: the ground shockwave (SlamImpact) when a boss slam lands —
+## Client-visual: the ground shockwave (SlamImpact) when a boss slam lands -
 ## expanding rings + debris radiating from the impact point. The "already
 ## happened" counterpart to the filling cast telegraph.
 func rp_slam_impact(center: Vector2, radius: float) -> void:
@@ -644,11 +644,11 @@ func _process_synchronization() -> void:
 
 
 ## Slow passive heal while idling. Without this, a mob that took a snipe
-## from outside detection range would sit at low HP forever — even the
+## from outside detection range would sit at low HP forever - even the
 ## new take_damage path that auto-engages doesn't help when the attacker
 ## stops shooting and walks off without ever entering the detection ring.
 func _process_idle_regen() -> void:
-	# Committed mobs (bosses) don't regen — their HP holds until the fight resumes.
+	# Committed mobs (bosses) don't regen - their HP holds until the fight resumes.
 	if _is_committed():
 		return
 	var hmax: float = stats_component.get_stat(Stat.HEALTH_MAX)
@@ -661,14 +661,14 @@ func _process_idle_regen() -> void:
 
 
 func _process_return() -> void:
-	# Move toward spawn at the boosted return speed — outpaces typical
+	# Move toward spawn at the boosted return speed - outpaces typical
 	# player movement so leashed mobs can't be re-kited.
 	var direction: Vector2 = global_position.direction_to(spawn_position)
 	velocity = direction * move_speed * RETURN_SPEED_MULTIPLIER
 	move_and_slide()
 
 	# Visible heal-on-the-walk: each physics tick credits a fraction of
-	# (max HP × regen rate × dt). Reads as the bar filling while the mob
+	# (max HP x regen rate x dt). Reads as the bar filling while the mob
 	# runs home, rather than a magic snap-to-full on arrival.
 	var hmax: float = stats_component.get_stat(Stat.HEALTH_MAX)
 	var current_h: float = stats_component.get_stat(Stat.HEALTH)
@@ -679,7 +679,7 @@ func _process_return() -> void:
 
 	var distance_from_spawn: float = global_position.distance_to(spawn_position)
 	if distance_from_spawn < 10: # minimum distance from spawn.
-		# Snap remaining HP to full on arrival — handles the rounding edge
+		# Snap remaining HP to full on arrival - handles the rounding edge
 		# where the return walk ended a hair before full regen completed.
 		if stats_component.get_stat(Stat.HEALTH) < hmax:
 			stats_component.set_stat(Stat.HEALTH, hmax)
@@ -718,7 +718,7 @@ func _process_chase() -> void:
 
 
 ## Inside ATTACK state the mob keeps advancing until this fraction of its
-## attack range, then plants — see _process_attack.
+## attack range, then plants - see _process_attack.
 const ATTACK_ADVANCE_STOP_FRACTION: float = 0.65
 
 
@@ -730,7 +730,7 @@ func _process_attack() -> void:
 		stop_chase()
 		return
 
-	# Same leash check the chase has — without this, a ranged player can
+	# Same leash check the chase has - without this, a ranged player can
 	# pull the mob to the edge of max_distance_from_spawn, then stand still
 	# at attack range and farm forever because the mob never re-checks the
 	# distance while in ATTACK state.
@@ -745,7 +745,7 @@ func _process_attack() -> void:
 		return
 
 	# Attack starts at distance_to_attack, but keep CLOSING IN while firing
-	# until comfortably inside range — mobs shoot on the move like players do
+	# until comfortably inside range - mobs shoot on the move like players do
 	# instead of freezing at the range boundary. Melee mobs are already nearly
 	# point-blank when this state starts, so only ranged feel changes.
 	if distance_from_player > distance_to_attack * ATTACK_ADVANCE_STOP_FRACTION:
@@ -767,7 +767,7 @@ func _process_attack() -> void:
 ## Players this mob can strike right now: everyone the detection area is tracking,
 ## PLUS its active target. take_damage can set targeted_player WITHOUT a
 ## body_entered (a player who re-engaged after respawning inside our detection
-## radius — so body_entered never re-fires — or a sniper from beyond it), and
+## radius - so body_entered never re-fires - or a sniper from beyond it), and
 ## stop_chase erases the old target from possible_targets on a respawn-teleport.
 ## Without folding the target back in, the mob would telegraph but never connect.
 func _strike_candidates() -> Array[Player]:
@@ -798,9 +798,9 @@ func rp_attack(radius: float) -> void:
 	add_child(telegraph)
 
 
-## Client-visual: a SpawnEffect summon burst centered on this mob — fired on spawn + respawn so an
+## Client-visual: a SpawnEffect summon burst centered on this mob - fired on spawn + respawn so an
 ## appearing mob has presence instead of popping in. A SEPARATE node (renders fine), not a tween on
-## the mob's own sprite (which doesn't render — see docs/replicated_props_vfx.md).
+## the mob's own sprite (which doesn't render - see docs/replicated_props_vfx.md).
 func rp_spawn_effect() -> void:
 	if multiplayer.is_server():
 		return
@@ -818,7 +818,7 @@ func replicate_visual(method: StringName, args: Array) -> void:
 
 
 ## Scale this mob's combat stats for a harder run (dungeon Hard mode): multiply max
-## health (and refill to it) + attack power. Generic — any spawner can call it after
+## health (and refill to it) + attack power. Generic - any spawner can call it after
 ## the mob's data has been applied.
 func apply_difficulty(health_mult: float, damage_mult: float) -> void:
 	var max_h: float = stats_component.get_stat(Stat.HEALTH_MAX) * health_mult
@@ -850,7 +850,7 @@ func rp_shoot(direction: Vector2) -> void:
 
 func _debug_client_stat_changed(stat_name: StringName, value: float) -> void:
 	if stat_name == &"health" or stat_name == &"health_max":
-		print("[CLI NPC %s] sync %s → %.1f" % [enemy_type, stat_name, value])
+		print("[CLI NPC %s] sync %s -> %.1f" % [enemy_type, stat_name, value])
 
 
 ## Spawn the detection-trigger Area2D as a child, sized to detection_radius
@@ -885,8 +885,8 @@ func _draw() -> void:
 		leash = float(enemy_data.max_distance_from_spawn)
 		detect_r = float(enemy_data.detection_radius)
 
-	# Red (inner) = detection — "danger close", entering this ring trips
-	# aggro. Yellow (outer) = leash — once the mob's chase crosses this
+	# Red (inner) = detection - "danger close", entering this ring trips
+	# aggro. Yellow (outer) = leash - once the mob's chase crosses this
 	# ring, it disengages and returns. Inner-red matches the player
 	# intuition of "red = where the mob will jump on me".
 	draw_circle(Vector2.ZERO, leash, Color(1, 0.9, 0.2, 0.08))
@@ -905,7 +905,7 @@ func _equip_weapon() -> void:
 ## Called by Character.take_damage when health hits zero (server-only).
 func die(killer: Character) -> void:
 	if DEBUG_NPC:
-		printerr("[SRV NPC %s] die() killer=%s HP=%.1f state→DEAD respawn_in=%.1fs" % [
+		printerr("[SRV NPC %s] die() killer=%s HP=%.1f state->DEAD respawn_in=%.1fs" % [
 			enemy_type,
 			String(killer.name) if killer else "null",
 			stats_component.get_stat(Stat.HEALTH),
@@ -942,7 +942,7 @@ func take_damage(amount: float, attacker: Character = null, damage_type: StringN
 		return
 
 	# Participation: tally each player's damage BEFORE applying it, so a killing
-	# blow is already counted when super → die() distributes the reward.
+	# blow is already counted when super -> die() distributes the reward.
 	if not is_dead and amount > 0.0 and attacker is Player and (attacker as Player).player_resource != null:
 		var contributor_peer: int = int((attacker as Player).player_resource.current_peer_id)
 		if contributor_peer > 0:
@@ -964,11 +964,11 @@ func take_damage(amount: float, attacker: Character = null, damage_type: StringN
 		if pre_h == post_h:
 			printerr("[SRV NPC %s] take_damage(%.1f) NO-OP: HP unchanged (likely is_dead guard)" % [enemy_type, amount])
 		else:
-			printerr("[SRV NPC %s] take_damage(%.1f) post: HP=%.1f → %.1f is_dead=%s state=%d" % [
+			printerr("[SRV NPC %s] take_damage(%.1f) post: HP=%.1f -> %.1f is_dead=%s state=%d" % [
 				enemy_type, amount, pre_h, post_h, is_dead, enemy_state
 			])
 
-	# Engagement triggers — only when the hit actually landed on a living
+	# Engagement triggers - only when the hit actually landed on a living
 	# mob. Even if super killed us in the same call, was_alive captures the
 	# pre-state so allies still get a "your buddy died fighting <attacker>"
 	# notification and aggro the killer.
@@ -977,7 +977,7 @@ func take_damage(amount: float, attacker: Character = null, damage_type: StringN
 	# Pack-call: nearby HostileNpcs in detection_area pick this up.
 	was_attacked.emit(attacker)
 	# Self-engagement: a far-away snipe can't reach us through detection_area
-	# (the attacker stays outside the ring) — so the take_damage path is
+	# (the attacker stays outside the ring) - so the take_damage path is
 	# the only place we get to react. Don't re-target if we're already
 	# chasing / attacking someone; don't break RETURNING / DEAD.
 	if is_dead:
@@ -993,7 +993,7 @@ func take_damage(amount: float, attacker: Character = null, damage_type: StringN
 
 ## Drops the current target and heads home (used when the target dies or is lost).
 ## A committed mob (enemy_data.leashes == false: bosses + world bosses) never leashes
-## home and never regenerates — it holds its current HP and just idles in place when it
+## home and never regenerates - it holds its current HP and just idles in place when it
 ## loses its target, re-aggroing via _find_targets the moment a player is back in reach.
 ## You can't reset a boss by dying or running off; with nobody around it simply idles.
 ## (Distance-leashing mobs keep the normal march-home + regen.)
@@ -1009,8 +1009,8 @@ func _abandon_target() -> void:
 func _process_death() -> void:
 	if Time.get_ticks_msec() < _respawn_at_ms:
 		return
-	# Single-life mobs — guild defenders AND any enemy_data.respawns == false
-	# (dungeon mobs, one-off bosses) — despawn instead of respawning. All are
+	# Single-life mobs - guild defenders AND any enemy_data.respawns == false
+	# (dungeon mobs, one-off bosses) - despawn instead of respawning. All are
 	# dynamic props.
 	if owner_guild_id > 0 or not respawns:
 		container.despawn_dynamic(_prop_id)
@@ -1023,30 +1023,30 @@ func _process_death() -> void:
 	global_position = spawn_position
 	# Defensive: re-derive HEALTH_MAX from the archetype if it got into a
 	# bad (zero) state somewhere. Without this, a HEALTH_MAX=0 leaves the
-	# NPC at HEALTH=0 after respawn — visible as the "zombie NPC" bug where
+	# NPC at HEALTH=0 after respawn - visible as the "zombie NPC" bug where
 	# the bar reads empty client-side and any hit immediately re-kills the
 	# mob in take_damage. Cheap and idempotent in the healthy path.
 	var hmax: float = stats_component.get_stat(Stat.HEALTH_MAX)
 	if hmax <= 0.0:
 		# common/ can't reference ServerLog (source/server/* is stripped from
-		# the client export filter). printerr lands in stderr → journalctl
+		# the client export filter). printerr lands in stderr -> journalctl
 		# picks it up on the live box, which is where you'd look anyway.
 		printerr("NPC %s respawned with HEALTH_MAX=%f, restoring to archetype max_health=%d" % [enemy_type, hmax, max_health])
 		hmax = float(max_health)
 		stats_component.set_stat(Stat.HEALTH_MAX, hmax)
 	stats_component.set_stat(Stat.HEALTH, hmax)
 
-	# Diagnostic for "zombie NPC: bar empty, can't damage" — you confirmed
+	# Diagnostic for "zombie NPC: bar empty, can't damage" - you confirmed
 	# HEALTH_MAX is intact and only HEALTH is 0 on the bar. So the question
 	# is whether the server wrote HEALTH=hmax here and got eaten somewhere,
 	# or whether write itself didn't take. Print the post-write value so
 	# the next repro shows which side of the boundary the issue is on.
 	var post_h: float = stats_component.get_stat(Stat.HEALTH)
 	if post_h <= 0.0:
-		printerr("NPC %s respawn: HEALTH wrote=%f got=%f HEALTH_MAX=%f — zombie forming" % [enemy_type, hmax, post_h, stats_component.get_stat(Stat.HEALTH_MAX)])
+		printerr("NPC %s respawn: HEALTH wrote=%f got=%f HEALTH_MAX=%f - zombie forming" % [enemy_type, hmax, post_h, stats_component.get_stat(Stat.HEALTH_MAX)])
 	is_dead = false
 	enemy_state = EnemyState.IDLE
-	_contributors.clear() # fresh life — past damage no longer counts for rewards
+	_contributors.clear() # fresh life - past damage no longer counts for rewards
 	# Push the respawn position NOW (the freeze below skips the normal per-frame sync) so the spawn
 	# FX lands on the mob at its spawn point, not at wherever it happened to die.
 	_process_synchronization()

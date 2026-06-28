@@ -44,7 +44,7 @@ func handle_send_dm(
 
 	# You can't DM someone you've blocked. Block is asymmetric on the receive
 	# side (blocker silently drops blocker's messages), but on the send side
-	# we surface a real error — typing into a void with no failure feedback
+	# we surface a real error - typing into a void with no failure feedback
 	# would feel broken, and the user explicitly opted out of contact.
 	if BlockList.is_blocked(sender.player_id, other_id):
 		return {"error": 5, "ok": false, "message": "You have this player blocked. Unblock to message them."}
@@ -80,7 +80,7 @@ func handle_send_dm(
 	}
 
 	# Push to sender + recipient if online. Sender always sees their own send
-	# (block is asymmetric — they don't know they've been ghosted), but the
+	# (block is asymmetric - they don't know they've been ghosted), but the
 	# recipient's push is suppressed if they have the sender blocked.
 
 	var sender_peer_id: int = int(world_server.player_id_to_peer_id.get(sender.player_id, 0))
@@ -116,7 +116,7 @@ func get_guild_history(guild_id: int, limit: int) -> Array:
 
 func _handle_send_world(instance: ServerInstance, player: PlayerResource, text: String) -> Dictionary:
 	# Broadcast to everyone in the same instance/map. World chat is EPHEMERAL and
-	# live-only — never written to SQLite, never replayed on join.
+	# live-only - never written to SQLite, never replayed on join.
 	return _broadcast_world_to_instance(
 		instance,
 		player,
@@ -127,7 +127,7 @@ func _handle_send_world(instance: ServerInstance, player: PlayerResource, text: 
 
 
 ## Party (TEAM) chat: live broadcast to the sender's current party members (see
-## GroupService). Ephemeral like world chat — never persisted. Shows in the Team tab.
+## GroupService). Ephemeral like world chat - never persisted. Shows in the Team tab.
 func _handle_send_team(instance: ServerInstance, player: PlayerResource, text: String) -> Dictionary:
 	var peer_id: int = int(player.current_peer_id)
 	var group_id: int = GroupService.group_of(peer_id)
@@ -209,16 +209,16 @@ func _handle_send_guild(instance: ServerInstance, player: PlayerResource, text: 
 const RECENT_MAX: int = 100
 var recent_channel_messages: Array = []
 
-## World (public) + System chat are EPHEMERAL and LIVE-ONLY — never written to SQLite
+## World (public) + System chat are EPHEMERAL and LIVE-ONLY - never written to SQLite
 ## and never replayed on join (zone chat in every MMO starts from when you arrive; a
 ## newly-joined player just sees messages from here on). Guild + DM keep their DB
-## history. These monotonic counters mint ids for the unpersisted messages — unique
+## history. These monotonic counters mint ids for the unpersisted messages - unique
 ## within each conversation, which is how the client keys them.
 var _world_msg_seq: int = 0
 var _system_msg_seq: int = 0
 
 
-## World (public) chat: broadcast LIVE to everyone in the instance — no persistence,
+## World (public) chat: broadcast LIVE to everyone in the instance - no persistence,
 ## no scrollback (live-only, like zone chat in any MMO). Manual peer loop (not
 ## propagate_rpc) so we can skip recipients who've blocked the sender.
 func _broadcast_world_to_instance(
@@ -285,7 +285,7 @@ func recent(limit: int = 30) -> Array:
 
 
 ## Friendly channel label for the dashboard. Plays nice with future channels
-## (custom guild rooms, party voice, etc.) — anything unknown falls through.
+## (custom guild rooms, party voice, etc.) - anything unknown falls through.
 static func _channel_name(channel: int) -> String:
 	match channel:
 		ChatConstants.CHANNEL_WORLD:  return "World"
@@ -317,7 +317,7 @@ func _rows_to_payload(rows: Array, conversation_id: String, extra: Dictionary) -
 
 
 ## Send a one-off SYSTEM notice (MOTD, mute/jail/broadcast, level unlock, world-boss
-## announce, ...) to one online player. EPHEMERAL like world chat — system notices are
+## announce, ...) to one online player. EPHEMERAL like world chat - system notices are
 ## never persisted, so the per-player system log can't pile up dozens of stale MOTDs
 ## across logins. A player offline when one fires simply doesn't get it; these are
 ## courtesy messages (enforcement like mute/jail is applied server-side anyway).
@@ -330,7 +330,7 @@ func push_system_to_player(instance: ServerInstance, player_id: int, text: Strin
 		return
 	var peer_id: int = int(ws.player_id_to_peer_id.get(player_id, 0))
 	if peer_id <= 0:
-		return # offline — system notices aren't stored, so there's nothing to deliver
+		return # offline - system notices aren't stored, so there's nothing to deliver
 
 	_system_msg_seq += 1
 	var pushed: Dictionary = {

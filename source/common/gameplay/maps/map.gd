@@ -45,7 +45,7 @@ enum ZoneModifiers {
 @export var map_background_color: Color = Color(0,0,0)
 ## Looping background music for this map, crossfaded in when the local player enters
 ## the instance (see Client._on_instance_changed). Leave empty to keep whatever track
-## is already playing — e.g. a small building inherits the overworld's music.
+## is already playing - e.g. a small building inherits the overworld's music.
 @export var music: AudioStream
 ## Ambient weather overlays applied when the local player enters this map. Each entry is
 ## one stacked effect, so a map can run several at once (e.g. leaves + cloud shadows +
@@ -56,7 +56,7 @@ enum ZoneModifiers {
 ## Per-edge camera clamp (world px), mirroring Camera2D's own limit_* properties. On entry
 ## the local player's camera is clamped to whichever edges you set, so it never pans past the
 ## map into black. Each edge defaults to ±10,000,000 (effectively unbounded), so set ONLY the
-## sides you want — e.g. camera_limit_left = -32 stops the camera at x = -32 and leaves the
+## sides you want - e.g. camera_limit_left = -32 stops the camera at x = -32 and leaves the
 ## rest free. We use multiple TileMapLayers, so these are authored per map (not auto-derived).
 ## See LocalPlayer._apply_camera_limits.
 @export var camera_limit_left: int = -10000000
@@ -186,7 +186,7 @@ func _draw_aoi_preview() -> void:
 	var visible_border: Color = Color(0.15, 0.85, 1.0, 0.95)
 	var margin_border: Color = Color(0.15, 0.75, 1.0, 0.70)
 
-	# EditorInterface is editor-only — the identifier doesn't exist in exports
+	# EditorInterface is editor-only - the identifier doesn't exist in exports
 	# and would parse-fail. Look it up dynamically so the parser sees only
 	# Engine.get_singleton(), which is always available. _draw only fires in
 	# the editor anyway (this is a @tool script), so the singleton is there.

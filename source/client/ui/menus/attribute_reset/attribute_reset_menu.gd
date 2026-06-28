@@ -1,5 +1,5 @@
 extends Control
-## Confirm dialog for an attribute re-spec — reached from an NPC's
+## Confirm dialog for an attribute re-spec - reached from an NPC's
 ## AttributeResetInteraction. Shows the gold fee; on confirm it fires the
 ## server-authoritative attribute.reset. Same compact card as the NPC dialogue.
 ##
@@ -79,7 +79,7 @@ func _on_confirm() -> void:
 		return
 	var data: Dictionary = result[0]
 	if data.get("ok", false):
-		Toaster.toast("Attributes reset — %d points to spend (Character menu)." % int(data.get("points", 0)))
+		Toaster.toast("Attributes reset - %d points to spend (Character menu)." % int(data.get("points", 0)))
 		return
 	match str(data.get("reason", "")):
 		"gold":

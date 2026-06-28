@@ -1,6 +1,6 @@
 extends ChatCommand
 ## Set a player's current health to an amount (clamped to max). Doubles as a quick
-## damage tool for testing — /heal self 1 leaves you on 1 HP.
+## damage tool for testing - /heal self 1 leaves you on 1 HP.
 
 
 func _init() -> void:

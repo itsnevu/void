@@ -2,34 +2,34 @@ class_name CombatHit
 ## The single place every melee / projectile hitbox routes a hit through, so the
 ## target rules (flags, PvP zones, sparring, guild friendly-fire) and the shared
 ## collision mask live in ONE spot. Adding a new weapon means "spawn an Area2D
-## with TARGET_MASK and call try_damage" — it can't forget the flag path or the
+## with TARGET_MASK and call try_damage" - it can't forget the flag path or the
 ## friendly-fire gate the way each hitbox used to re-implement them.
 
 ## Collision mask every combat hitbox uses (Area2D.collision_mask): hurtboxes (damage) +
-## territory flags (capture) + world (block). NOT character bodies — those are navigation
+## territory flags (capture) + world (block). NOT character bodies - those are navigation
 ## only, so attacks hit the body-sized HurtBox instead. See PhysicsLayers + docs/combat_layers.md.
 ## Projectiles read this; melee arcs set their mask from PhysicsLayers in their own _ready.
 const TARGET_MASK: int = PhysicsLayers.COMBAT_TARGET_MASK
 
-## Damage types. Physical is mitigated by ARMOR, magic by MR — pass the right
+## Damage types. Physical is mitigated by ARMOR, magic by MR - pass the right
 ## one to try_damage (melee/arrows default to physical; wand bolts send magic).
 const DAMAGE_PHYSICAL: StringName = &"physical"
 const DAMAGE_MAGIC: StringName = &"magic"
 
 enum Result {
-	IGNORED,  ## pass through — not a valid target (self, friendly, safe zone...)
+	IGNORED,  ## pass through - not a valid target (self, friendly, safe zone...)
 	DAMAGED,  ## a combatant or flag took the hit
-	BLOCKED,  ## a solid non-combatant (wall / door) — a projectile should stop here
+	BLOCKED,  ## a solid non-combatant (wall / door) - a projectile should stop here
 }
 
 
 ## Resolve a hit on [param body] from [param source] for [param damage]. Applies
 ## the damage when valid and returns how the caller should react: a projectile
 ## queue_frees on DAMAGED/BLOCKED and passes through on IGNORED; a melee arc just
-## ignores the result and lets the damage land. Server-authoritative — call only
+## ignores the result and lets the damage land. Server-authoritative - call only
 ## where damage is owned (the hitboxes already gate on multiplayer.is_server()).
 static func try_damage(source: Character, body: Node2D, damage: float, damage_type: StringName = DAMAGE_PHYSICAL) -> Result:
-	# Combat hitboxes detect a character's HurtBox area (not its navigation body) — resolve
+	# Combat hitboxes detect a character's HurtBox area (not its navigation body) - resolve
 	# the hurtbox to its owning Character so the target rules below work unchanged.
 	if body is HurtBox:
 		body = (body as HurtBox).character
@@ -67,7 +67,7 @@ static func try_damage(source: Character, body: Node2D, damage: float, damage_ty
 ## The single melee-detection path. Server-only. Runs a deterministic physics
 ## shape query against [param hitbox]'s "CollisionShape2D" child and returns the
 ## bodies currently inside it. Every melee weapon (sword, pickaxe, sickle, ...)
-## routes through this, so they all hit the same things — STILL targets included
+## routes through this, so they all hit the same things - STILL targets included
 ## (a territory flag, a motionless mob), which an Area2D's enter-events and
 ## get_overlapping_bodies() miss for a hitbox spawned on top of them. Must be
 ## called from _physics_process (direct_space_state is only valid during physics).
@@ -93,13 +93,13 @@ static func overlapping_bodies(hitbox: Area2D) -> Array[Node2D]:
 
 
 ## THE single allegiance check: are these two players ALLIES? Resolved by context,
-## highest priority first — a live spar match (teammates only; opponents are NOT
+## highest priority first - a live spar match (teammates only; opponents are NOT
 ## allies), [future: a shared co-op instance group], otherwise guild. Open-world
 ## allegiance is purely guild, which is what keeps basing/PvP free of the
 ## party-vs-guild paradox. Used for healing (HealBolt, HealingAuraAbility) AND,
 ## inverted, by the damage gate (can_damage), so the rule can never drift apart.
 ##
-## Server-side: reads player_resource (null client-side for remotes → not allied).
+## Server-side: reads player_resource (null client-side for remotes -> not allied).
 ## The client health-bar TINT is a parallel peer-id mirror in
 ## Player._apply_team_bar_color; when a group context ships, sync it there too.
 static func are_allied(a: Player, b: Player) -> bool:
@@ -111,7 +111,7 @@ static func are_allied(a: Player, b: Player) -> bool:
 		return false
 	if a.player_resource.in_match or b.player_resource.in_match:
 		return SparringService.are_spar_teammates(a, b)
-	# Co-op group (dungeon) — groupmates are allies regardless of guild.
+	# Co-op group (dungeon) - groupmates are allies regardless of guild.
 	if GroupService.are_grouped(int(a.player_resource.current_peer_id), int(b.player_resource.current_peer_id)):
 		return true
 	var guild: int = a.player_resource.active_guild_id

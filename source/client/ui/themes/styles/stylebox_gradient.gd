@@ -107,7 +107,7 @@ func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 		RenderingServer.canvas_item_add_polygon(to_canvas_item, inner_points, fill_cols)
 #func _draw(to_canvas_item: RID, rect: Rect2) -> void:
 	## draw directly into the provided canvas item (no extra RID!)
-	## — this keeps ordering correct: background first, then control text on top.
+	## - this keeps ordering correct: background first, then control text on top.
 	#var r = _radii_clamped(rect.size)
 #
 	## 1) Border fill (outer rounded rect)

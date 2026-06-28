@@ -2,7 +2,7 @@ extends DataRequestHandler
 ## Returns one territory flag's current state so a client entering the instance
 ## can pull it on _ready. The one-shot flag.update broadcast may have fired before
 ## the client joined (especially on warp re-entry), leaving the flag "unclaimed"
-## client-side until the next capture — this lets the client fetch the truth.
+## client-side until the next capture - this lets the client fetch the truth.
 
 
 func data_request_handler(peer_id: int, instance: ServerInstance, args: Dictionary) -> Dictionary:

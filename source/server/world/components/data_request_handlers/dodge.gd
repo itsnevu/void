@@ -1,9 +1,9 @@
 extends DataRequestHandler
-## Client → server: the player dodge-rolled (Space). The dash itself is client-side
+## Client -> server: the player dodge-rolled (Space). The dash itself is client-side
 ## (position is client-authoritative); the server's job is to spend the stamina and
 ## grant the brief i-frame window that makes a roll actually dodge attacks.
 
-## Must match LocalPlayer.DODGE_STAMINA — the client predicts the same gate.
+## Must match LocalPlayer.DODGE_STAMINA - the client predicts the same gate.
 const DODGE_STAMINA: int = 25
 ## How long incoming damage is ignored after a roll (ms). Slightly longer than the
 ## dash so a well-timed roll cleanly avoids a hit.
@@ -18,7 +18,7 @@ func data_request_handler(peer_id: int, instance: ServerInstance, _args: Diction
 		return {}
 	var energy: float = player.stats_component.get_stat(Stat.ENERGY)
 	if energy < float(DODGE_STAMINA):
-		return {}  # not enough stamina — no roll
+		return {}  # not enough stamina - no roll
 	player.stats_component.set_stat(Stat.ENERGY, maxf(0.0, energy - DODGE_STAMINA))
 	player.dodge_invuln_until_ms = Time.get_ticks_msec() + INVULN_MS
 	return {}

@@ -1,5 +1,5 @@
 extends MenuShell
-## Leaderboard — split view (quests/jobs style): a list of board domains on the
+## Leaderboard - split view (quests/jobs style): a list of board domains on the
 ## left, and on the right the selected board's period toggles (This Week / Today
 ## / All-Time, where relevant) above the ranked entries. Player rows are
 ## clickable to open that player's profile.
@@ -259,7 +259,7 @@ func _apply_response(response: Dictionary) -> void:
 
 	var entries: Array = response.get("entries", [])
 	if entries.is_empty():
-		_status_label.text = "No entries yet — go earn some glory."
+		_status_label.text = "No entries yet - go earn some glory."
 		return
 	_status_label.text = "Top %d" % entries.size()
 

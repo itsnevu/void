@@ -1,7 +1,7 @@
 class_name MineableNode
 extends Area2D
 ## A world-space gathering node (ore vein, herb patch, etc.). v2: swing-based.
-## A pickaxe swing's hitbox overlaps this Area2D → register_gather_hit fires
+## A pickaxe swing's hitbox overlaps this Area2D -> register_gather_hit fires
 ## server-side, accumulates per-player extraction progress, and triggers a
 ## yield once the player's progress drains the per-extraction HP.
 ##
@@ -13,7 +13,7 @@ extends Area2D
 ## - **Continuous regen while charges > 0**: +1 every charge_regen_seconds.
 ## - **Snap-refill when fully depleted**: a depleted node waits longer
 ##   (depleted_recharge_seconds), then refills all charges at once. Prevents
-##   the "1 charge appears → 3 players race to grab it" griefing pattern.
+##   the "1 charge appears -> 3 players race to grab it" griefing pattern.
 ## - **Job XP routing**: data.job_xp is a dict so a healing herb can grant
 ##   both harvesting AND medicine; an ore vein just grants mining.
 ##
@@ -34,13 +34,13 @@ extends Area2D
 # --- Server-only state ------------------------------------------------------
 var _charges: int
 ## Stamp of the last regen tick. Two meanings depending on _charges:
-##   _charges > 0     → time of last continuous regen
-##   _charges == 0    → time the node hit empty (waits depleted_recharge_seconds
+##   _charges > 0     -> time of last continuous regen
+##   _charges == 0    -> time the node hit empty (waits depleted_recharge_seconds
 ##                      from this stamp before snap-refilling)
 var _last_regen_ms: int
-## player_id → remaining extraction HP for that player's current yield.
+## player_id -> remaining extraction HP for that player's current yield.
 var _progress_hp_by_player: Dictionary[int, int]
-## player_id → ticks_msec at which their cooldown ends.
+## player_id -> ticks_msec at which their cooldown ends.
 var _cooldown_until_ms_by_player: Dictionary[int, int]
 
 # --- Client-only charge prediction -----------------------------------------
@@ -72,7 +72,7 @@ func _ready() -> void:
 	if multiplayer.is_server():
 		_charges = data.max_charges
 		_last_regen_ms = Time.get_ticks_msec()
-	# Input is swing-driven now — the pickaxe's hitbox drives extraction, so
+	# Input is swing-driven now - the pickaxe's hitbox drives extraction, so
 	# this Area2D never needs pickable input on either side.
 	input_pickable = false
 	# Charge prediction only runs once a client receives state and arms it.
@@ -123,7 +123,7 @@ func register_gather_hit(player: Player, damage: int, instance: ServerInstance, 
 		return {"ok": false, "reason": "cooldown"}
 
 	# Mining-tree gates only apply to mining nodes. The check is "is mining
-	# in this node's job_xp dict" — that lets a future "ore that also grants
+	# in this node's job_xp dict" - that lets a future "ore that also grants
 	# smithing XP" still respect mining level/perks while keeping herbs
 	# free of mining bias.
 	var is_mining_node: bool = data.job_xp.has(&"mining")
@@ -141,7 +141,7 @@ func register_gather_hit(player: Player, damage: int, instance: ServerInstance, 
 	# refills before we ask for a charge.
 	_regen()
 
-	# Depleted nodes reject the swing outright — we drain nothing so the
+	# Depleted nodes reject the swing outright - we drain nothing so the
 	# client never shows a teasing progress bar on a vein that can't yield.
 	# The 0/N charge label + client-side regen prediction tell the player to
 	# come back later. (Checked here, before draining, so a fresh swinger
@@ -174,7 +174,7 @@ func register_gather_hit(player: Player, damage: int, instance: ServerInstance, 
 			"node_path": node_path,
 		}
 
-	# Full drain — consume a charge (guaranteed > 0 by the early reject above).
+	# Full drain - consume a charge (guaranteed > 0 by the early reject above).
 	_consume_charge(now_ms)
 	_progress_hp_by_player.erase(player_id)
 
@@ -188,7 +188,7 @@ func register_gather_hit(player: Player, damage: int, instance: ServerInstance, 
 	var ore_id: int = int(data.ore.get_meta(&"id", 0))
 	Inventory.add_item(player.player_resource.inventory, ore_id, amount)
 
-	# Job XP — iterate the dict so a node can credit multiple jobs at once.
+	# Job XP - iterate the dict so a node can credit multiple jobs at once.
 	var grants: Array = []
 	for job_name: StringName in data.job_xp:
 		var raw: int = int(data.job_xp[job_name])
@@ -241,7 +241,7 @@ func register_gather_hit(player: Player, damage: int, instance: ServerInstance, 
 
 
 # ---------------------------------------------------------------------------
-# Client-side visual state — called by [member ClientState] when a gather
+# Client-side visual state - called by [member ClientState] when a gather
 # result comes in for THIS node. Only the player who swung will hit this
 # path; others see stale visuals until they swing it themselves. Acceptable
 # for prototype; broadcast can come later.
@@ -252,7 +252,7 @@ func register_gather_hit(player: Player, damage: int, instance: ServerInstance, 
 ## back up over time. Two independent visibilities so the bar isn't lingering
 ## "full" after a yield while the charge label keeps reading the partial state:
 ##   - Bar:    only while mid-extraction (0 < progress < extraction_hp).
-##             Drains like mob HP (extraction_hp → 0), then hides on yield.
+##             Drains like mob HP (extraction_hp -> 0), then hides on yield.
 ##   - Charge: only when the vein is partially depleted (charges < max), and
 ##             predicted forward by [method _process] between swings.
 func apply_visual_state(progress_hp: int, extraction_hp: int, charges: int, max_charges: int) -> void:
@@ -323,7 +323,7 @@ func _consume_charge(now_ms: int) -> void:
 		# Mark the depletion time so the longer recharge window starts here.
 		_last_regen_ms = now_ms
 	elif _charges == data.max_charges - 1:
-		# Just dropped from full → start the continuous regen clock.
+		# Just dropped from full -> start the continuous regen clock.
 		_last_regen_ms = now_ms
 
 
@@ -351,13 +351,13 @@ func _regen() -> void:
 
 
 # ---------------------------------------------------------------------------
-# Sprite plumbing — read texture + region from data on _ready. Region is
+# Sprite plumbing - read texture + region from data on _ready. Region is
 # applied only when set (zero-sized rect = full texture).
 # ---------------------------------------------------------------------------
 
 func _apply_sprite() -> void:
 	if data == null or data.texture == null:
 		return
-	# Works whether `data.texture` is a plain Texture2D or an AtlasTexture —
+	# Works whether `data.texture` is a plain Texture2D or an AtlasTexture -
 	# AtlasTexture is itself a Texture2D and carries its own region.
 	_sprite.texture = data.texture

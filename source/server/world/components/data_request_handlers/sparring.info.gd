@@ -15,10 +15,10 @@ func data_request_handler(peer_id: int, instance: ServerInstance, args: Dictiona
 	if player == null:
 		return {"ok": false, "reason": "no_player"}
 	# Reject clicks from far away (clients can still click the master's sprite
-	# from anywhere on screen — the server is the authority on proximity).
+	# from anywhere on screen - the server is the authority on proximity).
 	if player.global_position.distance_to(master.global_position) > 120.0:
 		return {"ok": false, "reason": "too_far"}
-	# Already fighting elsewhere — block opening a new duel dialog.
+	# Already fighting elsewhere - block opening a new duel dialog.
 	if player.player_resource.in_match:
 		return {"ok": false, "reason": "in_match"}
 

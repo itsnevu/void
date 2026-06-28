@@ -1,5 +1,5 @@
 extends VBoxContainer
-## Jobs / Professions panel — split-view layout (Wakfu-style):
+## Jobs / Professions panel - split-view layout (Wakfu-style):
 ##   - Left:  scrollable list of jobs grouped by Gathering / Crafting. The
 ##            whole row is one toggle button.
 ##   - Right: details for the selected job. A fixed header (title + XP bar)
@@ -7,13 +7,13 @@ extends VBoxContainer
 ##            Recipes); the active section fills the remaining space and owns
 ##            the ONLY scroll in the column.
 ##
-## The right column deliberately has no outer ScrollContainer — an earlier
+## The right column deliberately has no outer ScrollContainer - an earlier
 ## version nested the per-section scroll inside an outer scroll, and the inner
 ## one collapsed to ~0 height (a ScrollContainer's min height is 0), which is
 ## why the Sources/Recipes content rendered blank. One scroll per region.
 ##
 ## Sources / Recipes read JobRegistry directly (JobPerks is preloaded in
-## common/, so the client already has the rich Item refs + level gates) — no
+## common/, so the client already has the rich Item refs + level gates) - no
 ## server roundtrip needed for that static content.
 
 @onready var skill_list: VBoxContainer = %SkillList
@@ -37,7 +37,7 @@ func _ready() -> void:
 
 
 # ---------------------------------------------------------------------------
-# Static layout — one HBox, left list scroll + right details column.
+# Static layout - one HBox, left list scroll + right details column.
 # ---------------------------------------------------------------------------
 
 func _build_layout() -> void:
@@ -63,7 +63,7 @@ func _build_layout() -> void:
 	_row_container.add_theme_constant_override(&"separation", 4)
 	left_scroll.add_child(_row_container)
 
-	# Right: details. NOT wrapped in a ScrollContainer — sections scroll
+	# Right: details. NOT wrapped in a ScrollContainer - sections scroll
 	# themselves so the header (title + XP) stays pinned.
 	_details_root = VBoxContainer.new()
 	_details_root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -96,7 +96,7 @@ func _on_skills_received(data: Dictionary) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Left column — job list
+# Left column - job list
 # ---------------------------------------------------------------------------
 
 func _rebuild_rows() -> void:
@@ -155,8 +155,8 @@ func _add_row(skill_name: String, info: Dictionary) -> void:
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.custom_minimum_size = Vector2(0, 40)
 
-	var badge: String = "   ●%d" % points if points > 0 else ""
-	button.text = "%s — Lv %d%s" % [display, skill_level, badge]
+	var badge: String = "   -%d" % points if points > 0 else ""
+	button.text = "%s - Lv %d%s" % [display, skill_level, badge]
 	if points > 0:
 		button.add_theme_color_override(&"font_color", Color(1.0, 0.9, 0.5))
 
@@ -174,7 +174,7 @@ func _select_job(skill_name: String) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Right column — details for [member _selected]
+# Right column - details for [member _selected]
 # ---------------------------------------------------------------------------
 
 func _rebuild_details() -> void:
@@ -197,7 +197,7 @@ func _rebuild_details() -> void:
 
 	# --- Pinned header ---
 	var title: Label = Label.new()
-	title.text = "%s — Lv %d" % [display, skill_level]
+	title.text = "%s - Lv %d" % [display, skill_level]
 	title.add_theme_font_size_override(&"font_size", 20)
 	title.add_theme_color_override(&"font_color", Color(1.0, 0.95, 0.75))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -241,7 +241,7 @@ func _rebuild_details() -> void:
 	section_bar.add_theme_constant_override(&"separation", 4)
 	_details_root.add_child(section_bar)
 
-	# Content area fills the rest of the column — gives the active section's
+	# Content area fills the rest of the column - gives the active section's
 	# ScrollContainer a concrete height to scroll within.
 	var content_area: PanelContainer = PanelContainer.new()
 	content_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -278,7 +278,7 @@ func _select_section(idx: int, buttons: Array[Button], contents: Array[Control])
 
 
 # ---------------------------------------------------------------------------
-# Section builders — each fills the content area; lists own their scroll.
+# Section builders - each fills the content area; lists own their scroll.
 # ---------------------------------------------------------------------------
 
 func _build_bonuses_section(info: Dictionary) -> Control:
@@ -294,7 +294,7 @@ func _build_bonuses_section(info: Dictionary) -> Control:
 
 	for line in info.get("perks", []):
 		var bullet: Label = Label.new()
-		bullet.text = "• " + str(line)
+		bullet.text = "- " + str(line)
 		bullet.add_theme_color_override(&"font_color", Color(0.6, 0.85, 1.0))
 		vbox.add_child(bullet)
 
@@ -330,7 +330,7 @@ func _build_perks_section(info: Dictionary) -> Control:
 	return scroll
 
 
-## Rich-row list — one row per item with icon, name, and the level it's gated
+## Rich-row list - one row per item with icon, name, and the level it's gated
 ## behind. Used for Sources (ores to gather) and Recipes (craftable outputs).
 func _build_item_list_section(items: Array[Item], levels: Array[int], hint: String) -> Control:
 	var scroll: ScrollContainer = ScrollContainer.new()

@@ -5,7 +5,7 @@ extends Control
 ##
 ## All UI children are wired through @export node paths so the .tscn stays
 ## editable in the inspector. Quest rows themselves are spawned dynamically
-## under entries_box from the server response — variable count not worth
+## under entries_box from the server response - variable count not worth
 ## hand-authoring 3 slots.
 
 @export var title_label: Label
@@ -25,7 +25,7 @@ func _on_visibility_changed() -> void:
 		_refresh()
 
 
-## Called by HUD.display_menu when the board is opened (arg is unused — there's
+## Called by HUD.display_menu when the board is opened (arg is unused - there's
 ## only one set of dailies per player, not per board).
 func open(_unused: int) -> void:
 	_refresh()
@@ -89,12 +89,12 @@ func _build_row(entry: Dictionary) -> Control:
 	meta.add_child(progress)
 
 	var reward: Label = Label.new()
-	reward.text = "+%d XP · %d g" % [int(entry.get("reward_xp", 0)), int(entry.get("reward_gold", 0))]
+	reward.text = "+%d XP - %d g" % [int(entry.get("reward_xp", 0)), int(entry.get("reward_gold", 0))]
 	meta.add_child(reward)
 
 	var claim: Button = Button.new()
 	if bool(entry.get("claimed", false)):
-		claim.text = "Claimed ✓"
+		claim.text = "Claimed v"
 		claim.disabled = true
 	elif bool(entry.get("complete", false)):
 		claim.text = "Claim"
@@ -120,7 +120,7 @@ func _on_claimed(response: Dictionary) -> void:
 	if not bool(response.get("ok", false)):
 		status_label.text = "Claim failed: %s" % response.get("reason", "unknown")
 		return
-	# Re-fetch so the row updates to "Claimed ✓".
+	# Re-fetch so the row updates to "Claimed v".
 	_refresh()
 
 

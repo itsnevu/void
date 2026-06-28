@@ -1,7 +1,7 @@
 class_name StatusService
 ## Pushes a player their own status snapshot (timed buffs, damage-over-time
 ## debuffs, in-combat flag) for the HUD status strip. Server-side only, called
-## once per second from the instance StatusTick — 1 Hz is plenty for icons
+## once per second from the instance StatusTick - 1 Hz is plenty for icons
 ## that only ever show whole-second countdowns.
 ##
 ## Durations cross the wire as REMAINING SECONDS, never absolute timestamps:
@@ -21,7 +21,7 @@ static func sync(player: Player) -> void:
 	var buffs: Array = []
 	var debuffs: Array = []
 	# A timed stat buff with a NEGATIVE amount is a debuff (Crippling Strike's
-	# move_speed slow) — route it to the debuff strip with a friendly id so the
+	# move_speed slow) - route it to the debuff strip with a friendly id so the
 	# HUD shows it red/down, not green/up.
 	for buff: Dictionary in player.player_resource.active_buffs:
 		var stat: String = String(buff["stat"])

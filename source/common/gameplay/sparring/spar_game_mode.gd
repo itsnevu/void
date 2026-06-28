@@ -4,12 +4,12 @@ extends Resource
 ## fighters keep their own stats untouched, and the win condition is the service's
 ## built-in "last team standing". Subclass + override to build modifiers
 ## (level-normalized stats, fixed loadouts, ...) or, later, alternate win
-## conditions (first blood, point score, timed) — the service calls these hooks,
+## conditions (first blood, point score, timed) - the service calls these hooks,
 ## so new modes are data: author a resource, assign it on the station.
 
 
 ## Called for each fighter right after the spawn/HP-reset, before the countdown.
-## Default: do nothing — players fight with the stats they walked in with.
+## Default: do nothing - players fight with the stats they walked in with.
 func apply_to_fighter(_player: Player) -> void:
 	pass
 

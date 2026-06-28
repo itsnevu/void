@@ -33,7 +33,7 @@ func data_request_handler(
 		return {"ok": false, "reason": "cant_equip"}
 
 	if item is GearItem:
-		# Combat lock — but WEAPONS stay swappable mid-fight (sword for melee,
+		# Combat lock - but WEAPONS stay swappable mid-fight (sword for melee,
 		# bow for range is core play). Only armor/rings/etc. are locked so you
 		# can't re-spec defenses under pressure.
 		if player.is_in_combat() and item.slot.key != &"weapon":

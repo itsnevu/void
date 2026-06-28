@@ -256,15 +256,15 @@ func get_look_direction() -> Vector2:
 
 
 ## True while combat presses should be swallowed by the UI: the pointer is
-## over an INTERACTIVE control (mouse_filter STOP — buttons, menus, chat
+## over an INTERACTIVE control (mouse_filter STOP - buttons, menus, chat
 ## panel; full-rect PASS overlays like the touch sticks don't count), or a
 ## text field has keyboard focus (typing "qe" in chat must not cast). Combat
-## input is POLLED (Input.is_action_*), which bypasses GUI consumption — so
+## input is POLLED (Input.is_action_*), which bypasses GUI consumption - so
 ## without this gate, clicking any menu button also swings the weapon.
 ## Releases are deliberately NOT gated: a release completes an action begun
 ## outside the UI (e.g. a drawn bow) and can't start a new one.
 func _ui_blocks_combat() -> bool:
-	# World interactables (talkable NPCs) suppress combat exactly like a STOP control —
+	# World interactables (talkable NPCs) suppress combat exactly like a STOP control -
 	# so clicking an NPC to talk doesn't ALSO fire your weapon. They're Area2Ds in the
 	# world, which the gui_get_hovered_control check below can't see.
 	if ClientState.world_interactables_hovered > 0:
@@ -299,7 +299,7 @@ func is_attack_just_released() -> bool:
 	return Input.is_action_just_released(&"player_shoot")
 
 
-## Special / secondary attack — second weapon ability slot. Mirrors the
+## Special / secondary attack - second weapon ability slot. Mirrors the
 ## primary attack helpers (pressed / just_pressed / just_released) so
 ## weapons can opt into multi-input flows (charged abilities, for instance)
 ## without bespoke input glue.
@@ -323,7 +323,7 @@ func is_special_just_released() -> bool:
 	return Input.is_action_just_released(&"player_special")
 
 
-## Third weapon ability slot (player_special_2, default E) — only used by
+## Third weapon ability slot (player_special_2, default E) - only used by
 ## weapons whose capacity lets a second mastery special mount (abilities[2]).
 func is_special2_pressed() -> bool:
 	if not enabled: return false

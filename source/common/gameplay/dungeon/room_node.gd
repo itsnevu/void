@@ -3,22 +3,22 @@ extends Area2D
 ## A dungeon ROOM encounter. Place it in the dungeon map with a CollisionShape2D
 ## covering the room's floor, and add SpawnMarker children for its mobs. When the
 ## WHOLE party has stepped inside, the encounter activates: it spawns mobs WAVE BY
-## WAVE (markers grouped by SpawnMarker.wave — clear one wave before the next
+## WAVE (markers grouped by SpawnMarker.wave - clear one wave before the next
 ## appears; default all-0 = a single pack) and tracks them; once the LAST wave is
 ## dead the room is CLEARED. The final room's clear ends the whole dungeon.
 ##
-## Server-authoritative — the encounter logic runs only on the world server; the
+## Server-authoritative - the encounter logic runs only on the world server; the
 ## mobs sync themselves and the door SEAL is pushed to every client (see
-## _push_seal — movement is client-authoritative, so the collision change must
+## _push_seal - movement is client-authoritative, so the collision change must
 ## happen on each client).
 
-## Beat between sealing the room and the first wave spawning — the "doors slam, here it comes"
+## Beat between sealing the room and the first wave spawning - the "doors slam, here it comes"
 ## telegraph. Editable per room in the inspector.
 @export var spawn_delay_s: float = 0.7
-## Beat between clearing one wave and the next spawning — a breath of "more coming" tension.
+## Beat between clearing one wave and the next spawning - a breath of "more coming" tension.
 @export var wave_delay_s: float = 1.2
 
-## The last room — clearing it clears the dungeon (pushes dungeon.cleared). The
+## The last room - clearing it clears the dungeon (pushes dungeon.cleared). The
 ## reward lives on the run's DungeonResource now, not here.
 @export var final_room: bool = false
 ## Doors this room SEALS when the encounter starts and OPENS when it clears (e.g.
@@ -57,7 +57,7 @@ func _on_body_entered(body: Node2D) -> void:
 	if _whole_party_inside():
 		_activated = true
 		# Deferred: we're inside a physics callback (body_entered). Spawning a mob
-		# now toggles collision shapes mid-flush — "Can't change this state while
+		# now toggles collision shapes mid-flush - "Can't change this state while
 		# flushing queries". Let the frame's physics finish first.
 		_activate.call_deferred()
 
@@ -67,10 +67,10 @@ func _on_body_exited(body: Node2D) -> void:
 		_inside.erase(body.name.to_int())
 
 
-## True when EVERY living player in this (private) instance is inside the room —
+## True when EVERY living player in this (private) instance is inside the room -
 ## the "wait for the whole party" gate. Dead/respawning members don't block it.
 func _whole_party_inside() -> bool:
-	var instance: Node = get_parent().get_parent() # RoomNode → Map → ServerInstance
+	var instance: Node = get_parent().get_parent() # RoomNode -> Map -> ServerInstance
 	if instance == null:
 		return false
 	var present: int = 0
@@ -85,17 +85,17 @@ func _whole_party_inside() -> bool:
 
 
 ## Activate the encounter: seal the party in, beat, then spawn the FIRST wave. Mobs come wave by
-## wave — each must be cleared before the next appears (SpawnMarker.wave groups them; default 0 =
+## wave - each must be cleared before the next appears (SpawnMarker.wave groups them; default 0 =
 ## one wave, the classic single pack). The room clears when the LAST wave is down.
 func _activate() -> void:
 	var map: Node = get_parent()
 	_container = map.replicated_props_container if map != null else null
 	if _container == null:
-		push_warning("RoomNode '%s': map has no ReplicatedPropsContainer — no mobs." % name)
+		push_warning("RoomNode '%s': map has no ReplicatedPropsContainer - no mobs." % name)
 		return
 	_resolve_difficulty(map)
 	_build_waves()
-	# Seal the party in FIRST, then a short beat before the first wave — the "doors slam, here it
+	# Seal the party in FIRST, then a short beat before the first wave - the "doors slam, here it
 	# comes" telegraph reads far better than spawning the instant the trigger fires.
 	_push_seal(true)
 	await get_tree().create_timer(spawn_delay_s).timeout
@@ -107,7 +107,7 @@ func _activate() -> void:
 ## Hard-mode HP / damage multipliers off the run's DungeonResource (service defaults otherwise),
 ## resolved once so every wave scales identically.
 func _resolve_difficulty(map: Node) -> void:
-	var instance: Node = map.get_parent() if map != null else null # RoomNode → Map → ServerInstance
+	var instance: Node = map.get_parent() if map != null else null # RoomNode -> Map -> ServerInstance
 	_hard = DungeonService.is_hard_run(instance)
 	var dres: DungeonResource = instance.instance_resource as DungeonResource if instance != null else null
 	_hp_mult = dres.hard_health_mult if dres != null else DungeonService.HARD_HEALTH_MULT
@@ -176,10 +176,10 @@ func _spawn_marker_mob(marker: SpawnMarker) -> void:
 
 
 ## Force DUNGEON behavior on a freshly-spawned mob regardless of its enemy type:
-## never respawn (single-life), never leash (commit to the fight), and — unless
-## it's the boss — drop nothing (the payoff is completing the dungeon, not farming
+## never respawn (single-life), never leash (commit to the fight), and - unless
+## it's the boss - drop nothing (the payoff is completing the dungeon, not farming
 ## trash). Server-side overrides applied after the spawn's _ready. NB: replace the
-## loot array with a fresh one — never clear it in place, it's shared with the
+## loot array with a fresh one - never clear it in place, it's shared with the
 ## EnemyTypeResource. Shared with BossController (it stamps its summoned adds).
 static func make_dungeon_mob(mob: Node, is_boss: bool) -> void:
 	mob.respawns = false
@@ -197,7 +197,7 @@ func _on_mob_died() -> void:
 
 
 ## The current wave is cleared: spawn the next after a short beat, or clear the room if that was the
-## last wave. Async (the inter-wave beat) — fine, it's fired from a death callback.
+## last wave. Async (the inter-wave beat) - fine, it's fired from a death callback.
 func _advance_wave() -> void:
 	if _current_wave + 1 < _waves.size():
 		await get_tree().create_timer(wave_delay_s).timeout
@@ -208,7 +208,7 @@ func _advance_wave() -> void:
 		_clear()
 
 
-## Room cleared — open the way onward. The FINAL room ends the whole run:
+## Room cleared - open the way onward. The FINAL room ends the whole run:
 ## DungeonService shows the recap + auto-ejects the party after a timer.
 func _clear() -> void:
 	if _cleared:
@@ -216,14 +216,14 @@ func _clear() -> void:
 	_cleared = true
 	_push_seal(false) # open the way onward
 	if final_room:
-		var instance: Node = get_parent().get_parent() # RoomNode → Map → ServerInstance
+		var instance: Node = get_parent().get_parent() # RoomNode -> Map -> ServerInstance
 		if instance != null:
 			DungeonService.on_dungeon_cleared(instance) # reward read off the run's resource
 
 
 ## Tell every client in this instance to seal (or open) this room's doors.
 ## Movement is client-authoritative, so the collision change has to happen on each
-## client — we push the door node PATHS (relative to the map; the authored doors
+## client - we push the door node PATHS (relative to the map; the authored doors
 ## already exist on every client) and let the clients toggle them. No prop baking
 ## or ids needed.
 func _push_seal(sealed: bool) -> void:

@@ -19,7 +19,7 @@ func data_request_handler(peer_id: int, instance: ServerInstance, args: Dictiona
 
 	var all: Array = []
 
-	# World + system chat are ephemeral (live-only) — nothing to replay on join.
+	# World + system chat are ephemeral (live-only) - nothing to replay on join.
 	# Only guild + DM keep history.
 
 	# Guild (guild:<guild_id>) only if player is in a guild

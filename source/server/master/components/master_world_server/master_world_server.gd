@@ -50,7 +50,7 @@ func fetch_server_info(info: Dictionary) -> void:
 
 ## Client-safe view of the live worlds: name / motd / pvp only. The full roster
 ## (connected_worlds) also holds each world's address, port and heartbeat snapshot
-## (player rosters, chat tail, server logs) — that must never reach a game client,
+## (player rosters, chat tail, server logs) - that must never reach a game client,
 ## so every world-list payload (login/list responses + gateway broadcasts) is
 ## projected through here. The raw roster stays server-side for handoff/dashboard.
 func get_public_worlds() -> Dictionary:
@@ -69,7 +69,7 @@ func get_public_worlds() -> Dictionary:
 
 ## Resolve a world's display name to its live peer id, or 0 if no world by that
 ## name is currently connected. Character ids are per-world (each world has its
-## own DB), so a last-login kick must target the player's actual world by name —
+## own DB), so a last-login kick must target the player's actual world by name -
 ## broadcasting the id could boot a same-id character on a different world.
 func world_id_by_name(world_name: String) -> int:
 	if world_name.is_empty():
@@ -91,7 +91,7 @@ func heartbeat(snapshot: Dictionary) -> void:
 	connected_worlds[world_peer_id]["last_heartbeat_at"] = int(Time.get_unix_time_from_system())
 
 
-# --- Dashboard-driven outbound RPCs (master → world) ---
+# --- Dashboard-driven outbound RPCs (master -> world) ---
 
 ## Tell the world with this peer_id to flush all players to DB + backup.
 func tell_world_to_save(world_peer_id: int) -> bool:
@@ -118,7 +118,7 @@ func tell_world_to_broadcast(world_peer_id: int, message: String) -> bool:
 
 
 ## Tell one world to run a staged restart countdown (warns players over [param seconds],
-## then a final save). Does NOT quit the world — the deploy's `systemctl stop` does that
+## then a final save). Does NOT quit the world - the deploy's `systemctl stop` does that
 ## (and saves again via WorldServer._notification). Returns true if the world is known.
 func tell_world_to_restart(world_peer_id: int, seconds: int, message: String) -> bool:
 	if not connected_worlds.has(world_peer_id):
@@ -152,7 +152,7 @@ func tell_all_worlds_to_restart(seconds: int, message: String) -> int:
 @rpc("authority") func master_revoke_role(_player_id: int, _role: String) -> void: pass
 
 
-## Dashboard helpers — each returns true if the targeted world is known.
+## Dashboard helpers - each returns true if the targeted world is known.
 func tell_world_to_mute(world_id: int, player_id: int, reason: String, duration_ms: int) -> bool:
 	if not connected_worlds.has(world_id): return false
 	master_mute.rpc_id(world_id, player_id, reason, duration_ms)

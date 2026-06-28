@@ -1,6 +1,6 @@
 extends MenuShell
-## Guild menu (Phase 1) — MenuShell split view, replacing the old Navigator
-## stack. Left: your joined guilds (★ = active/tagged) + Create + Browse.
+## Guild menu (Phase 1) - MenuShell split view, replacing the old Navigator
+## stack. Left: your joined guilds (* = active/tagged) + Create + Browse.
 ## Right: the selected guild's detail with Profile / Members / Glory / Settings
 ## sub-views. Browse / view / create / leave / edit are wired here; tag, invite,
 ## kick and rank-change land in Phase 2 (see docs/guild.md).
@@ -25,7 +25,7 @@ var _selected_name: String
 var _section: String = "profile"
 ## Last guild.get payload for the selected guild.
 var _guild: Dictionary
-## Last guild.get.members payload (members + ranks + viewer) — drives the
+## Last guild.get.members payload (members + ranks + viewer) - drives the
 ## manage popup's gating + rank dropdown.
 var _members_data: Dictionary
 ## True while showing a guild the viewer isn't in (opened via "Show Guild" on
@@ -43,7 +43,7 @@ func _ready() -> void:
 
 
 ## Open to a specific guild by name (e.g. "Show Guild" from another player's
-## profile — possibly a guild you're not in). Called by the HUD's display_menu
+## profile - possibly a guild you're not in). Called by the HUD's display_menu
 ## with the Variant arg.
 func open(arg: Variant) -> void:
 	if arg is String and not (arg as String).is_empty():
@@ -79,7 +79,7 @@ func _build_layout() -> void:
 
 
 # ---------------------------------------------------------------------------
-# Left column — joined guilds + Create / Browse
+# Left column - joined guilds + Create / Browse
 # ---------------------------------------------------------------------------
 
 func _refresh() -> void:
@@ -90,7 +90,7 @@ func _on_joined(data: Dictionary) -> void:
 	_joined = data.get("guilds", [])
 	_rebuild_left()
 	# Viewing another player's guild (Show Guild): keep it shown, don't snap to
-	# the default. One-shot — a later refresh returns to normal behavior.
+	# the default. One-shot - a later refresh returns to normal behavior.
 	if _external_view:
 		_external_view = false
 		return
@@ -120,13 +120,13 @@ func _rebuild_left() -> void:
 		btn.custom_minimum_size = Vector2(0, 40)
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.button_pressed = (gname == _selected_name)
-		btn.text = ("★ " if bool(g.get("is_active", false)) else "") + gname
+		btn.text = ("* " if bool(g.get("is_active", false)) else "") + gname
 		btn.pressed.connect(_select_guild.bind(gname))
 		_left_list.add_child(btn)
 
 	_left_list.add_child(HSeparator.new())
 	_left_list.add_child(_make_left_action("+  Create guild", _show_create))
-	_left_list.add_child(_make_left_action("🔍  Browse", _show_browse))
+	_left_list.add_child(_make_left_action("  Browse", _show_browse))
 
 	# Touch/mouse drag-to-scroll for the joined-guilds list.
 	DragScroll.enable(_left_list.get_parent() as ScrollContainer)
@@ -167,7 +167,7 @@ func _on_guild_loaded(data: Dictionary) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Right column — guild detail (header + section tabs + section content)
+# Right column - guild detail (header + section tabs + section content)
 # ---------------------------------------------------------------------------
 
 func _rebuild_right() -> void:
@@ -200,7 +200,7 @@ func _rebuild_right() -> void:
 	title_col.add_child(name_label)
 
 	var sub: Label = Label.new()
-	sub.text = "Leader: %s   ·   %d / %d members" % [
+	sub.text = "Leader: %s   -   %d / %d members" % [
 		str(_guild.get("leader_name", "?")),
 		int(_guild.get("size", 0)),
 		int(_guild.get("max_members", Guild.MAX_MEMBERS)),
@@ -225,7 +225,7 @@ func _rebuild_right() -> void:
 	var sections: Array = [["profile", "Profile"], ["members", "Members"]]
 	if is_member:
 		sections.append(["more", "More"])
-	# "settings" is a sub-view of the More hub — keep More highlighted while on it.
+	# "settings" is a sub-view of the More hub - keep More highlighted while on it.
 	# (Guild Hall is a modal overlay, not a section.)
 	if _section != "settings" and not _section_exists(sections, _section):
 		_section = "profile"
@@ -268,7 +268,7 @@ func _select_section(section: String) -> void:
 
 
 ## Tag / untag the selected guild. The server gates it (safe zone + cooldown);
-## on failure we surface the reason. A refresh updates the ★ marker + button.
+## on failure we surface the reason. A refresh updates the * marker + button.
 func _on_tag_pressed() -> void:
 	Client.request_data(&"guild.tag", func(data: Dictionary) -> void:
 		if not bool(data.get("ok", false)):
@@ -289,7 +289,7 @@ func _view_profile(parent: Node) -> void:
 
 	var big_logo: TextureRect = TextureRect.new()
 	# EXPAND_IGNORE_SIZE pins the node to custom_minimum_size no matter how tall
-	# the row gets — a long description must never inflate the logo. SHRINK_CENTER
+	# the row gets - a long description must never inflate the logo. SHRINK_CENTER
 	# keeps the HBox from stretching it vertically.
 	big_logo.custom_minimum_size = Vector2(120, 120)
 	big_logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -300,9 +300,9 @@ func _view_profile(parent: Node) -> void:
 
 	var desc: String = str(_guild.get("description", ""))
 	# RichTextLabel with fit_content OFF: fixed-height box (matches the logo) that
-	# scrolls internally when the text overflows — the row's size is CONSTANT
+	# scrolls internally when the text overflows - the row's size is CONSTANT
 	# regardless of description length. Also immune to the autowrap-Label-in-HBox
-	# min-size oscillation that used to hard-crash this view. bbcode stays OFF —
+	# min-size oscillation that used to hard-crash this view. bbcode stays OFF -
 	# descriptions are player-written, no tag injection.
 	var desc_label: RichTextLabel = RichTextLabel.new()
 	desc_label.bbcode_enabled = true
@@ -327,7 +327,7 @@ func _view_profile(parent: Node) -> void:
 
 	box.add_child(_make_section_header("Trophies"))
 	var trophies: Label = Label.new()
-	trophies.text = "No trophies yet — earn them through guild feats. (coming soon)"
+	trophies.text = "No trophies yet - earn them through guild feats. (coming soon)"
 	trophies.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	trophies.add_theme_color_override(&"font_color", COLOR_MUTED)
 	trophies.add_theme_font_size_override(&"font_size", 12)
@@ -605,15 +605,15 @@ func _refresh_current() -> void:
 		{"q": _selected_name}, _inst())
 
 
-## The "More" hub — Settings plus space for future guild features. Settings is
+## The "More" hub - Settings plus space for future guild features. Settings is
 ## live; the rest are placeholders that signal the roadmap (see docs/guild.md).
 func _view_more(parent: Node) -> void:
 	var box: VBoxContainer = _padded(parent)
-	box.add_child(_more_entry("🏛  Guild Hall", true, func() -> void: _open_hall_panel()))
-	box.add_child(_more_entry("⚙  Settings", true, func() -> void: _select_section("settings")))
-	box.add_child(_more_entry("🏆  Trophies", false, Callable()))
-	box.add_child(_more_entry("🤝  Allies", false, Callable()))
-	box.add_child(_more_entry("🏝  Island", false, Callable()))
+	box.add_child(_more_entry("  Guild Hall", true, func() -> void: _open_hall_panel()))
+	box.add_child(_more_entry("  Settings", true, func() -> void: _select_section("settings")))
+	box.add_child(_more_entry("  Trophies", false, Callable()))
+	box.add_child(_more_entry("  Allies", false, Callable()))
+	box.add_child(_more_entry("  Island", false, Callable()))
 
 	box.add_child(HSeparator.new())
 	if bool(_guild.get("is_leader", false)):
@@ -625,7 +625,7 @@ func _view_more(parent: Node) -> void:
 		box.add_child(leader_note)
 	else:
 		var leave: Button = Button.new()
-		leave.text = "🚪  Leave guild"
+		leave.text = "  Leave guild"
 		leave.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		leave.custom_minimum_size = Vector2(0, 42)
 		leave.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -692,7 +692,7 @@ func _open_hall_panel() -> void:
 	var header: HBoxContainer = HBoxContainer.new()
 	box.add_child(header)
 	var title: Label = Label.new()
-	title.text = "🏛  Guild Hall"
+	title.text = "  Guild Hall"
 	title.add_theme_font_size_override(&"font_size", 20)
 	title.add_theme_color_override(&"font_color", COLOR_GOLD)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -881,7 +881,7 @@ func _deposit_treasury(amount: int) -> void:
 		{"id": int(_guild.get("id", 0)), "amount": amount}, _inst())
 
 
-## Re-fetch the guild and update the open Hall modal's widgets IN PLACE — no
+## Re-fetch the guild and update the open Hall modal's widgets IN PLACE - no
 ## close/reopen, so no flicker and the scroll position is preserved. Also quietly
 ## rebuilds the side panel behind the overlay (member count etc. may have changed).
 func _refresh_hall_in_place() -> void:
@@ -921,7 +921,7 @@ func _view_settings(parent: Node) -> void:
 	var box: VBoxContainer = _padded(parent)
 
 	var back: Button = Button.new()
-	back.text = "←  More"
+	back.text = "<-  More"
 	back.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	back.pressed.connect(func() -> void: _select_section("more"))
 	box.add_child(back)
@@ -940,7 +940,7 @@ func _view_settings(parent: Node) -> void:
 	box.add_child(edit)
 
 	if can_edit:
-		# Logo picker — choose among the preset logos for alpha (custom upload
+		# Logo picker - choose among the preset logos for alpha (custom upload
 		# later). The selected one is the ButtonGroup's pressed button.
 		box.add_child(_make_section_header("Logo"))
 		var current_logo: int = int(_guild.get("logo_id", 0))

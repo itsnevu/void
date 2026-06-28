@@ -48,7 +48,7 @@ func add_container(cid: int, container: ReplicatedPropsContainer) -> void:
 		var msg: Dictionary = WireCodec.peek_container_block_named(bb)  # assume you have a cheap peek; else decode fully
 		var eid: int = int(msg.get("eid", -1))
 		if eid == cid:
-			# apply now with correct order: spawns → ops → pairs → despawns
+			# apply now with correct order: spawns -> ops -> pairs -> despawns
 			var full: Dictionary = WireCodec.decode_container_block_named(bb)
 			var cont: ReplicatedPropsContainer = containers.get(cid, null)
 			if cont != null:
@@ -131,7 +131,7 @@ func on_props_bootstrap(bytes: PackedByteArray) -> void:
 		_pending_prop_blocks.append(bytes)
 		return
 
-	# Order matters: spawns → ops → pairs → despawns
+	# Order matters: spawns -> ops -> pairs -> despawns
 	cont.apply_spawns(msg.get("spawns", []))
 	cont.apply_ops_named(msg.get("ops_named", []))
 	cont.apply_pairs(msg.get("pairs", []))
@@ -147,7 +147,7 @@ func on_props_delta(bytes: PackedByteArray) -> void:
 		_pending_prop_blocks.append(bytes)
 		return
 
-	# Apply order: spawns → ops_named → pairs → despawns
+	# Apply order: spawns -> ops_named -> pairs -> despawns
 	cont.apply_spawns(msg.get("spawns", []))
 	cont.apply_ops_named(msg.get("ops_named", []))
 	cont.apply_pairs(msg.get("pairs", []))

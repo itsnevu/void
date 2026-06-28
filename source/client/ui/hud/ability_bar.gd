@@ -2,7 +2,7 @@ extends HBoxContainer
 ## MOBA-style ability bar: one tile per ability on the wielded weapon, in
 ## input order (LMB / Q / E). Each tile shows the ability's initials (art
 ## icons come later), its input key, its mana cost, a cooldown drain overlay
-## with a seconds counter, and dims while mana is short. Pure display — every
+## with a seconds counter, and dims while mana is short. Pure display - every
 ## node is MOUSE_FILTER_IGNORE so the bar can never eat combat clicks.
 ##
 ## Rebuilds off EquipmentComponent.equipment_changed (weapon swaps AND
@@ -40,7 +40,7 @@ func _on_local_player_ready(local_player: LocalPlayer) -> void:
 
 func _on_equipment_changed(slot: StringName, _item_id: int) -> void:
 	if slot == &"weapon" or slot == EquipmentComponent.SPECIAL_SLOT or slot == EquipmentComponent.SPECIAL_SLOT_2:
-		# Mounting happens in the same call stack — rebuild once it settles.
+		# Mounting happens in the same call stack - rebuild once it settles.
 		_rebuild.call_deferred()
 
 
@@ -74,7 +74,7 @@ func _rebuild() -> void:
 	_weapon = null
 	if ClientState.local_player == null:
 		return
-	# The hand's mounted node IS the source of truth — a weapon shows its abilities, a
+	# The hand's mounted node IS the source of truth - a weapon shows its abilities, a
 	# held consumable shows its one "drink" ability. No special case: equipment_changed
 	# on the &"weapon" slot rebuilds us for every hand change (weapon swap, potion, bare).
 	_weapon = ClientState.local_player.equipment_component.mounted_nodes.get(&"weapon", null) as Weapon
@@ -106,10 +106,10 @@ func _add_tile(index: int, ability: AbilityResource) -> void:
 	elif ability != null:
 		tile.text = _initials(ability.name) # placeholder until the art pass
 	if ability == null:
-		tile.modulate.a = 0.35 # empty loadout slot (null hole) — key hint only
+		tile.modulate.a = 0.35 # empty loadout slot (null hole) - key hint only
 	add_child(tile)
 
-	# Channel glow — first child so the key/mana labels render on top of it.
+	# Channel glow - first child so the key/mana labels render on top of it.
 	var glow: ColorRect = ColorRect.new()
 	glow.color = Color(CHANNEL_GLOW, 0.0)
 	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -127,7 +127,7 @@ func _add_tile(index: int, ability: AbilityResource) -> void:
 	tile.add_child(key_label)
 
 	# set_anchors_AND_OFFSETS everywhere below: the anchors-only variant keeps
-	# the control's current (zero) rect — overlays collapse to the top-left.
+	# the control's current (zero) rect - overlays collapse to the top-left.
 	var sweep: ColorRect = ColorRect.new()
 	sweep.color = Color(0.0, 0.0, 0.0, 0.55)
 	sweep.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -157,12 +157,12 @@ func _add_tile(index: int, ability: AbilityResource) -> void:
 	_tiles.append({"ability": ability, "button": tile, "sweep": sweep, "cd_label": cd_label, "glow": glow, "key_label": key_label})
 
 
-## Touch tap → fire the slot directly (press half). Empty loadout slots (null
+## Touch tap -> fire the slot directly (press half). Empty loadout slots (null
 ## ability) and the no-weapon state are ignored.
 func _on_tile_down(index: int) -> void:
 	if _weapon == null or not is_instance_valid(_weapon) or ClientState.local_player == null:
 		return
-	# Bounds + null-hole check against the abilities array (the source of truth) — NOT
+	# Bounds + null-hole check against the abilities array (the source of truth) - NOT
 	# _tiles, which is packed by render order and desyncs from the ability index once a
 	# null primary slot is skipped (a held consumable's [null, drink]).
 	if index >= _weapon.abilities.size() or _weapon.abilities[index] == null:
@@ -170,7 +170,7 @@ func _on_tile_down(index: int) -> void:
 	_weapon.press_slot(index, ClientState.local_player)
 
 
-## Touch release → release half (fires a charged two-phase ability; no-op for
+## Touch release -> release half (fires a charged two-phase ability; no-op for
 ## single-phase). Pairs with [method _on_tile_down] so a held tap charges.
 func _on_tile_up(index: int) -> void:
 	if _weapon == null or not is_instance_valid(_weapon) or ClientState.local_player == null:
@@ -185,7 +185,7 @@ func _process(_delta: float) -> void:
 		return
 	var character: Character = ClientState.local_player
 	var now: float = Time.get_ticks_msec() / 1000.0
-	# What we're channeling (if anything) — read off the local player, which lives
+	# What we're channeling (if anything) - read off the local player, which lives
 	# inside the instance's multiplayer context (the HUD doesn't, so it can't ask).
 	var channeling_name: String = ClientState.local_player.channeling_ability_name
 	for tile_info: Dictionary in _tiles:
@@ -198,7 +198,7 @@ func _process(_delta: float) -> void:
 		var glow: ColorRect = tile_info["glow"]
 		# Channeling: light the tile and HIDE the cooldown until the channel ends.
 		# The cooldown clock already started at press (mark_used), so when the
-		# channel finishes the sweep just reveals the remaining time — exactly the
+		# channel finishes the sweep just reveals the remaining time - exactly the
 		# "active glow now, cooldown after" read.
 		if not channeling_name.is_empty() and ability.name == channeling_name:
 			sweep.visible = false

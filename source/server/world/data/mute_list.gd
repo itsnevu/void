@@ -1,6 +1,6 @@
 class_name MuteList
 ## Live list of chat-muted ACCOUNTS. Persists to user://server_mutes.cfg so mutes
-## survive a server restart, but does NOT touch player DB rows — the config file
+## survive a server restart, but does NOT touch player DB rows - the config file
 ## is the single source of truth, easy to audit / hand-edit, and independent from
 ## character data (works on offline accounts too).
 ##

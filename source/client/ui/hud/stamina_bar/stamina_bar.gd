@@ -1,5 +1,5 @@
 extends Control
-## HUD stamina bar — sibling of ManaBar (same pattern): subscribes to the local
+## HUD stamina bar - sibling of ManaBar (same pattern): subscribes to the local
 ## player's stat sync and mirrors ENERGY / ENERGY_MAX. Stamina gates physical
 ## abilities (melee swings, charge shots), the martial counterpart of mana.
 

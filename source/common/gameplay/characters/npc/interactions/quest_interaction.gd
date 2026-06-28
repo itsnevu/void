@@ -1,7 +1,7 @@
 class_name QuestInteraction
 extends NPCInteraction
 ## NPC capability: offers/receives quests. Acts as the server-side "quest source"
-## resolved via Map.get_quest_giver(npc_id) — duck-typed with the legacy
+## resolved via Map.get_quest_giver(npc_id) - duck-typed with the legacy
 ## QuestGiver node (both expose `quests` + `giver_name`). The owning NPC's npc_id
 ## is the giver id and its npc_name the giver name, so nothing is duplicated here.
 

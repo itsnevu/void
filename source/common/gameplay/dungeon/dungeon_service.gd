@@ -6,8 +6,8 @@ class_name DungeonService
 ## charging.
 ##
 ## v1 SLICE: solo entry via the entrance portal (the lobby that forms a multi-
-## player group calls the SAME start_run with the group's peers — next chunk).
-## No timer / scaling / lockout / shadow-mob authoring yet — see docs/dungeons.md.
+## player group calls the SAME start_run with the group's peers - next chunk).
+## No timer / scaling / lockout / shadow-mob authoring yet - see docs/dungeons.md.
 ## Server-authoritative; common-side state with direct WorldServer access like SparringService.
 
 # group_id -> the private dungeon ServerInstance (Node) running for that group.
@@ -18,7 +18,7 @@ static var _instance_to_group: Dictionary[String, int] = {}
 static var _lobbies: Dictionary[String, Array] = {}
 # group_id -> run start (ticks_msec), for the completion time in the recap.
 static var _run_start_ms: Dictionary[int, int] = {}
-# group_ids currently being auto-ejected after a CLEAR — so on_player_left can tell
+# group_ids currently being auto-ejected after a CLEAR - so on_player_left can tell
 # a voluntary leave (toast "Left X") from the post-clear eject (recap covers it).
 static var _ejecting: Dictionary[int, bool] = {}
 # group_id -> whether this run is HARD (scaled mobs, richer reward, separate lockout).
@@ -27,14 +27,14 @@ static var _run_hard: Dictionary[int, bool] = {}
 # it empty FAILS the whole run. Sized one-per-member, or SOLO_REVIVES for a lone runner.
 static var _run_revives: Dictionary[int, int] = {}
 
-# Private ROOMS (the Browse tab) — pre-run lobbies a player creates + shares, kept
+# Private ROOMS (the Browse tab) - pre-run lobbies a player creates + shares, kept
 # alongside the implicit public queue. room_id -> { leader, members: Array[peer],
 # hard, code, instance_name, master_id, dungeon: DungeonResource }.
 static var _rooms: Dictionary[int, Dictionary] = {}
 static var _code_to_room: Dictionary[String, int] = {}  # CODE -> room_id
 static var _peer_to_room: Dictionary[int, int] = {}      # peer -> the room it's in
 static var _next_room_id: int = 1
-## Join-code: two digits — short + easy to share. Rerolls on collision, so it caps
+## Join-code: two digits - short + easy to share. Rerolls on collision, so it caps
 ## concurrent rooms under ~100 (fine at our scale; widen if that ever bites).
 const ROOM_CODE_CHARS: String = "0123456789"
 const ROOM_CODE_LEN: int = 2
@@ -81,7 +81,7 @@ static func handle_lobby_request(instance: Node, peer_id: int, station: String, 
 
 	var key: String = _lobby_key(instance.name, station)
 	var queue: Array = _lobbies.get(key, [])
-	# Can't sit in the public queue AND a private room at once — taking a public
+	# Can't sit in the public queue AND a private room at once - taking a public
 	# action drops any private room first.
 	if action in ["join", "solo", "start"]:
 		_leave_room(peer_id)
@@ -136,8 +136,8 @@ static func lobby_status(instance: Node, peer_id: int, station: String) -> Dicti
 	}
 
 
-## Resolve a station by its node NAME → {node, dungeon}. Works for a legacy
-## DungeonMaster (its .dungeon) or a dungeon-keeper NPC (its DungeonInteraction) —
+## Resolve a station by its node NAME -> {node, dungeon}. Works for a legacy
+## DungeonMaster (its .dungeon) or a dungeon-keeper NPC (its DungeonInteraction) -
 ## both are direct map children, so get_node(name) finds them. Empty if the node is
 ## gone or isn't a dungeon station. This is what replaces the manual master_id.
 static func _resolve_station(instance: Node, station: String) -> Dictionary:
@@ -166,7 +166,7 @@ static func _station_dungeon(node: Node) -> DungeonResource:
 ## read off its DungeonResource. Falls back to bare defaults if it isn't one.
 static func _dungeon_info(dres: DungeonResource) -> Dictionary:
 	if dres == null:
-		return {"name": "Dungeon", "description": "", "min_level": 0, "recommended_level": 0, "reward": "—", "hard_reward": "—"}
+		return {"name": "Dungeon", "description": "", "min_level": 0, "recommended_level": 0, "reward": "-", "hard_reward": "-"}
 	return {
 		"name": str(dres.instance_name),
 		"description": dres.description,
@@ -177,20 +177,20 @@ static func _dungeon_info(dres: DungeonResource) -> Dictionary:
 	}
 
 
-## A short human string for a DungeonReward: "50–120 gold, Iron Bar".
+## A short human string for a DungeonReward: "50-120 gold, Iron Bar".
 static func _reward_summary(reward: DungeonReward) -> String:
 	if reward == null:
-		return "—"
+		return "-"
 	var parts: PackedStringArray = PackedStringArray()
 	if reward.gold_max > 0:
 		if reward.gold_min == reward.gold_max:
 			parts.append("%d gold" % reward.gold_max)
 		else:
-			parts.append("%d–%d gold" % [reward.gold_min, reward.gold_max])
+			parts.append("%d-%d gold" % [reward.gold_min, reward.gold_max])
 	for drop: LootDrop in reward.loot:
 		if drop != null and drop.item != null:
 			parts.append(str(drop.item.item_name))
-	return ", ".join(parts) if not parts.is_empty() else "—"
+	return ", ".join(parts) if not parts.is_empty() else "-"
 
 
 ## Push the live roster to everyone in the queue (so they see joins/leaves).
@@ -344,7 +344,7 @@ static func _broadcast_room(room_id: int) -> void:
 
 
 ## Drop a peer from this station's public queue (called when they enter a private
-## room — a player is in at most one lobby).
+## room - a player is in at most one lobby).
 static func _leave_public_queue(instance: Node, peer_id: int, station: String) -> void:
 	var key: String = _lobby_key(str(instance.name), station)
 	if not _lobbies.has(key):
@@ -383,8 +383,8 @@ static func _gen_room_code() -> String:
 
 
 ## Begin a run for [param peers] (solo = one peer; the lobby passes a full group).
-## Charges a FRESH private instance of [param dungeon_name] — NOT the shared
-## charged copy — and moves the group in once it's loaded. Server-only.
+## Charges a FRESH private instance of [param dungeon_name] - NOT the shared
+## charged copy - and moves the group in once it's loaded. Server-only.
 static func start_run(peers: Array, dungeon: DungeonResource, hard: bool = false) -> void:
 	if WorldServer.curr == null or peers.is_empty() or dungeon == null:
 		return
@@ -398,11 +398,11 @@ static func start_run(peers: Array, dungeon: DungeonResource, hard: bool = false
 	var group_id: int = GroupService.create_group(members, members[0])
 	_run_start_ms[group_id] = Time.get_ticks_msec()
 	_run_hard[group_id] = hard
-	# Hardcore: a shared revive pool — one per party member, or SOLO_REVIVES for a lone runner.
+	# Hardcore: a shared revive pool - one per party member, or SOLO_REVIVES for a lone runner.
 	if hard:
 		_run_revives[group_id] = SOLO_REVIVES if members.size() <= 1 else members.size()
 	# Private instance: prepare a fresh one directly. We can't use
-	# queue_charge_instance — it dedupes by resource, but every group needs its
+	# queue_charge_instance - it dedupes by resource, but every group needs its
 	# OWN copy. prepare_instance appends it to charged_instances on ready, and
 	# unload_unused_instances reclaims it once the group has all left.
 	var instance: Node = instance_manager.prepare_instance(dungeon)
@@ -413,7 +413,7 @@ static func start_run(peers: Array, dungeon: DungeonResource, hard: bool = false
 
 
 ## Once the private instance is loaded, switch every group member in (from
-## whatever instance they're standing in). Mob spawning is NOT done here anymore —
+## whatever instance they're standing in). Mob spawning is NOT done here anymore -
 ## the map's authored RoomNodes drive the encounters as the party walks in.
 static func _enter_run(group_id: int, members: Array) -> void:
 	var instance: Node = _runs.get(group_id, null)
@@ -427,9 +427,9 @@ static func _enter_run(group_id: int, members: Array) -> void:
 		var player: Player = current.get_player(peer) as Player
 		if player != null:
 			instance_manager.player_switch_instance(instance, 0, player, current)
-			player.restore_full() # enter a run topped up (HP + mana), spar-style — saves potions
+			player.restore_full() # enter a run topped up (HP + mana), spar-style - saves potions
 
-	# Welcome toast — delayed so it lands after the client finishes loading the new
+	# Welcome toast - delayed so it lands after the client finishes loading the new
 	# instance (the switch is still in flight this frame). Soft entry, not a wall of
 	# mobs out of nowhere.
 	var dungeon_name: String = "the dungeon"
@@ -445,7 +445,7 @@ static func _enter_run(group_id: int, members: Array) -> void:
 
 
 ## A player left a dungeon-run instance (exit warp, or any switch out of it). Drop
-## them from the run; when the run empties, dissolve the group — the now-empty
+## them from the run; when the run empties, dissolve the group - the now-empty
 ## private instance is then collected by unload_unused_instances. No-op for a
 ## switch out of any non-dungeon instance. Server-only.
 static func on_player_left(peer_id: int, left_instance: Node) -> void:
@@ -454,9 +454,9 @@ static func on_player_left(peer_id: int, left_instance: Node) -> void:
 	var key: String = str(left_instance.name)
 	var group_id: int = _instance_to_group.get(key, 0)
 	if group_id == 0:
-		return # not a dungeon run — ordinary warp/recall/jail
+		return # not a dungeon run - ordinary warp/recall/jail
 	# Confirm a VOLUNTARY leave (exit NPC / recall). The post-clear auto-eject is
-	# flagged in _ejecting and skipped here — its recap already says it all.
+	# flagged in _ejecting and skipped here - its recap already says it all.
 	if not _ejecting.get(group_id, false) and WorldServer.curr != null:
 		var dungeon_name: String = "the dungeon"
 		if left_instance.instance_resource != null:
@@ -474,7 +474,7 @@ static func on_player_left(peer_id: int, left_instance: Node) -> void:
 		_run_revives.erase(group_id)
 
 
-## The final room cleared — the run is COMPLETE. Grant each member their reward
+## The final room cleared - the run is COMPLETE. Grant each member their reward
 ## (honoring the soft daily lockout), push a per-member recap (dungeon name,
 ## completion time, what they got), then after EJECT_DELAY_S send everyone home and
 ## let the group dissolve. Called from RoomNode (final_room). Server-only.
@@ -500,10 +500,10 @@ static func on_dungeon_cleared(instance: Node) -> void:
 	# Hard runs get a separate daily lockout (clear Normal AND Hard each per day) and
 	# a tagged recap label.
 	var lockout_key: String = dungeon_name + (" (Hard)" if hard else "")
-	var label: String = dungeon_name + (" — Hard" if hard else "")
+	var label: String = dungeon_name + (" - Hard" if hard else "")
 	for peer: int in GroupService.members_of(group_id):
 		var player: Player = instance.get_player(peer) as Player # all members are in this run
-		# Only HARD clears are ranked — the fixed hand-designed course is the fair
+		# Only HARD clears are ranked - the fixed hand-designed course is the fair
 		# race (Normal will go procedural later). The time stands apart from the
 		# reward lockout, so a reward-locked re-run can still set a faster record.
 		if hard and player != null:
@@ -526,7 +526,7 @@ static func on_dungeon_cleared(instance: Node) -> void:
 ## return the recap summary for their client: {gold, items:[{name, amount}]} on a
 ## payout, or {locked: true, available_in: <seconds>} if they already collected it
 ## within the window. Items land in their (server-authoritative) inventory; the
-## client sees them on its next inventory.get — same as mob loot.
+## client sees them on its next inventory.get - same as mob loot.
 static func _grant_reward(player: Player, lockout_key: String, reward: DungeonReward) -> Dictionary:
 	if player == null or player.player_resource == null or reward == null:
 		return {}
@@ -558,7 +558,7 @@ static func _grant_reward(player: Player, lockout_key: String, reward: DungeonRe
 
 
 ## A player died inside a run. HARD runs draw from a shared revive pool: spend one and respawn as
-## usual, or — if it's already empty — FAIL the run (the whole party is revived + sent home, no
+## usual, or - if it's already empty - FAIL the run (the whole party is revived + sent home, no
 ## reward). Returns true if the run FAILED, so the caller (Player.die) skips its normal respawn.
 ## Normal runs and non-dungeon deaths return false (respawn freely). Server-only.
 static func register_dungeon_death(player: Node) -> bool:
@@ -566,16 +566,16 @@ static func register_dungeon_death(player: Node) -> bool:
 		return false
 	var group_id: int = GroupService.group_of(int(player.player_resource.current_peer_id))
 	if group_id == 0 or not _runs.has(group_id) or not _run_hard.get(group_id, false):
-		return false # not a hardcore dungeon run — free respawn
+		return false # not a hardcore dungeon run - free respawn
 	var revives: int = _run_revives.get(group_id, 0)
 	if revives > 0:
 		_run_revives[group_id] = revives - 1
 		var left: int = revives - 1
-		_notify_party(group_id, "A hero has fallen — %d revive%s left." % [left, "" if left == 1 else "s"])
+		_notify_party(group_id, "A hero has fallen - %d revive%s left." % [left, "" if left == 1 else "s"])
 		_push_hud(group_id) # refresh the HUD revive count for the party
 		return false # respawn at the dungeon entrance as usual
 	_fail_run(group_id)
-	return true # pool exhausted — run over
+	return true # pool exhausted - run over
 
 
 ## The revive pool is spent and someone died: the run FAILS. Revive everyone (so they arrive home
@@ -597,7 +597,7 @@ static func _fail_run(group_id: int) -> void:
 		if player != null:
 			player.revive() # arrive home alive, not a corpse
 		WorldServer.curr.data_push.rpc_id(peer, &"dungeon.failed", {"failed": true, "dungeon": dungeon_name, "seconds": seconds, "eject_in": int(FAIL_EJECT_DELAY_S)})
-	_notify_party(group_id, "The party has fallen — the run failed. Returning to town...")
+	_notify_party(group_id, "The party has fallen - the run failed. Returning to town...")
 	WorldServer.curr.get_tree().create_timer(FAIL_EJECT_DELAY_S).timeout.connect(
 		func() -> void: _eject_run(group_id), CONNECT_ONE_SHOT
 	)
@@ -639,7 +639,7 @@ static func _hide_hud(group_id: int) -> void:
 		WorldServer.curr.data_push.rpc_id(peer, &"dungeon.hud", {"active": false})
 
 
-## Seconds since this run began (server clock) — the HUD clock baseline.
+## Seconds since this run began (server clock) - the HUD clock baseline.
 static func _elapsed_s(group_id: int) -> float:
 	var start_ms: int = _run_start_ms.get(group_id, Time.get_ticks_msec())
 	return float(Time.get_ticks_msec() - start_ms) / 1000.0
@@ -652,7 +652,7 @@ static func _elapsed_s(group_id: int) -> float:
 static func on_peer_disconnected(peer_id: int) -> void:
 	var ws: WorldServer = WorldServer.curr
 	_leave_room(peer_id) # pending private room, if any
-	# Lobby queues — drop them and refresh the remaining queuers' rosters.
+	# Lobby queues - drop them and refresh the remaining queuers' rosters.
 	for key: String in _lobbies.keys():
 		var queue: Array = _lobbies[key]
 		if not queue.has(peer_id):
@@ -667,9 +667,9 @@ static func on_peer_disconnected(peer_id: int) -> void:
 					var st: Dictionary = _resolve_station(instance, parts[1])
 					if not st.is_empty():
 						_broadcast_lobby(instance, parts[1], st["dungeon"], queue)
-	# Live run — leave the group; when it empties, drop the run bookkeeping (the
+	# Live run - leave the group; when it empties, drop the run bookkeeping (the
 	# now-empty private instance is reclaimed by unload_unused_instances). No
-	# "Left X" toast — they're gone.
+	# "Left X" toast - they're gone.
 	var group_id: int = GroupService.group_of(peer_id)
 	if group_id != 0 and _runs.has(group_id):
 		GroupService.leave(peer_id)
@@ -695,4 +695,4 @@ static func _eject_run(group_id: int) -> void:
 			var player: Player = instance.get_player(peer) as Player
 			if player != null:
 				player.restore_full()
-		instance_manager.recall_player(peer) # → town hub; on_player_left dissolves the group
+		instance_manager.recall_player(peer) # -> town hub; on_player_left dissolves the group

@@ -1,7 +1,7 @@
 class_name MeleeSwingAbility
 extends AbilityResource
 ## Generic "swing a melee weapon" ability. Owns the hitbox spawn, damage
-## resolution, and animation hook. The ability lives in combat/ — any
+## resolution, and animation hook. The ability lives in combat/ - any
 ## melee weapon (sword, axe, dagger, future hammer) references it from its
 ## item.tres without re-implementing the swing.
 ##
@@ -18,8 +18,8 @@ extends AbilityResource
 @export var ad_ratio: float = 1.0
 ## How far forward (along [param direction]) the hitbox spawns from the
 ## character's origin. The CollisionShape inside the arc scene already has
-## its own forward offset + radius — this just biases the whole spawn so
-## tuning reach is one number instead of two. Keep small (0–8) for most
+## its own forward offset + radius - this just biases the whole spawn so
+## tuning reach is one number instead of two. Keep small (0-8) for most
 ## weapons; bump higher for polearms / spears.
 @export var spawn_offset: float = 0.0
 ## Animation to play when the swing fires. Library prefix included
@@ -33,7 +33,7 @@ extends AbilityResource
 
 ## Overrides the arc scene's hitbox radius (0 = keep the scene default). Lets a
 ## "devastating" T3 swing actually hit a bigger area than the basic swing while
-## reusing the same arc scene — pair it with a matching [member impact_reach].
+## reusing the same arc scene - pair it with a matching [member impact_reach].
 @export var arc_radius: float = 0.0
 
 
@@ -74,7 +74,7 @@ func _fire_arc(user: Entity, direction: Vector2) -> void:
 	arc.source = user if user is Character else null
 	arc.slow_amount = slow_amount
 	arc.slow_duration_s = slow_duration_s
-	# Optional bigger hitbox for heavy swings — duplicate the shape so we resize
+	# Optional bigger hitbox for heavy swings - duplicate the shape so we resize
 	# THIS arc only, never the shared CircleShape2D sub-resource.
 	if arc_radius > 0.0:
 		var shape_node: CollisionShape2D = arc.get_node_or_null(^"CollisionShape2D")
@@ -82,7 +82,7 @@ func _fire_arc(user: Entity, direction: Vector2) -> void:
 			var circle: CircleShape2D = shape_node.shape.duplicate()
 			circle.radius = arc_radius
 			shape_node.shape = circle
-	# A swing deals ad_ratio × the wielder's AD (base + Strength + gear), so both
+	# A swing deals ad_ratio x the wielder's AD (base + Strength + gear), so both
 	# leveling and a better weapon raise every hit.
 	var ad: float = (user as Character).stats_component.get_stat(Stat.AD) if user is Character else 0.0
 	arc.damage = ad * ad_ratio

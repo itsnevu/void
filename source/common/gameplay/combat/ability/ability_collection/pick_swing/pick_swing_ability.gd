@@ -5,11 +5,11 @@ extends AbilityResource
 ##   - Triggers MineableNode.register_pickaxe_hit on overlap (the actual harvest).
 ##
 ## Higher-tier pickaxes use the same ability with a tuned extraction_damage
-## to chip ore HP faster — that's the "tool tier matters" progression.
+## to chip ore HP faster - that's the "tool tier matters" progression.
 
 
 @export var arc_scene: PackedScene = preload("res://source/common/gameplay/combat/pick_arc.tscn")
-## Damage when this swing accidentally clips a Player or NPC. Kept low —
+## Damage when this swing accidentally clips a Player or NPC. Kept low -
 ## you don't want a wooden pickaxe to be a real combat weapon.
 @export var character_damage: float = 2.0
 ## Extraction damage applied to MineableNodes per swing. 1 = wooden, scale

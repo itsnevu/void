@@ -3,7 +3,7 @@ extends Resource
 ## A recurring item-for-currency exchange offered by a specialty vendor.
 ##
 ## Generic vendors buy any item for its `vendor_value`. A ShopTrade is for
-## specialty cases — "Mira always accepts 5 Healing Herbs for 4 gold" —
+## specialty cases - "Mira always accepts 5 Healing Herbs for 4 gold" -
 ## where the rate is set by the vendor, not the item. The player gives
 ## `amount` of `item` per trade and receives `payout` of `currency_item`
 ## (defaults to gold).

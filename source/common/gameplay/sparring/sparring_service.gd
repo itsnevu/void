@@ -1,12 +1,12 @@
 class_name SparringService
-## Server-side spar matchmaker for N teams of any sizes — the station's SparTeam
+## Server-side spar matchmaker for N teams of any sizes - the station's SparTeam
 ## children define how many teams and how many slots each has (1v1, 2v2, 1v3,
 ## 1v1v1, ...). Each DuelMaster station runs one match at a time; stations run
 ## in parallel.
 ##
 ## Pick-a-side: players join a team slot; when EVERY team is full the match
 ## starts. Default rules (see SparGameMode for the override hooks): fighters
-## keep their own stats, and LAST TEAM STANDING wins — a dead fighter is out
+## keep their own stats, and LAST TEAM STANDING wins - a dead fighter is out
 ## and the match continues until at most one team has fighters left. Friendly
 ## fire is OFF (see can_spar_damage).
 ##
@@ -15,7 +15,7 @@ class_name SparringService
 const COUNTDOWN_SECONDS: int = 3
 const PVP_ENABLE_DELAY_MS: int = COUNTDOWN_SECONDS * 1000
 
-# key -> Array[Array[peer_id]] — one roster per team, indexed like master.teams().
+# key -> Array[Array[peer_id]] - one roster per team, indexed like master.teams().
 static var _queues: Dictionary = {}
 # key -> match dict (see _start_match)
 static var _matches: Dictionary = {}
@@ -124,7 +124,7 @@ static func _start_match(instance: Node, master: DuelMaster, rosters: Array) -> 
 				spawn_pos = spawns[i].global_position
 			player.state_synchronizer.set_by_path(^":position", spawn_pos)
 			player.mark_just_teleported()
-			# Full HP — a duel where one fighter is PvE-chipped isn't a fair test.
+			# Full HP - a duel where one fighter is PvE-chipped isn't a fair test.
 			player.stats_component.set_stat(Stat.HEALTH, player.stats_component.get_stat(Stat.HEALTH_MAX))
 			# Mode hook (default: keep the player's own stats untouched).
 			if master.game_mode != null:
@@ -187,7 +187,7 @@ static func on_player_died_in_match(loser: Player, _killer: Character) -> void:
 		loser.player_resource.in_match = false
 		return
 	(_matches[key]["alive"] as Dictionary)[loser_peer] = false
-	loser.player_resource.in_match = false # out → harmless spectator while it continues
+	loser.player_resource.in_match = false # out -> harmless spectator while it continues
 	_peer_to_match.erase(loser_peer)
 	_check_elimination(key)
 
@@ -204,7 +204,7 @@ static func on_peer_disconnected(peer_id: int) -> void:
 	_check_elimination(mkey)
 
 
-## Leaving the instance (warp / recall) drops the peer from any spar QUEUE — the
+## Leaving the instance (warp / recall) drops the peer from any spar QUEUE - the
 ## same hygiene dungeon's on_player_left does. A mid-match fighter can't warp out
 ## (fight_zone + the in_match lock), and a real disconnect goes through
 ## on_peer_disconnected, so sweeping the queue is all that's needed here. Wired
@@ -340,13 +340,13 @@ static func _finalize_fighter(ws: Node, instance: Node, master: DuelMaster, peer
 static func _announce_result(ws: Node, instance: Node, master: DuelMaster, rosters: Array, winner_index: int) -> void:
 	var msg: String
 	if winner_index < 0:
-		msg = "⚔ The match ended in a draw."
+		msg = " The match ended in a draw."
 	else:
 		var losers: Array = []
 		for t: int in rosters.size():
 			if t != winner_index:
 				losers.append_array(_names(rosters[t]))
-		msg = "⚔ %s defeated %s%s." % [
+		msg = " %s defeated %s%s." % [
 			", ".join(_names(rosters[winner_index])),
 			", ".join(losers),
 			"" if master == null else " at %s" % master.master_name,
@@ -386,8 +386,8 @@ static func _teams_snapshot(master: DuelMaster, queue: Array) -> Dictionary:
 	return {"teams": rosters, "capacities": capacities, "team_names": team_names}
 
 
-## Team label fallback chain: authored team_name → the guild of the first queued
-## member who has one (nice for guild-vs-guild lobbies) → plain "Team N".
+## Team label fallback chain: authored team_name -> the guild of the first queued
+## member who has one (nice for guild-vs-guild lobbies) -> plain "Team N".
 static func _team_label(team: SparTeam, index: int, peers: Array) -> String:
 	if not team.team_name.is_empty():
 		return team.team_name
@@ -467,7 +467,7 @@ static func return_position_for(player: Player) -> Vector2:
 
 ## True if both players are ACTIVE fighters on the same team of the same match.
 ## Used by support effects (heal bolt) so "ally" means spar teammate while a
-## match is live — and an outsider can't buff a fighter from the sidelines.
+## match is live - and an outsider can't buff a fighter from the sidelines.
 static func are_spar_teammates(a: Player, b: Player) -> bool:
 	if a == null or b == null or a.player_resource == null or b.player_resource == null:
 		return false

@@ -13,9 +13,9 @@ func _init() -> void:
 
 func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInstance) -> String:
 	if args.is_empty():
-		return "Emotes: %s\nUse /emote <name> — or shortcuts like /wave, /dance, /cheer." % EmoteRegistry.key_list()
+		return "Emotes: %s\nUse /emote <name> - or shortcuts like /wave, /dance, /cheer." % EmoteRegistry.key_list()
 	var id: int = EmoteRegistry.id_of(args[0])
 	if id < 0:
 		return "Unknown emote '%s'. Available: %s" % [args[0], EmoteRegistry.key_list()]
 	EmoteRegistry.broadcast(server_instance, peer_id, id)
-	return ""  # the bubble is the feedback — no chat echo
+	return ""  # the bubble is the feedback - no chat echo

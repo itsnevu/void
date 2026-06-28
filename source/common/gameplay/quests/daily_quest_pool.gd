@@ -8,7 +8,7 @@ extends Resource
 
 
 ## Returns templates the player's level is eligible for, copied (the pool is
-## the source of truth — we never mutate it).
+## the source of truth - we never mutate it).
 func eligible_for_level(player_level: int) -> Array[DailyQuestTemplate]:
 	var out: Array[DailyQuestTemplate] = []
 	for t: DailyQuestTemplate in templates:

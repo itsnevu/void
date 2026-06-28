@@ -2,15 +2,15 @@ class_name WeatherLayer
 extends Node2D
 ## In-world ambient weather (drifting leaves, rain, fog, cloud shadows...). Client-only;
 ## created at runtime by Client and parented under it. It follows the local player every
-## frame so its particles always blanket the camera view, rendering IN the world — over
-## the ground, under the HUD — for the top-down "on the ground" look (inspired by
+## frame so its particles always blanket the camera view, rendering IN the world - over
+## the ground, under the HUD - for the top-down "on the ground" look (inspired by
 ## NinjaAdventure's camera-grid weather).
 ##
 ## Driven by Map.weather, which is an ARRAY so a map can STACK effects (leaves + cloud
-## shadows + fog at once) — each entry gets its own CPUParticles2D emitter. Applied on
-## every area change via Client._on_instance_changed → apply(); an empty list = clear
+## shadows + fog at once) - each entry gets its own CPUParticles2D emitter. Applied on
+## every area change via Client._on_instance_changed -> apply(); an empty list = clear
 ## skies. Players can disable the whole layer (perf / preference) from
-## Settings ▸ Graphics ▸ Weather Effects — see _on_setting_changed.
+## Settings > Graphics > Weather Effects - see _on_setting_changed.
 
 ## Render above world content but below the HUD (a CanvasLayer at layer 10, which always
 ## draws over world z-indices).
@@ -26,7 +26,7 @@ const SETTING_SECTION: StringName = &"general"
 const SETTING_PROPERTY: StringName = &"weather_effects"
 ## Native mobile keeps weather but with fewer particles per emitter: it's gl_compatibility
 ## (CPU particles) on weaker hardware, so thin the counts while leaving desktop's full, lush
-## weather untouched. Web does NOT use this — weather is disabled outright there (see _ready),
+## weather untouched. Web does NOT use this - weather is disabled outright there (see _ready),
 ## because its single-threaded WASM can't absorb the CPU particle cost. Tune if mobile needs lighter.
 const CONSTRAINED_AMOUNT_SCALE: float = 0.45
 
@@ -37,7 +37,7 @@ var _weather: Array[WeatherResource] = []
 ## Mirror of the Settings toggle; when false no emitters exist (zero CPU cost).
 var _enabled: bool = true
 ## Per-platform multiplier on each emitter's particle count (1.0 desktop, reduced on
-## web/mobile). Set once in _ready — the platform can't change at runtime.
+## web/mobile). Set once in _ready - the platform can't change at runtime.
 var _amount_scale: float = 1.0
 
 
@@ -51,7 +51,7 @@ func _ready() -> void:
 	# Web is single-threaded (no SharedArrayBuffer on itch for broad browser support), so CPU
 	# particle simulation would fight all game logic on one thread. Weather is the heaviest
 	# tenant, so it's cut entirely there: the browser build is the "lite" version, and the
-	# download carries full weather. Stay fully inert — never spawn, never tick, and don't
+	# download carries full weather. Stay fully inert - never spawn, never tick, and don't
 	# listen for the toggle (which is hidden on web anyway).
 	if OS.has_feature("web"):
 		_enabled = false
@@ -73,10 +73,10 @@ func _process(_delta: float) -> void:
 		global_position = local_player.global_position
 
 
-## Replace the active weather with [param weather_list] — each entry is one stacked
+## Replace the active weather with [param weather_list] - each entry is one stacked
 ## effect. Pass an empty array for clear skies. Safe to call on every map change.
 func apply(weather_list: Array[WeatherResource]) -> void:
-	_weather = weather_list.duplicate() # snapshot — don't alias the map resource's array
+	_weather = weather_list.duplicate() # snapshot - don't alias the map resource's array
 	_rebuild()
 
 
@@ -132,7 +132,7 @@ func _make_emitter(weather: WeatherResource) -> CPUParticles2D:
 	p.angular_velocity_max = weather.spin_degrees
 	_apply_sprite_sheet(p, weather.h_frames)
 	# Fade each particle IN then OUT over its life (multiplies the tint) so they neither
-	# pop into existence nor vanish on recycle — they ease in and ease out.
+	# pop into existence nor vanish on recycle - they ease in and ease out.
 	var ramp: Gradient = Gradient.new()
 	ramp.offsets = PackedFloat32Array([0.0, 0.15, 0.85, 1.0])
 	ramp.colors = PackedColorArray([Color(1, 1, 1, 0), Color(1, 1, 1, 1), Color(1, 1, 1, 1), Color(1, 1, 1, 0)])

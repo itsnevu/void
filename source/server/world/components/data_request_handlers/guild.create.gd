@@ -22,7 +22,7 @@ func data_request_handler(
 	if player.led_guild_id > 0:
 		return {"error": 1, "ok": false, "message": "You already have a guild."}
 
-	# Creation costs gold — check before reserving the name.
+	# Creation costs gold - check before reserving the name.
 	var gold_id: int = Economy.gold_id()
 	if Inventory.count(player.inventory, gold_id) < Guild.CREATION_COST:
 		return {"error": 1, "ok": false, "message": "You need %d gold to create a guild." % Guild.CREATION_COST}
@@ -58,7 +58,7 @@ func data_request_handler(
 
 	store.commit()
 
-	# Creator is auto-tagged into the new guild — sync the client's cached value.
+	# Creator is auto-tagged into the new guild - sync the client's cached value.
 	instance.world_server.data_push.rpc_id(peer_id, &"active_guild_id.set", {"active_guild_id": player.active_guild_id})
 	var pnode: Player = instance.players_by_peer_id.get(peer_id)
 	if pnode != null:

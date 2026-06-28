@@ -1,8 +1,8 @@
 extends Control
-## NPC dialogue — Undertale / Zelda-style. The NPC name + text sit in a fixed box
+## NPC dialogue - Undertale / Zelda-style. The NPC name + text sit in a fixed box
 ## pinned to the bottom-left; the options are a vertical, touch-friendly list on
 ## the right (kept OUT of the box so it never resizes/jitters). "Talk" options play
-## their lore lines inline with a typewriter reveal — click to skip to the full
+## their lore lines inline with a typewriter reveal - click to skip to the full
 ## line, click again to advance. Routing options hand off to their menus.
 ##
 ## Text is a RichTextLabel with bbcode, so lines can use [color], [wave], [shake]...
@@ -138,7 +138,7 @@ func _on_entry(entry: Dictionary) -> void:
 
 func _show_line() -> void:
 	if _line_index >= _lines.size():
-		_show_options() # finished talking → back to the options
+		_show_options() # finished talking -> back to the options
 		return
 	_set_text(str(_lines[_line_index]))
 	_clear_options()
@@ -170,7 +170,7 @@ func _set_text(bbcode: String) -> void:
 	var chars: int = maxi(1, _text.get_total_character_count())
 	_type_tween = create_tween()
 	_type_tween.tween_property(_text, ^"visible_ratio", 1.0, chars / TYPE_CPS)
-	# Just clear the flag on natural completion — don't kill the tween from inside
+	# Just clear the flag on natural completion - don't kill the tween from inside
 	# its own callback. The skip path (_finish_typing) does the killing.
 	_type_tween.tween_callback(func() -> void: _typing = false)
 

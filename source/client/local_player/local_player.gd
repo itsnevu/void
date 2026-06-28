@@ -1,13 +1,13 @@
 class_name LocalPlayer
 extends Player
 
-## Toast tint for the SAFE <-> PvP zone-crossing notice — red warns of danger,
+## Toast tint for the SAFE <-> PvP zone-crossing notice - red warns of danger,
 ## green signals protection. Defined locally because ZonePatch2D (which owns the
 ## canonical zone colors) is an @tool node that's stripped from client exports.
 const PVP_TOAST_COLOR: Color = Color(1.0, 0.5, 0.45)
 const SAFE_TOAST_COLOR: Color = Color(0.55, 0.95, 0.6)
 
-## Godot Camera2D's default (effectively unbounded) limit magnitude — restored on maps
+## Godot Camera2D's default (effectively unbounded) limit magnitude - restored on maps
 ## that define no camera_limits so a previous map's bounds don't linger.
 const CAMERA_LIMIT_MIN: int = -10000000
 const CAMERA_LIMIT_MAX: int = 10000000
@@ -29,7 +29,7 @@ var action_input: bool = false
 const DODGE_SPEED: float = 360.0
 const DODGE_DURATION_S: float = 0.18
 const DODGE_COOLDOWN_S: float = 0.7
-## Must match dodge.gd's server-side cost — the client only PREDICTS the gate.
+## Must match dodge.gd's server-side cost - the client only PREDICTS the gate.
 const DODGE_STAMINA: int = 25
 var _dodge_until_ms: int = 0
 var _dodge_cooldown_until_ms: int = 0
@@ -75,7 +75,7 @@ func _ready() -> void:
 	fid_spectator = PathRegistry.id_of(":spectator")
 
 	# Spectator mode (entered via the login "Spectate" button): become a fireball
-	# that floats and watches — no combat. The synced :spectator field makes other
+	# that floats and watches - no combat. The synced :spectator field makes other
 	# players see the fireball too.
 	if ClientState.spectator:
 		spectator = true
@@ -84,7 +84,7 @@ func _ready() -> void:
 	ClientState.settings.setting_changed.connect(_on_settings_changed)
 	# Clamp the camera to each map's authored bounds (no black borders past the edge). The
 	# local player persists across maps (InstanceClient reuses it), so re-apply on every
-	# instance change — plus once now for the map we spawned into.
+	# instance change - plus once now for the map we spawned into.
 	Client.instance_manager.instance_changed.connect(_on_instance_changed_camera_limits)
 	if InstanceClient.current != null:
 		_apply_camera_limits(InstanceClient.current.instance_map)
@@ -96,11 +96,11 @@ func _ready() -> void:
 	# player doesn't run off the spot they were teleported to.
 	Client.subscribe(&"sparring.match.state", _on_sparring_match_state)
 	# Staff teleports (/goto, /summon) within the same map: same problem as the
-	# sparring teleport — we must set position locally + freeze input briefly.
+	# sparring teleport - we must set position locally + freeze input briefly.
 	Client.subscribe(&"player.teleport", _on_teleport)
 	# Channeling (healing aura, future recall): when OUR channel starts we root in
 	# place; pressing a move key cancels it. Other players' channels only show
-	# their aura (handled in InstanceClient) — these handlers ignore them.
+	# their aura (handled in InstanceClient) - these handlers ignore them.
 	Client.subscribe(&"channel.start", _on_channel_start)
 	Client.subscribe(&"channel.end", _on_channel_end)
 	# Weapon equip-cast: a short draw where abilities are locked (movement + aim
@@ -110,28 +110,28 @@ func _ready() -> void:
 	# Co-op group roster (dungeons): mirror our groupmate peer ids so their health
 	# bars tint as allies. Same pattern as the sparring team push.
 	Client.subscribe(&"group.roster", _on_group_roster)
-	# Dungeon cleared (final room down) — show the recap; the server returns the
+	# Dungeon cleared (final room down) - show the recap; the server returns the
 	# party to town after a short timer (the recap auto-closes with it).
 	Client.subscribe(&"dungeon.cleared", func(payload: Dictionary) -> void:
 		ClientState.open_menu_requested.emit(&"dungeon_recap", payload))
-	# Dungeon FAILED (hardcore wipe — revive pool spent): same recap menu, "failed" variant.
+	# Dungeon FAILED (hardcore wipe - revive pool spent): same recap menu, "failed" variant.
 	Client.subscribe(&"dungeon.failed", func(payload: Dictionary) -> void:
 		ClientState.open_menu_requested.emit(&"dungeon_recap", payload))
-	# Dungeon entered — a soft welcome toast so the run doesn't start abruptly.
+	# Dungeon entered - a soft welcome toast so the run doesn't start abruptly.
 	Client.subscribe(&"dungeon.entered", func(payload: Dictionary) -> void:
 		Toaster.toast_group(
 			"Entered %s" % str(payload.get("dungeon", "the dungeon")),
-			PackedStringArray(["Clear each room — defeat the boss to escape."]),
+			PackedStringArray(["Clear each room - defeat the boss to escape."]),
 			4.0))
 	# Boss enrage (dungeon phase 2): a red banner + camera shake so the escalation
-	# reads — see BossController._announce_enrage.
+	# reads - see BossController._announce_enrage.
 	Client.subscribe(&"boss.enrage", func(payload: Dictionary) -> void:
 		Toaster.toast("%s enrages!" % str(payload.get("name", "The boss")), 3.0, PVP_TOAST_COLOR)
 		shake_camera(0.6))
 
 
 ## The local player's own over-head HP bar reads as "self" (green), never
-## ally/neutral. (Overrides Player so the local-player check stays out of Player —
+## ally/neutral. (Overrides Player so the local-player check stays out of Player -
 ## see the cycle note there.)
 func _apply_team_bar_color() -> void:
 	set_health_bar_fill(BAR_COLOR_SELF)
@@ -174,7 +174,7 @@ func _on_sparring_match_state(payload: Dictionary) -> void:
 				child.call(&"_apply_team_bar_color")
 
 
-## Co-op group roster push — set our groupmate peer ids and re-tint everyone in
+## Co-op group roster push - set our groupmate peer ids and re-tint everyone in
 ## the map so their health bars flip to ally immediately (same as spar teams).
 func _on_group_roster(payload: Dictionary) -> void:
 	Character.group_peers = payload.get("members", [])
@@ -195,20 +195,20 @@ func _on_teleport(payload: Dictionary) -> void:
 
 # --- Channeling (healing aura, future recall) ---
 ## True while WE are mid-channel: rooted, actions suppressed, a move key cancels.
-## Deliberately NOT the movement lock — that zeroes input, which would make the
+## Deliberately NOT the movement lock - that zeroes input, which would make the
 ## move-to-cancel impossible to detect.
 var _channeling: bool = false
 ## Safety net so a dropped channel.end can't strand us rooted forever.
 var _channel_until_ms: int = 0
 ## Name of the ability WE'RE channeling (empty = none). The ability bar reads
-## this off the local player — the HUD lives outside the instance's multiplayer
+## this off the local player - the HUD lives outside the instance's multiplayer
 ## context, so it can't identify "us" via get_unique_id; LocalPlayer can.
 var channeling_ability_name: String = ""
 
 
 func _on_channel_start(payload: Dictionary) -> void:
 	if int(payload.get("p", -1)) != multiplayer.get_unique_id():
-		return # someone else's channel — InstanceClient draws their aura, we don't root
+		return # someone else's channel - InstanceClient draws their aura, we don't root
 	_channeling = true
 	channeling_ability_name = String(payload.get("an", ""))
 	_channel_until_ms = Time.get_ticks_msec() + int(float(payload.get("d", 6.0)) * 1000.0) + 750
@@ -222,7 +222,7 @@ func _on_channel_end(payload: Dictionary) -> void:
 
 
 ## Tell the server to stop our channel (it pushes channel.end back, which also
-## clears the flag — calling this just unroots us a frame early, locally).
+## clears the flag - calling this just unroots us a frame early, locally).
 func _cancel_channel() -> void:
 	_channeling = false
 	channeling_ability_name = ""
@@ -230,7 +230,7 @@ func _cancel_channel() -> void:
 		Client.request_data(&"channel.cancel", Callable(), {}, InstanceClient.current.name)
 
 
-## Locally roots movement for [param seconds] — heavy attacks plant you while
+## Locally roots movement for [param seconds] - heavy attacks plant you while
 ## you swing (commitment + readability). Reuses the same movement lock, so it
 ## also blocks re-attacking for that window; fine because the weapons that use
 ## it have long cooldowns. Called client-side from the weapon on the wielder.
@@ -240,7 +240,7 @@ func freeze_movement(seconds: float) -> void:
 	_movement_lock_until_ms = maxi(_movement_lock_until_ms, Time.get_ticks_msec() + int(seconds * 1000.0))
 
 
-## True while a real WEAPON (one with a primary attack) is in hand — i.e. combat mode.
+## True while a real WEAPON (one with a primary attack) is in hand - i.e. combat mode.
 ## Bare hands, a held potion, or a held material all read as UNARMED. The world click-
 ## to-inspect gate uses this: you only open a player's profile while holstered, so a
 ## click in a fight is always a shot, never a profile.
@@ -252,7 +252,7 @@ func is_armed() -> bool:
 # --- Weapon equip-cast (client) ---
 ## True while drawing a weapon: abilities are locked (process_input + the touch
 ## ability bar both read this), but movement + aim stay free. Set from equip.cast,
-## cleared on equip.done — or a safety timeout if that push is lost.
+## cleared on equip.done - or a safety timeout if that push is lost.
 var _equip_drawing: bool = false
 var _equip_draw_until_ms: int = 0
 var _equip_draw_token: int = 0
@@ -295,7 +295,7 @@ func _show_equip_bar(duration: float) -> void:
 	_equip_bar = bar
 
 
-## True while mid weapon-draw / drink-cast — abilities are locked (process_input +
+## True while mid weapon-draw / drink-cast - abilities are locked (process_input +
 ## the touch ability bar read this). A weapon draw stays move-free; a drink also
 ## roots via the movement lock.
 func is_equip_drawing() -> bool:
@@ -310,7 +310,7 @@ const SHAKE_DECAY: float = 3.5      ## trauma per second bled off
 const SHAKE_MAX_OFFSET: float = 9.0 ## pixels at full trauma
 
 ## Adds a kick of camera shake (additive, clamped). Call from a weapon's own
-## visual when its hit lands — e.g. the hammer slam. [param amount] ~0.3 light,
+## visual when its hit lands - e.g. the hammer slam. [param amount] ~0.3 light,
 ## ~0.6 heavy.
 func shake_camera(amount: float) -> void:
 	_trauma = clampf(_trauma + amount, 0.0, 1.0)
@@ -334,7 +334,7 @@ func _physics_process(delta: float) -> void:
 
 ## Toast when we cross the SAFE <-> PvP boundary. zone_flags is synced from the
 ## server (StateSynchronizerManagerServer.update_zone_flags_for_entity), so the
-## bit simply flips under us as we move — we watch it rather than adding a
+## bit simply flips under us as we move - we watch it rather than adding a
 ## dedicated push. Local-player only: remote players never run this.
 func _notify_zone_transition() -> void:
 	var now_pvp: bool = is_pvp()
@@ -342,9 +342,9 @@ func _notify_zone_transition() -> void:
 		return
 	_was_pvp = now_pvp
 	if now_pvp:
-		Toaster.toast("Entered a PvP zone — other players can attack you here.", 3.0, PVP_TOAST_COLOR)
+		Toaster.toast("Entered a PvP zone - other players can attack you here.", 3.0, PVP_TOAST_COLOR)
 	else:
-		Toaster.toast("Back in a safe zone — you're protected from other players.", 3.0, SAFE_TOAST_COLOR)
+		Toaster.toast("Back in a safe zone - you're protected from other players.", 3.0, SAFE_TOAST_COLOR)
 
 
 func process_movement() -> void:
@@ -370,7 +370,7 @@ func process_input() -> void:
 		action_input = false
 		return
 
-	# Sit toggle (default X): a rest emote you can pop anywhere — synced via :sitting
+	# Sit toggle (default X): a rest emote you can pop anywhere - synced via :sitting
 	# so other players see you seated.
 	if Input.is_action_just_pressed(&"player_sit"):
 		sitting = not sitting
@@ -404,7 +404,7 @@ func process_input() -> void:
 		action_input = false
 		return
 
-	# Recall (B): a universal channel anyone can start — ask the server to begin
+	# Recall (B): a universal channel anyone can start - ask the server to begin
 	# it. Not while already channeling (re-press is ignored; cancel by moving).
 	if Input.is_action_just_pressed(&"player_recall") and not _channeling and InstanceClient.current != null:
 		Client.request_data(&"recall.start", Callable(), {}, InstanceClient.current.name)
@@ -472,7 +472,7 @@ func process_animation(delta: float) -> void:
 
 
 func update_hand_pivot(delta: float) -> void:
-	# Channeling plants you in a fixed stance — the weapon holds its angle rather
+	# Channeling plants you in a fixed stance - the weapon holds its angle rather
 	# than swivelling to the cursor (a planted hammer that still tracked aim would
 	# look wrong). The pose itself is the weapon's set_channeling_pose.
 	if _channeling:
@@ -506,7 +506,7 @@ func _on_instance_changed_camera_limits(instance: InstanceClient) -> void:
 
 
 ## Clamp the camera to [param map]'s per-edge limits. Each edge defaults to ±CAMERA_LIMIT
-## (unbounded), so a map that sets none leaves the camera free — and re-applying on every map
+## (unbounded), so a map that sets none leaves the camera free - and re-applying on every map
 ## change naturally clears a previous map's clamps. Called on spawn and on each map change.
 func _apply_camera_limits(map: Map) -> void:
 	if map == null:
@@ -525,7 +525,7 @@ func _apply_camera_limits(map: Map) -> void:
 ## attack) so typing on mobile doesn't drive the sticks or fire the weapon, and WASD on
 ## desktop types instead of moving. Releasing player_shoot clears any stick-latched attack
 ## so it doesn't keep firing once input is re-enabled. (Complements _has_gui_focus, which
-## already gates the polling path — this also stops InputComponent from pressing the attack
+## already gates the polling path - this also stops InputComponent from pressing the attack
 ## action in the first place.)
 func set_input_active(active: bool) -> void:
 	controller.enabled = active

@@ -1,7 +1,7 @@
 class_name FloatingDamageNumber
 extends Node2D
 ## Spawns at a world position, displays a damage amount, tweens upward while
-## fading, and frees itself. Generic — used by every weapon's hit feedback
+## fading, and frees itself. Generic - used by every weapon's hit feedback
 ## via the combat.hit push.
 
 ## How far upward the number rises across its lifetime.
@@ -38,7 +38,7 @@ func _apply_label() -> void:
 
 
 ## Pass the world-space spawn position BEFORE add_child. _ready uses this
-## to seed the tween's start point — if we set global_position AFTER
+## to seed the tween's start point - if we set global_position AFTER
 ## add_child instead, _ready has already created a tween against (0,0) and
 ## the number snaps to a wrong location.
 func set_spawn(pos: Vector2) -> void:
@@ -48,7 +48,7 @@ func set_spawn(pos: Vector2) -> void:
 func _ready() -> void:
 	_apply_label()
 	# Random horizontal offset for visual variety. Use roundi to keep the
-	# number on a whole pixel — labels at fractional positions blur badly
+	# number on a whole pixel - labels at fractional positions blur badly
 	# under the project's stretched 960x540 base resolution.
 	var jitter: int = int(round(randf_range(-JITTER_X, JITTER_X)))
 	global_position = _spawn_position + Vector2(jitter, 0)

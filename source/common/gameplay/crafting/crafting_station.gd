@@ -1,6 +1,6 @@
 class_name CraftingStation
 extends Interactable
-## World-space click target that opens a crafting station (workbench, anvil, ...) —
+## World-space click target that opens a crafting station (workbench, anvil, ...) -
 ## shown as the station's sprite. Just an Interactable preconfigured to open the
 ## crafting menu for its station; the click is inherited. The server validates the
 ## station id against the map.

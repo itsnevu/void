@@ -41,13 +41,13 @@ func open_database() -> void:
 	# Durability + concurrency. WAL lets the live backup byte-copy run alongside
 	# writes without tearing (backup_database assumes this) and survives a crash
 	# mid-write; NORMAL is the standard safe+fast sync level under WAL. PRAGMAs are
-	# connection settings, not schema — no migration / wipe.
+	# connection settings, not schema - no migration / wipe.
 	db.query("PRAGMA journal_mode=WAL;")
 	db.query("PRAGMA synchronous=NORMAL;")
 
 
 func close_database() -> void:
-	# Plugin doesn’t always expose close explicitly; if it does, call it.
+	# Plugin doesn't always expose close explicitly; if it does, call it.
 	# Otherwise let refcount drop; but prefer close if available.
 	pass
 
@@ -82,7 +82,7 @@ func save_guild(g: Guild) -> void:
 
 
 ## Flush every still-connected player to disk. Called from the periodic save
-## tick AND from the console's `save` / `shutdown` commands — previously the
+## tick AND from the console's `save` / `shutdown` commands - previously the
 ## console called a method that didn't exist, so shutdowns silently lost
 ## anyone who hadn't disconnected yet. Returns the count actually saved.
 func save_all_connected(connected_players: Dictionary) -> int:
@@ -97,7 +97,7 @@ func save_all_connected(connected_players: Dictionary) -> int:
 
 
 ## Snapshot the live .db file to user://db_backups/<name>_<unix_ts>.db and
-## prune older backups to keep at most [param keep_last]. Cheap byte-copy —
+## prune older backups to keep at most [param keep_last]. Cheap byte-copy -
 ## SQLite WAL keeps the live file consistent enough that a crash mid-write
 ## still leaves a recoverable backup file. Returns true on success.
 func backup_database(keep_last: int = 10) -> bool:

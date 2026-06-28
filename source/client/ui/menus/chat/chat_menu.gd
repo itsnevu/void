@@ -9,7 +9,7 @@ const CHANNEL_WORLD: int = ChatConstants.CHANNEL_WORLD
 const CHANNEL_TEAM: int = ChatConstants.CHANNEL_TEAM
 const CHANNEL_GUILD: int = ChatConstants.CHANNEL_GUILD
 const CHANNEL_SYSTEM: int = ChatConstants.CHANNEL_SYSTEM
-## Synthetic channel — local-only aggregate view across every conversation.
+## Synthetic channel - local-only aggregate view across every conversation.
 const CHANNEL_ALL: int = -1
 const ALL_CONVERSATION_ID: String = "all"
 
@@ -25,7 +25,7 @@ const TAG_COLOR_ALL: String = "#cccccc"
 ## "me" at a glance).
 const SELF_NAME_COLOR: String = "#bdbdbd"
 const SYSTEM_NAME_COLOR: String = "#ff6b6b"
-## Subtle grey used for the (Guild) / « Title » suffixes and timestamps.
+## Subtle grey used for the (Guild) / << Title >> suffixes and timestamps.
 const SUBTLE_COLOR: String = "#7a7a7a"
 const TITLE_COLOR: String = "#c8b977"
 
@@ -122,7 +122,7 @@ var _chat_toggle_icon: TextureRect
 @onready var chat_title_label: Label = $FullFeed/Control/HBoxContainer/ChatPanel/VBoxContainer2/HBoxContainer/ChatTitleLabel
 @onready var settings_button: Button = $FullFeed/Control/HBoxContainer/ChatPanel/VBoxContainer2/HBoxContainer/SettingsButton
 
-# Settings panel nodes — laid out in chat_menu.tscn under ChatPanel/VBoxContainer2/SettingsPanel.
+# Settings panel nodes - laid out in chat_menu.tscn under ChatPanel/VBoxContainer2/SettingsPanel.
 @onready var settings_panel: ScrollContainer = $FullFeed/Control/HBoxContainer/ChatPanel/VBoxContainer2/SettingsPanel
 @onready var settings_blocked_list: VBoxContainer = $FullFeed/Control/HBoxContainer/ChatPanel/VBoxContainer2/SettingsPanel/SettingsContent/BlockedScroll/BlockedList
 @onready var settings_blocked_empty: Label = $FullFeed/Control/HBoxContainer/ChatPanel/VBoxContainer2/SettingsPanel/SettingsContent/BlockedScroll/BlockedList/EmptyLabel
@@ -205,7 +205,7 @@ func _ready() -> void:
 	_update_input_enabled_state()
 
 
-## PC: the peek feed is read-only SCENERY — fighting near the top-left corner
+## PC: the peek feed is read-only SCENERY - fighting near the top-left corner
 ## must neither unfade it, open it, nor (via InputComponent's UI gate) block
 ## attacks. Compose with Enter; the full panel opens from the bubble button.
 ## Touch keeps tap-to-open: there's no mouse to aim with, taps are deliberate.
@@ -221,7 +221,7 @@ func _apply_input_mode() -> void:
 ## whole chat up by the on-screen keyboard's height so the bottom input field isn't hidden
 ## behind it. _process runs only while that field is focused (enabled on focus_entered);
 ## the keyboard animates in, so we poll its height each frame. NOTE: needs on-device tuning
-## — if the lift is off, the keyboard height may need scaling by the content/stretch factor.
+## - if the lift is off, the keyboard height may need scaling by the content/stretch factor.
 func _process(_delta: float) -> void:
 	if ClientState.input_type != InputComponent.InputType.TOUCH or not full_feed_message_edit.has_focus():
 		_reset_keyboard_lift()
@@ -253,7 +253,7 @@ func _build_chat_toggle() -> void:
 	_chat_toggle.pressed.connect(_on_chat_toggle_pressed)
 	add_child(_chat_toggle)
 	_chat_toggle_icon = PixelIcon.mount(_chat_toggle, CHAT_ICON)
-	# The bubble is the OPENER — the full panel has its own Close button, so
+	# The bubble is the OPENER - the full panel has its own Close button, so
 	# hide it while the panel is up (it drew on top of the panel otherwise).
 	full_feed.visibility_changed.connect(func() -> void:
 		_chat_toggle.visible = not full_feed.visible
@@ -386,7 +386,7 @@ func _on_chat_message(message: Dictionary) -> void:
 
 	var is_viewing: bool = full_feed.visible and (current_conversation_id == convo_id or current_conversation_id == ALL_CONVERSATION_ID)
 
-	# Count as unread when we're NOT actually looking at it — is_viewing already folds in
+	# Count as unread when we're NOT actually looking at it - is_viewing already folds in
 	# full_feed.visible, so a closed feed (even on the last-opened DM) correctly badges new messages.
 	if not is_history and not is_self and not is_viewing:
 		_inc_unread(convo_id)
@@ -469,7 +469,7 @@ func _reset_peek_view() -> void:
 
 
 ## Kick off the peek fade-out countdown, honouring the user-chosen duration.
-## When peek_fade_seconds == 0 the peek is "never fade" — we just skip
+## When peek_fade_seconds == 0 the peek is "never fade" - we just skip
 ## starting the timer, so the feed stays visible until explicitly dismissed.
 func _start_peek_fade() -> void:
 	if peek_fade_seconds <= 0:
@@ -484,7 +484,7 @@ func _start_peek_fade() -> void:
 func _show_full_feed() -> void:
 	# Navigating to any channel/DM always lands on the feed, never a stale Chat-options view.
 	_set_settings_open(false)
-	# Already open (e.g. switching channels from the sidebar) — don't replay the slide.
+	# Already open (e.g. switching channels from the sidebar) - don't replay the slide.
 	if full_feed.visible:
 		return
 	if _full_feed_tween != null and _full_feed_tween.is_valid():
@@ -544,7 +544,7 @@ func _on_text_submitted(new_text: String, line_edit: LineEdit) -> void:
 
 	if current_conversation_id == ALL_CONVERSATION_ID:
 		# Composing from the aggregate ALL view doesn't have an obvious
-		# target — default to WORLD (the public broadcast). The user can
+		# target - default to WORLD (the public broadcast). The user can
 		# switch tabs for guild / DM.
 		_send_channel_message(CHANNEL_WORLD, new_text)
 		return
@@ -800,7 +800,7 @@ func _format_message_block(record: Dictionary, prev: Dictionary, show_channel_pr
 		and prev_convo_id == str(record.get("convo_id", ""))
 		and (time_ms - prev_time_ms) < COLLAPSE_WINDOW_MS
 	)
-	# A new divider visually resets the "thread" — always show the header
+	# A new divider visually resets the "thread" - always show the header
 	# again after one so the reader knows who is speaking.
 	var should_show_header: bool = should_show_divider or not same_sender
 
@@ -861,12 +861,12 @@ func _format_header(record: Dictionary, show_channel_prefix: bool) -> String:
 		pieces.append("[color=%s](%s)[/color]" % [SUBTLE_COLOR, guild_name])
 
 	if not title.is_empty():
-		pieces.append("[color=%s]« %s »[/color]" % [TITLE_COLOR, title])
+		pieces.append("[color=%s]<< %s >>[/color]" % [TITLE_COLOR, title])
 
 	return " ".join(pieces)
 
 
-## HSV → hex using a stable hash of the sender so the same person always
+## HSV -> hex using a stable hash of the sender so the same person always
 ## colours the same. Keeps S and V high so the name reads cleanly against
 ## the dark chat background.
 func _hashed_name_color(sender_id: int, sender_name: String) -> String:
@@ -1082,7 +1082,7 @@ func _clear_unread(convo_id: String) -> void:
 	_set_unread(convo_id, 0)
 
 
-## True if any DM conversation has unread messages — drives the HUD toggle's exclamation icon. We badge
+## True if any DM conversation has unread messages - drives the HUD toggle's exclamation icon. We badge
 ## ONLY DMs (directed at the player); public/guild/system stream through the peek and would just be noise.
 func _has_unread_dm() -> bool:
 	for convo_id: String in unread_by_conversation:
@@ -1217,7 +1217,7 @@ func _on_chat_send_result(result: Dictionary) -> void:
 
 
 ## Tracks whether the server believes the local player is currently typing.
-## Both chat inputs share this flag — focus moving between peek and full
+## Both chat inputs share this flag - focus moving between peek and full
 ## feed doesn't re-fire the network call.
 var _typing_state_sent: bool = false
 
@@ -1233,7 +1233,7 @@ func _on_chat_input_focus_changed(now_focused: bool) -> void:
 
 
 func _set_typing_state(should_be_typing: bool) -> void:
-	# Re-read focus after the deferred bounce — the cheap dedupe below
+	# Re-read focus after the deferred bounce - the cheap dedupe below
 	# handles redundant transitions either way.
 	var actually_typing: bool = should_be_typing and (
 		peek_feed_message_edit.has_focus()
@@ -1250,11 +1250,11 @@ func _set_typing_state(should_be_typing: bool) -> void:
 	)
 	# Server skips the sender when broadcasting chat.typing (no need to
 	# round-trip our own state), so the local player never receives a push
-	# for itself. Drive the bubble locally instead — feels weird to see the
+	# for itself. Drive the bubble locally instead - feels weird to see the
 	# indicator on others but not yourself.
 	if ClientState.local_player != null and is_instance_valid(ClientState.local_player):
 		ClientState.local_player.set_typing(actually_typing)
-		# Kill player input while composing so the sticks/keys don't move or attack —
+		# Kill player input while composing so the sticks/keys don't move or attack -
 		# fixes mobile "I keep attacking with the stick while the keyboard is up".
 		ClientState.local_player.set_input_active(not actually_typing)
 
@@ -1352,7 +1352,7 @@ const SETTINGS_PEEK_SHOW_DM: StringName = &"peek_show_dm"
 const SETTINGS_PEEK_SHOW_SYSTEM: StringName = &"peek_show_system"
 
 ## Peek fade duration presets shown in the OptionButton.
-## Label → seconds (0 means "never fade").
+## Label -> seconds (0 means "never fade").
 const PEEK_FADE_PRESETS: Array[Dictionary] = [
 	{"label": "3 seconds", "seconds": 3},
 	{"label": "5 seconds", "seconds": 5},
@@ -1361,7 +1361,7 @@ const PEEK_FADE_PRESETS: Array[Dictionary] = [
 ]
 
 ## Curated swatches for the "Your name color" picker. Empty hex means "use
-## the default neutral self-tone" — first slot is always the reset.
+## the default neutral self-tone" - first slot is always the reset.
 const NAME_COLOR_SWATCHES: Array = [
 	"",          # default
 	"#ffd36b",   # gold
@@ -1417,7 +1417,7 @@ func _init_settings_panel() -> void:
 	)
 
 	# Name-colour swatches (programmatic because they're a uniform grid of
-	# coloured buttons — fits the data-driven SWATCHES constant better than
+	# coloured buttons - fits the data-driven SWATCHES constant better than
 	# duplicating 7 nodes in the scene).
 	_build_name_color_swatches()
 
@@ -1513,7 +1513,7 @@ func _toggle_settings_panel() -> void:
 ## the feed instead of doing nothing while options are up.
 func _set_settings_open(open: bool) -> void:
 	settings_panel.visible = open
-	# Feed + separator + input row swap places with the settings panel — same
+	# Feed + separator + input row swap places with the settings panel - same
 	# chat-panel real estate, no overlay layering required.
 	full_feed_text_display.visible = not open
 	full_feed_sep_above_input.visible = not open

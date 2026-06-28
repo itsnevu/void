@@ -1,10 +1,10 @@
 extends Control
 ## HUD quick slots (keys 1 / 2 / 3): one-press access to anything usable from
-## the bag — weapons and tools EQUIP (with swap), consumables USE — all
+## the bag - weapons and tools EQUIP (with swap), consumables USE - all
 ## through the same server-validated item.equip path, so a binding is pure
 ## convenience: pressing a slot for an item you no longer own is a no-op.
 ##
-## Assignment happens in the inventory's detail strip (Hotkey button →
+## Assignment happens in the inventory's detail strip (Hotkey button ->
 ## SlotPickerOverlay). Bindings persist client-side per character.
 
 
@@ -57,7 +57,7 @@ func _trigger_slot(index: int) -> void:
 		return
 	# Toggle: tapping the slot of whatever you're HOLDING puts it away (1 = sword on,
 	# 1 again = bare hands; a held potion toggles the same way). Otherwise equip it to
-	# hand. Every hand item — weapon, potion, material — rides the &"weapon" slot.
+	# hand. Every hand item - weapon, potion, material - rides the &"weapon" slot.
 	if _is_equipped(item):
 		var slot_key: StringName = (item as GearItem).slot.key if item is GearItem else &"weapon"
 		Client.request_data(
@@ -101,7 +101,7 @@ func _is_equipped(item: Item) -> bool:
 	return equipped_id == int(item.get_meta(&"id", 0))
 
 
-## Consumables: once the LAST one is used, drop the binding — a key that
+## Consumables: once the LAST one is used, drop the binding - a key that
 ## silently no-ops reads as a bug. While a stack remains, the binding stays.
 ## (Gear bindings persist forever; the item just bounces bag <-> body.)
 func _after_slot_used(_response: Dictionary, index: int) -> void:

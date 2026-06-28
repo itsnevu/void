@@ -10,16 +10,16 @@ class_name BasingService
 
 ## How often held territory pays out: each tick grants TERRITORY_TICK_SG (glory),
 ## treasury, and credits base-time to every owning guild per held flag. Kept at
-## 5 min so progress is visible during a session (was 30 min — too coarse to feel
+## 5 min so progress is visible during a session (was 30 min - too coarse to feel
 ## like anything was happening). Glory/treasury per-tick amounts are tunable if
 ## the faster cadence makes the economy run hot.
 const TERRITORY_TICK_SECONDS: float = 5.0 * 60.0
 const TERRITORY_TICK_SG: int = 1
-## PvP kills by a guilded member (anywhere — NOT territory-gated) count toward this
+## PvP kills by a guilded member (anywhere - NOT territory-gated) count toward this
 ## milestone: every KILLS_PER_GLORY such kills grants the guild +1 SG and rolls the counter
 ## down. Credited from LeaderboardService.record_pvp_kill via credit_glory_kill. (Was
 ## "kills inside an owned territory", but a base can span multiple instances so an Area2D
-## footprint can't cover it — global PvP is the working model.)
+## footprint can't cover it - global PvP is the working model.)
 const KILLS_PER_GLORY: int = 200
 ## "10 SG => 3 EG" conversion ratio.
 const EG_PER_10_SG: int = 3
@@ -59,7 +59,7 @@ static func _flush_pending_kills(world_server: Node) -> void:
 # --- Defenders (guild guards) ---
 
 ## Spawn the owning guild's defender guards in a ring around [param flag]. Called
-## on capture (deferred — _capture runs inside a physics callback, and spawning
+## on capture (deferred - _capture runs inside a physics callback, and spawning
 ## an NPC's detection Area2D can't mutate physics mid-flush). Clears the previous
 ## owner's guards first. Guards are single-life HostileNpcs that ignore the owning
 ## guild. No-ops cleanly until the archetype is registered in `enemy_types`.
@@ -134,7 +134,7 @@ static func grant_sg(guild: Guild, amount: int) -> void:
 		guild.eternal_glory = eg_target
 
 
-## Credit one PvP kill toward [param guild_id]'s glory milestone (global — not territory-
+## Credit one PvP kill toward [param guild_id]'s glory milestone (global - not territory-
 ## gated). Every KILLS_PER_GLORY kills grants +1 SG and rolls the counter down. Called from
 ## LeaderboardService.record_pvp_kill for any guilded killer; a guildless kill passes
 ## guild_id 0 and no-ops here.
@@ -159,7 +159,7 @@ static func credit_glory_kill(guild_id: int) -> void:
 
 ## Iterate every charged flag across every instance and grant TERRITORY_TICK_SG
 ## to each owning guild per held flag. Guilds are loaded once per tick and
-## saved once at the end, so DB cost is O(unique-owning-guilds) per tick — at
+## saved once at the end, so DB cost is O(unique-owning-guilds) per tick - at
 ## the alpha scale this is essentially free.
 static func tick_all_territories(world_server: Node) -> void:
 	if world_server == null or world_server.instance_manager == null:
@@ -179,7 +179,7 @@ static func tick_all_territories(world_server: Node) -> void:
 					continue
 				if not guilds_to_save.has(gid):
 					guilds_to_save[gid] = world_server.database.get_guild(gid)
-					# Credit held-time once per tick for any guild holding ≥1 flag.
+					# Credit held-time once per tick for any guild holding >=1 flag.
 					if guilds_to_save[gid] != null:
 						guilds_to_save[gid].territory_seconds += int(TERRITORY_TICK_SECONDS)
 				var guild: Guild = guilds_to_save[gid]
@@ -202,7 +202,7 @@ static func tick_all_territories(world_server: Node) -> void:
 static func _announce_tick(ws: Node, guild: Guild, sg_gained: int) -> void:
 	if ws.chat_service == null or sg_gained <= 0:
 		return
-	var msg: String = "🏛 Your guild earned %d Seasonal Glory from held territory." % sg_gained
+	var msg: String = " Your guild earned %d Seasonal Glory from held territory." % sg_gained
 	_push_to_guild_members(ws, guild.guild_id, msg)
 
 
@@ -210,7 +210,7 @@ static func _announce_milestone(ws: Node, guild: Guild, sg_gained: int) -> void:
 	if ws.chat_service == null or sg_gained <= 0:
 		return
 	var kills: int = sg_gained * KILLS_PER_GLORY
-	var msg: String = "🎖 %d kills in your territory earned the guild %d Seasonal Glory." % [kills, sg_gained]
+	var msg: String = " %d kills in your territory earned the guild %d Seasonal Glory." % [kills, sg_gained]
 	_push_to_guild_members(ws, guild.guild_id, msg)
 
 

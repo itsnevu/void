@@ -1,7 +1,7 @@
 class_name MeleeArc
 extends Area2D
 ## Short-lived hitbox spawned (server-only) by melee weapons. Damages every valid
-## target it overlaps via CombatHit — same flag / PvP / sparring / friendly-fire
+## target it overlaps via CombatHit - same flag / PvP / sparring / friendly-fire
 ## rules as the bow arrow, so combat stays consistent across weapons.
 ##
 ## The arc is a STATIC box at the swing position; it does NOT follow the player
@@ -58,7 +58,7 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	_hit_bodies.append(body)
 	var result: CombatHit.Result = CombatHit.try_damage(source if source is Character else null, body, damage)
-	# Slow rides a LANDED hit on a Player only. `body` may be a HurtBox area — resolve to its
+	# Slow rides a LANDED hit on a Player only. `body` may be a HurtBox area - resolve to its
 	# owner for the type check (the first negative status buff, via the same BuffService potions use).
 	if result == CombatHit.Result.DAMAGED and slow_amount > 0.0 and slow_duration_s > 0.0:
 		var struck: Node = (body as HurtBox).character if body is HurtBox else body

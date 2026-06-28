@@ -2,15 +2,15 @@ class_name Barrier
 extends StaticBody2D
 ## A temporary conjured wall that blocks PROJECTILES from any side but never
 ## movement. The trick is the physics layer: it sits on layer 1, which every
-## combat hitbox masks (CombatHit.TARGET_MASK = 7 → layers 1/2/3), while player
-## MOVEMENT masks only layers 2-3 — so arrows and bolts stop dead on it
+## combat hitbox masks (CombatHit.TARGET_MASK = 7 -> layers 1/2/3), while player
+## MOVEMENT masks only layers 2-3 - so arrows and bolts stop dead on it
 ## (CombatHit.try_damage returns BLOCKED for a non-Character body) while
 ## players, allies and enemies all walk through it untouched.
 ##
 ## Spawned on EVERY peer by BarrierAbility (the propagated action.perform path):
 ## the server copy stops real damage-dealing projectiles, each client copy stops
 ## its own visual projectiles and draws the wall. Self-destructs after its
-## lifetime — no manager needed.
+## lifetime - no manager needed.
 
 const FILL: Color = Color(0.42, 0.62, 1.0, 0.42)
 const EDGE: Color = Color(0.72, 0.86, 1.0, 0.9)
@@ -21,14 +21,14 @@ var thickness: float = 10.0
 var lifetime_s: float = 3.0
 ## Damage the wall absorbs before it shatters. A projectile carrying MORE than
 ## the remaining pool is reduced by it and punches through (so a big nuke isn't
-## fully eaten by a cheap cast — see absorb / arrow.gd). 0 = invincible wall.
+## fully eaten by a cheap cast - see absorb / arrow.gd). 0 = invincible wall.
 var block_hp: float = 0.0
 
 var _hp_left: float = 0.0
 
 
 ## Absorbs [param incoming] damage, returns the OVERFLOW that should still pass
-## through (0 when the wall ate it all). Called on EVERY peer by arrow.gd — the
+## through (0 when the wall ate it all). Called on EVERY peer by arrow.gd - the
 ## pool drains deterministically because every peer runs the same projectiles
 ## with the same synced damage, so all walls shatter at the same point with no
 ## explicit replication. block_hp <= 0 = invincible (always returns 0).
@@ -39,7 +39,7 @@ func absorb(incoming: float) -> float:
 	_hp_left -= eaten
 	queue_redraw() # weaken the visual as the pool drops
 	if _hp_left <= 0.0:
-		queue_free() # shattered — deterministic across peers
+		queue_free() # shattered - deterministic across peers
 	return incoming - eaten
 
 
@@ -55,7 +55,7 @@ func _ready() -> void:
 	var rect: RectangleShape2D = RectangleShape2D.new()
 	# Thickness runs along local X (the aim axis), length along local Y, so after
 	# BarrierAbility rotates us by the aim angle the broad face points back at
-	# the shooter — a wall, not a needle.
+	# the shooter - a wall, not a needle.
 	rect.size = Vector2(thickness, length)
 	shape.shape = rect
 	add_child(shape)

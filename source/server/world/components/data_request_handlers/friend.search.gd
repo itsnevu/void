@@ -1,8 +1,8 @@
 extends DataRequestHandler
 ## Searches players so the friends menu can find someone to add. A query prefixed
 ## with "@" matches the stable account name (the @handle); otherwise it matches
-## the character / display name. Returns up to [constant RESULT_LIMIT] matches —
-## each with id, display name, account name and an online flag — excluding the
+## the character / display name. Returns up to [constant RESULT_LIMIT] matches -
+## each with id, display name, account name and an online flag - excluding the
 ## caller. Clicking a result opens that player's profile, where add/remove lives.
 
 

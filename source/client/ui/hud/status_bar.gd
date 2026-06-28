@@ -3,7 +3,7 @@ extends HBoxContainer
 ## rebuilt from the server's 1 Hz status.sync push. Each icon carries a
 ## remaining-seconds badge and a tooltip; the local clock counts the badge
 ## down between pushes so it ticks smoothly instead of jumping once a second.
-## Pure display — every node is MOUSE_FILTER_IGNORE.
+## Pure display - every node is MOUSE_FILTER_IGNORE.
 
 const ICON_DIR: String = "res://assets/sprites/ui/status/"
 const TILE: float = 30.0
@@ -38,12 +38,12 @@ const STAT_LABELS: Dictionary = {
 ## learn what each icon means, LoL-style. Buffs/debuffs without a bespoke line
 ## fall back to a generated one.
 const DESCRIPTIONS: Dictionary = {
-	&"combat": "In Combat — armor is locked (weapons still swap freely).",
-	&"burn": "Burning — taking fire damage every second.",
-	&"poison": "Poisoned — taking damage every second.",
-	&"slow": "Slowed — reduced movement speed.",
-	&"mana_regen": "Mana Tonic — your mana regenerates faster.",
-	&"move_speed": "Hastened — increased movement speed.",
+	&"combat": "In Combat - armor is locked (weapons still swap freely).",
+	&"burn": "Burning - taking fire damage every second.",
+	&"poison": "Poisoned - taking damage every second.",
+	&"slow": "Slowed - reduced movement speed.",
+	&"mana_regen": "Mana Tonic - your mana regenerates faster.",
+	&"move_speed": "Hastened - increased movement speed.",
 }
 
 ## How long the tap-to-read label lingers on mobile (no hover there).
@@ -52,10 +52,10 @@ const TAP_LABEL_S: float = 2.5
 var _icon_cache: Dictionary[String, Texture2D] = {}
 ## Live tiles: key -> {"node", "label"(or null), "deadline_ms"}. Keyed so the
 ## per-frame countdown finds badges AND so a stable status set is NOT torn down
-## and rebuilt every push (that churn freed the tap label → crash, and reset
+## and rebuilt every push (that churn freed the tap label -> crash, and reset
 ## hover/tap before you could read it).
 var _tiles: Dictionary = {}
-## Ordered keys of the currently-built tiles — compared against each push to
+## Ordered keys of the currently-built tiles - compared against each push to
 ## decide rebuild vs. just refresh the countdown deadlines.
 var _order: Array[String] = []
 
@@ -82,7 +82,7 @@ func _on_status_sync(payload: Dictionary) -> void:
 		var did: StringName = StringName(str(debuff.get("id", "")))
 		specs.append({
 			"key": "debuff:" + String(did), "icon": DEBUFF_ICONS.get(did, DEBUFF_FALLBACK),
-			"desc": _describe(did, "%s — harmful effect." % String(did).capitalize()),
+			"desc": _describe(did, "%s - harmful effect." % String(did).capitalize()),
 			"remaining": int(debuff.get("remaining", 0)),
 		})
 
@@ -90,7 +90,7 @@ func _on_status_sync(payload: Dictionary) -> void:
 	for spec: Dictionary in specs:
 		new_order.append(spec["key"])
 
-	# Stable set → just re-arm the countdown deadlines (server is authoritative
+	# Stable set -> just re-arm the countdown deadlines (server is authoritative
 	# on remaining), keeping tiles/tooltips/tap-label alive. No teardown.
 	if new_order == _order:
 		var now: int = Time.get_ticks_msec()
@@ -100,7 +100,7 @@ func _on_status_sync(payload: Dictionary) -> void:
 				info["deadline_ms"] = now + int(spec["remaining"]) * 1000
 		return
 
-	# Set changed → rebuild ONLY the tracked tile nodes (never the tap label).
+	# Set changed -> rebuild ONLY the tracked tile nodes (never the tap label).
 	for key: String in _tiles:
 		var node: Node = _tiles[key]["node"]
 		if is_instance_valid(node):
@@ -176,7 +176,7 @@ func _load_icon(file_name: String) -> Texture2D:
 	return _icon_cache[file_name]
 
 
-## Transient read-out under the strip — the mobile stand-in for a hover
+## Transient read-out under the strip - the mobile stand-in for a hover
 ## tooltip. Reuses one label; each tap restarts its fade.
 var _tap_label: Label
 var _tap_tween: Tween

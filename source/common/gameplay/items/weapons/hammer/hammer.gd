@@ -1,25 +1,25 @@
 extends Weapon
-## War Hammer: the base Weapon plus a punchy, code-driven slam (wind-up →
-## anticipation hold → violent snap → recoil) on the weapon, plus an on-impact
+## War Hammer: the base Weapon plus a punchy, code-driven slam (wind-up ->
+## anticipation hold -> violent snap -> recoil) on the weapon, plus an on-impact
 ## ground shockwave (SlamImpact) + debris + screen shake. All the JUICE scales
-## PER ABILITY — the basic tap is modest, Earthshatter is a screen-shaking,
-## rock-spitting showpiece — by reading the performed AbilityResource's
+## PER ABILITY - the basic tap is modest, Earthshatter is a screen-shaking,
+## rock-spitting showpiece - by reading the performed AbilityResource's
 ## impact_shake / impact_reach / impact_particles. Code-driven because juice is
 ## procedural; a keyframed body animation can layer on top later.
 
-## Slam timing — slow wind-up, a beat of anticipation, then a FAST smash, so it
+## Slam timing - slow wind-up, a beat of anticipation, then a FAST smash, so it
 ## reads as heavy. Smash drives PAST 90° so the head clearly hits the ground.
 const RAISE_S: float = 0.14   ## raise the hammer high overhead
 const HOLD_S: float = 0.05    ## hang at the top (anticipation)
-const SMASH_S: float = 0.22   ## the DESCENT — long enough for the eye to track
+const SMASH_S: float = 0.22   ## the DESCENT - long enough for the eye to track
 const GROUND_HOLD_S: float = 0.1  ## stay planted in the crater (weight) before lifting
 const SETTLE_S: float = 0.26  ## recoil back to rest, overshooting
 const RAISE_ANGLE: float = -120.0
-const SMASH_ANGLE: float = 95.0   ## past vertical — reads as a ground slam
+const SMASH_ANGLE: float = 95.0   ## past vertical - reads as a ground slam
 const SMASH_SCALE: float = 1.6    ## peak head size at the moment of contact
 
 ## The slam's hitbox is a CENTERED circle on the wielder, so the ring is drawn
-## centered too — it now MATCHES the damage zone (no forward offset). The head
+## centered too - it now MATCHES the damage zone (no forward offset). The head
 ## still visually comes down via the rotation tween; the shockwave radiates from
 ## your feet, which is honest for a centered AoE.
 
@@ -35,12 +35,12 @@ func perform_action(action_index: int, direction: Vector2, released: bool = fals
 		return
 	var ability: AbilityResource = abilities[action_index]
 	# Only the melee SLAMS get the punchy slam swing. A channeled special (the
-	# healing aura) uses its own stance pose — it must NOT trigger a swing.
+	# healing aura) uses its own stance pose - it must NOT trigger a swing.
 	if ability is not MeleeSwingAbility:
 		return
 	_slam_ability = ability
 	_slam_dir = direction.normalized() if direction != Vector2.ZERO else Vector2.RIGHT
-	# Plant the wielder for the swing (commit). CLIENT-ONLY — ClientState is a
+	# Plant the wielder for the swing (commit). CLIENT-ONLY - ClientState is a
 	# client autoload (freed on the server), and perform_action runs on both.
 	if GameMode.is_client() and character == ClientState.local_player and ClientState.local_player != null:
 		ClientState.local_player.freeze_movement(_slam_ability.root_s)
@@ -48,7 +48,7 @@ func perform_action(action_index: int, direction: Vector2, released: bool = fals
 
 
 func _play_slam_visual() -> void:
-	# Visual only — the headless server skips it. Runs for the wielder AND for
+	# Visual only - the headless server skips it. Runs for the wielder AND for
 	# everyone else via the action.perform broadcast replay. Tweens the weapon
 	# ROOT (self) so the hand swings with the hammer.
 	if not GameMode.is_client():
@@ -79,7 +79,7 @@ func _play_slam_visual() -> void:
 	# ...hang a beat (the anticipation that sells the weight)...
 	_slam_tween.tween_interval(hold_t)
 	# ...then drive down past vertical. QUAD (not EXPO) ease-in so the descent is
-	# VISIBLE the whole way — it accelerates into the ground rather than
+	# VISIBLE the whole way - it accelerates into the ground rather than
 	# teleporting there on the last frame. The head SWELLS in parallel, peaking on
 	# contact, so the size punch reads DURING the fall, not after it.
 	_slam_tween.tween_property(self, ^"rotation_degrees", SMASH_ANGLE, SMASH_S)\
@@ -89,7 +89,7 @@ func _play_slam_visual() -> void:
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	# Impact: shockwave + debris + shake, on the smash's last frame.
 	_slam_tween.tween_callback(_on_slam_impact)
-	# Stay planted in the crater a beat — a heavy head doesn't bounce off, it
+	# Stay planted in the crater a beat - a heavy head doesn't bounce off, it
 	# sticks (head stays fat the whole time it's embedded).
 	_slam_tween.tween_interval(ground_hold)
 	# ...then lift back to rest with a slight overshoot at the top (arm relaxing),
@@ -110,8 +110,8 @@ func _on_slam_impact() -> void:
 	var color: Color = _slam_ability.impact_color if _slam_ability != null else Color(1.0, 0.92, 0.55, 0.9)
 	var rings: int = _slam_ability.impact_rings if _slam_ability != null else 1
 
-	# (The head scale-punch runs as a parallel tween synced to the descent — see
-	# _play_slam_visual — so the swell peaks ON contact, not after it.)
+	# (The head scale-punch runs as a parallel tween synced to the descent - see
+	# _play_slam_visual - so the swell peaks ON contact, not after it.)
 
 	# Ground shockwave + debris, CENTERED on the wielder to match the centered
 	# AoE hitbox. Ring radius = the ability's hitbox so it reads as real reach.
@@ -124,7 +124,7 @@ func _on_slam_impact() -> void:
 		character.get_parent().add_child(impact)
 		impact.global_position = character.global_position
 
-	# Screen shake — only for the player whose hammer this is.
+	# Screen shake - only for the player whose hammer this is.
 	if shake > 0.0 and character == ClientState.local_player and ClientState.local_player != null:
 		ClientState.local_player.shake_camera(shake)
 

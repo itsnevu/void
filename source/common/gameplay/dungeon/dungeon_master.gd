@@ -1,7 +1,7 @@
 class_name DungeonMaster
 extends Area2D
 ## LEGACY dungeon station. The NEW, meaningful way to offer a dungeon is a
-## dungeon-keeper NPC with a DungeonInteraction (a real character) — see
+## dungeon-keeper NPC with a DungeonInteraction (a real character) - see
 ## DungeonInteraction. This node is kept so existing entrance scenes keep working:
 ## it holds the dungeon and opens the lobby identified by its own NODE NAME (no
 ## manual id; the server resolves the station by name + range-checks its position).

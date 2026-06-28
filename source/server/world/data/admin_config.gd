@@ -1,7 +1,7 @@
 class_name AdminConfig
 ## Maps account names to a server role, granted LIVE (read on each permission check, not
-## written to the DB). Lets the server owner grant admin by editing a config file — no DB
-## edits, no debug-only hacks — and removing an account revokes it immediately.
+## written to the DB). Lets the server owner grant admin by editing a config file - no DB
+## edits, no debug-only hacks - and removing an account revokes it immediately.
 ##
 ## Looks for "user://server_admins.cfg" first (editable next to a deployed build), then the
 ## bundled "res://data/config/server_admins.cfg". Format (role names come from ServerRoles):

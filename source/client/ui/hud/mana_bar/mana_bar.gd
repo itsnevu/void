@@ -1,5 +1,5 @@
 extends Control
-## HUD mana bar — sibling of HealthBar (same pattern): subscribes to the local
+## HUD mana bar - sibling of HealthBar (same pattern): subscribes to the local
 ## player's stat sync and mirrors MANA / MANA_MAX. Mana gates special abilities
 ## only, so this is the "how often can I use my power moves" gauge.
 

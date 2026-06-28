@@ -6,7 +6,7 @@ extends Node
 signal local_player_ready(local_player: LocalPlayer)
 signal player_profile_requested(id: int)
 ## Same as player_profile_requested but the target is identified by PEER id (a world
-## click) — the client doesn't carry the persistent player_id, so the server resolves
+## click) - the client doesn't carry the persistent player_id, so the server resolves
 ## it (see profile.get.gd).
 signal player_profile_by_peer_requested(peer_id: int)
 signal open_menu_requested(menu: StringName, arg: Variant)
@@ -41,7 +41,7 @@ var spectator: bool = false
 var menu_open: bool = false
 ## How many talkable world interactables (NPC click-areas) the cursor is over. While
 ## > 0, combat input is suppressed (InputComponent._ui_blocks_combat) so clicking an NPC
-## to talk doesn't ALSO fire your weapon — the world-space mirror of the GUI gate.
+## to talk doesn't ALSO fire your weapon - the world-space mirror of the GUI gate.
 ## Counter, so overlapping NPCs balance; each NPC clears its own contribution on free.
 var world_interactables_hovered: int = 0
 ## Fired when the local player's tagged guild changes (login / tag / create /
@@ -68,7 +68,7 @@ var guilds: DataDict = DataDict.new()
 ## the server may have already dispatched). Hydrated once at instance entry
 ## via social.block.list and kept in sync as the user blocks/unblocks.
 var blocked_ids: Dictionary[int, bool]
-## Fired when blocked_ids changes — profile/chat-settings menus listen so
+## Fired when blocked_ids changes - profile/chat-settings menus listen so
 ## their UI mirrors the live state without a refresh round-trip.
 signal blocked_ids_changed
 
@@ -85,7 +85,7 @@ var input_type: InputComponent.InputType:
 		input_changed.emit(value)
 
 
-## Re-color visible players' team health bars after the local guild changes —
+## Re-color visible players' team health bars after the local guild changes -
 ## already-spawned players read Character.local_viewer_guild_id (set above) but
 ## need a nudge to re-evaluate. Called by method name to avoid importing Player.
 func _retint_local_players() -> void:
@@ -128,7 +128,7 @@ func _ready() -> void:
 ## ("Defeated a Goblin" + XP + loot + level-up) so the player reads it
 ## as a single event instead of three flashes that happen to land
 ## together. enemy_type may be missing for non-mob reward paths (basing
-## etc.) — falls back to a generic "Reward" header in that case.
+## etc.) - falls back to a generic "Reward" header in that case.
 func _on_combat_reward(data: Dictionary) -> void:
 	var enemy_type: String = str(data.get("enemy_type", ""))
 	var title: String = "Defeated %s" % _readable_enemy_name(enemy_type) if not enemy_type.is_empty() else "Reward"
@@ -139,12 +139,12 @@ func _on_combat_reward(data: Dictionary) -> void:
 		lines.append("+%d XP" % xp)
 	for entry: Dictionary in data.get("loot", []):
 		lines.append("Looted %d %s" % [int(entry.get("amount", 1)), str(entry.get("name", "item"))])
-	# Reaching the cap is THE goal — give it its own prominent, longer-dwelling
+	# Reaching the cap is THE goal - give it its own prominent, longer-dwelling
 	# card instead of the ordinary level-up line (the normal card still fires for
 	# every level below the cap).
 	if bool(data.get("reached_max", false)):
 		Toaster.toast_group("MAX LEVEL!", PackedStringArray([
-			"You've reached level 20 — the pinnacle of Mythreach.",
+			"You've reached level 20 - the pinnacle of Mythreach.",
 			"Title 'Ascendant' unlocked!",
 		]), 5.0)
 
@@ -173,7 +173,7 @@ func _on_combat_reward(data: Dictionary) -> void:
 
 	if lines.is_empty() and enemy_type.is_empty():
 		return  # Nothing to show.
-	# Repeated kills coalesce into one "Defeated a Goblin ×N" card; quest/basing
+	# Repeated kills coalesce into one "Defeated a Goblin xN" card; quest/basing
 	# reward turn-ins (no enemy_type) are rare one-offs on the big lane.
 	if enemy_type.is_empty():
 		Toaster.toast_group(title, lines)
@@ -185,7 +185,7 @@ func _on_combat_reward(data: Dictionary) -> void:
 ## toast format that the legacy click-based mining handler used, so quest
 ## tracking and any inventory UI that already listens to gather_succeeded
 ## keeps working unchanged.
-## Throttle for the "depleted" toast — depleted swings are now rejected
+## Throttle for the "depleted" toast - depleted swings are now rejected
 ## server-side on every hit, so without this the message would spam.
 var _last_depleted_toast_ms: int
 
@@ -196,7 +196,7 @@ func _on_gather_result(data: Dictionary) -> void:
 
 	# Route progress + charge state to the node's local visuals so the bar +
 	# label show only when the node is mid-extraction or partially depleted.
-	# Only fires for the player who swung — broadcast can come later if other
+	# Only fires for the player who swung - broadcast can come later if other
 	# players need to see live state on the same node.
 	_apply_node_visual_state(data)
 
@@ -214,15 +214,15 @@ func _on_gather_result(data: Dictionary) -> void:
 				var now_ms: int = Time.get_ticks_msec()
 				if now_ms - _last_depleted_toast_ms > 4000:
 					_last_depleted_toast_ms = now_ms
-					Toaster.toast("This vein is depleted — come back later.")
-			# "cooldown" stays silent — players will spam swings during it.
+					Toaster.toast("This vein is depleted - come back later.")
+			# "cooldown" stays silent - players will spam swings during it.
 		return
 
 	# Successful hit. Two shapes:
-	#   { ok: true, extracted: false, progress_hp, extraction_hp }   ← just a swing
-	#   { ok: true, extracted: true,  ore_id, amount, xp, ... }      ← a full yield
+	#   { ok: true, extracted: false, progress_hp, extraction_hp }   <- just a swing
+	#   { ok: true, extracted: true,  ore_id, amount, xp, ... }      <- a full yield
 	if not data.get("extracted", false):
-		# Mid-extraction swings are intentionally silent — feedback comes
+		# Mid-extraction swings are intentionally silent - feedback comes
 		# from the swing animation + (future) chip-sound, not a toast.
 		return
 
@@ -234,17 +234,17 @@ func _on_gather_result(data: Dictionary) -> void:
 	var amount: int = int(data.get("amount", 0))
 	if amount > 0:
 		lines.append("+%d %s" % [amount, str(data.get("ore_name", "ore"))])
-	# XP entries — primary job first (verbose), additional grants compact.
+	# XP entries - primary job first (verbose), additional grants compact.
 	var grants_v: Variant = data.get("grants", [])
 	if grants_v is Array:
 		for grant: Dictionary in grants_v:
 			lines.append("+%d %s XP" % [int(grant.get("xp", 0)), str(grant.get("job", "")).capitalize()])
-	# Level-up / perk = one-off → its own card; the yield body coalesces per ore.
+	# Level-up / perk = one-off -> its own card; the yield body coalesces per ore.
 	var big: PackedStringArray = PackedStringArray()
 	if data.get("leveled_up", false):
-		big.append("%s — Level %d!" % [str(data.get("job", "mining")).capitalize(), int(data.get("level", 1))])
+		big.append("%s - Level %d!" % [str(data.get("job", "mining")).capitalize(), int(data.get("level", 1))])
 	if int(data.get("perk_points_gained", 0)) > 0:
-		big.append("Perk point available — spend in Character → Jobs.")
+		big.append("Perk point available - spend in Character -> Jobs.")
 	if not big.is_empty():
 		Toaster.toast_group("Level Up!", big)
 
@@ -273,7 +273,7 @@ func _apply_node_visual_state(data: Dictionary) -> void:
 	)
 
 
-## "bandit_captain" → "a Bandit Captain". Article ("a"/"an") chosen by
+## "bandit_captain" -> "a Bandit Captain". Article ("a"/"an") chosen by
 ## first letter so we don't produce "a Orc" / "a Iron Warlord" weirdness.
 func _readable_enemy_name(slug: String) -> String:
 	if slug.is_empty():

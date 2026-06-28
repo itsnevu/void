@@ -177,7 +177,7 @@ func _on_craft_pressed(index: int, recipe: CraftingRecipe) -> void:
 	var data: Dictionary = result[0]
 	Toaster.toast("Crafted %d %s" % [int(data.get("amount", 1)), str(recipe.output_item.item_name)])
 	if data.get("leveled_up", false):
-		Toaster.toast("%s — Level %d!" % [String(data.get("profession", "")).capitalize(), int(data.get("level", 1))])
+		Toaster.toast("%s - Level %d!" % [String(data.get("profession", "")).capitalize(), int(data.get("level", 1))])
 	_refresh()
 
 

@@ -1,7 +1,7 @@
 class_name SpawnEffect
 extends Node2D
 ## A summon / materialize burst played when a mob appears or respawns: an expanding ember ring, a
-## bright core flash, and rising ember particles (web-safe CPUParticles2D). Pure client visual —
+## bright core flash, and rising ember particles (web-safe CPUParticles2D). Pure client visual -
 ## add it as a child of the mob (or drop it at a point) and forget it; it frees itself.
 ##
 ## It's a STANDALONE node (the AttackTelegraph / SlamImpact family), NOT a tween on the mob's own
@@ -12,7 +12,7 @@ const DURATION: float = 0.55
 
 ## Radius the ring expands to. Tune per caller if a boss should read bigger.
 var radius: float = 26.0
-## Ember tint (orange-gold — matches the Ember motif).
+## Ember tint (orange-gold - matches the Ember motif).
 var color: Color = Color(1.0, 0.62, 0.24, 0.9)
 
 var _elapsed: float = 0.0
@@ -59,7 +59,7 @@ func _draw() -> void:
 	var eased: float = 1.0 - pow(1.0 - t, 3.0)
 	var ring_r: float = lerpf(3.0, radius, eased)
 	draw_arc(Vector2.ZERO, ring_r, 0.0, TAU, 40, Color(color, (1.0 - t) * color.a), lerpf(4.0, 1.0, t), true)
-	# Bright core flash on the first third — a pop that collapses.
+	# Bright core flash on the first third - a pop that collapses.
 	if t < 0.35:
 		var ct: float = t / 0.35
 		var core: Color = color.lerp(Color(1.0, 1.0, 1.0), 0.7)

@@ -9,7 +9,7 @@ const MORE_ITEM_REPORT: int = 1
 const MORE_ITEM_BLOCK: int = 2
 const MORE_ITEM_SHOW_GUILD: int = 3
 
-# Stat-value colors so the eye can read kinds at a glance — gold = wealth,
+# Stat-value colors so the eye can read kinds at a glance - gold = wealth,
 # cyan = progression (level/hours), red = combat record.
 const COLOR_VALUE_PROGRESS: Color = Color(0.55, 0.85, 0.95)
 const COLOR_VALUE_GOLD: Color = Color(1.0, 0.85, 0.45)
@@ -19,7 +19,7 @@ const COLOR_DIM: Color = Color(0.7, 0.7, 0.75)
 const COLOR_GUILD: Color = Color(0.55, 0.85, 0.95)
 
 var cache: Dictionary[int, Dictionary]
-## Most recent profile payload — used by the Edit panel to pre-seed fields.
+## Most recent profile payload - used by the Edit panel to pre-seed fields.
 var _current_profile: Dictionary
 
 @onready var name_label: Label = %NameLabel
@@ -38,7 +38,7 @@ var _current_profile: Dictionary
 @onready var more_button: Button = %MoreButton
 @onready var more_popup: PopupMenu = %MorePopup
 
-# Built lazily — see _build_edit_ui at the bottom.
+# Built lazily - see _build_edit_ui at the bottom.
 var _edit_panel: PanelContainer
 var _title_option: OptionButton
 var _animation_option: OptionButton
@@ -66,7 +66,7 @@ func open_player_profile(player_id: int) -> void:
 	)
 
 
-## Open by the target's PEER id (a world click) — the server resolves peer -> player_id.
+## Open by the target's PEER id (a world click) - the server resolves peer -> player_id.
 func open_player_profile_by_peer(peer_id: int) -> void:
 	Client.request_data(
 		&"profile.get",
@@ -84,7 +84,7 @@ func apply_profile(profile: Dictionary) -> void:
 	var is_self: bool = profile.get("self", false)
 
 	# Identity strip under the sprite. NameRow shows "Name (Guild)" so the
-	# guild affiliation reads alongside the character name — first thing you
+	# guild affiliation reads alongside the character name - first thing you
 	# see. The guild fragment is its own Label so we can tint it cyan without
 	# bbcode. Staff-only "#id" gets appended to the name for mods.
 	var display_name: String = str(profile.get("name", "No Name"))
@@ -97,10 +97,10 @@ func apply_profile(profile: Dictionary) -> void:
 	guild_label.visible = not guild_name.is_empty()
 
 	var title: String = str(profile.get("title", ""))
-	title_label.text = "— %s —" % title if not title.is_empty() else ""
+	title_label.text = "- %s -" % title if not title.is_empty() else ""
 	title_label.visible = not title.is_empty()
 
-	# Account handle stays as the dim line under the title — it's secondary
+	# Account handle stays as the dim line under the title - it's secondary
 	# identity info ("oh, that's their main account").
 	var account_name: String = str(profile.get("account_name", ""))
 	account_label.text = "@%s" % account_name if not account_name.is_empty() else ""
@@ -128,7 +128,7 @@ func apply_profile(profile: Dictionary) -> void:
 	if _edit_panel == null:
 		_build_edit_ui()
 	if _edit_panel.get_meta(&"overlay").visible:
-		# Stale profile.get came in while editing — close the panel to avoid
+		# Stale profile.get came in while editing - close the panel to avoid
 		# overwriting the user's in-flight edits.
 		_edit_panel.get_meta(&"overlay").hide()
 
@@ -136,7 +136,7 @@ func apply_profile(profile: Dictionary) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Left column — stats list
+# Left column - stats list
 # ---------------------------------------------------------------------------
 
 func _render_stats(stats: Dictionary) -> void:
@@ -186,7 +186,7 @@ func _stat_row(label_text: String, value_text: String, value_color: Color) -> HB
 
 
 # ---------------------------------------------------------------------------
-# Right column — earned-title strip
+# Right column - earned-title strip
 # ---------------------------------------------------------------------------
 
 func _render_title_strip(profile: Dictionary) -> void:
@@ -194,12 +194,12 @@ func _render_title_strip(profile: Dictionary) -> void:
 		child.queue_free()
 
 	# displayed_trophies is the player's curated pick (up to 3). Shipped to
-	# everyone — same view for self and others.
+	# everyone - same view for self and others.
 	var trophies: Array = profile.get("displayed_trophies", [])
 
 	if trophies.is_empty():
 		var empty: Label = Label.new()
-		empty.text = "No trophies yet." if not profile.get("self", false) else "Pin trophies from Edit → Trophies."
+		empty.text = "No trophies yet." if not profile.get("self", false) else "Pin trophies from Edit -> Trophies."
 		empty.self_modulate = Color(0.55, 0.55, 0.6)
 		title_strip.add_child(empty)
 		return
@@ -212,7 +212,7 @@ func _render_title_strip(profile: Dictionary) -> void:
 ## built-in panel styling; it's disabled so it doesn't take focus.
 func _title_chip(text: String) -> Button:
 	var chip: Button = Button.new()
-	chip.text = "🏆 %s" % text
+	chip.text = " %s" % text
 	chip.disabled = true
 	chip.focus_mode = Control.FOCUS_NONE
 	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -220,7 +220,7 @@ func _title_chip(text: String) -> Button:
 
 
 # ---------------------------------------------------------------------------
-# Action bar — friend / message / invite guild / more
+# Action bar - friend / message / invite guild / more
 # ---------------------------------------------------------------------------
 
 func _render_action_bar(profile: Dictionary, is_self: bool) -> void:
@@ -233,7 +233,7 @@ func _render_action_bar(profile: Dictionary, is_self: bool) -> void:
 
 	var is_friend: bool = profile.get("friend", false)
 	friend_button.text = "Remove friend" if is_friend else "Add friend"
-	# Reset the disabled state — a prior "Add friend" click disabled it, and
+	# Reset the disabled state - a prior "Add friend" click disabled it, and
 	# without this it stays disabled for every profile opened afterwards (the
 	# "can't add anyone" bug).
 	friend_button.disabled = false
@@ -274,7 +274,7 @@ func _show_more_popup() -> void:
 		more_popup.add_item("Report player", MORE_ITEM_REPORT)
 		# Authoritative state comes from the profile payload (server checks
 		# BlockList) but ClientState.blocked_ids may have updated since this
-		# profile was fetched — prefer the live set.
+		# profile was fetched - prefer the live set.
 		var target_id: int = int(_current_profile.get("id", 0))
 		var is_blocked: bool = ClientState.blocked_ids.has(target_id) or bool(_current_profile.get("blocked", false))
 		more_popup.add_item("Unblock player" if is_blocked else "Block player", MORE_ITEM_BLOCK)
@@ -284,7 +284,7 @@ func _show_more_popup() -> void:
 		more_popup.add_item("Show Guild", MORE_ITEM_SHOW_GUILD)
 	# reset_size so the post-clear size reflects the actual item count, then
 	# anchor the popup ABOVE the button (the action bar sits at the bottom of
-	# the card — popping downward would clip off-screen).
+	# the card - popping downward would clip off-screen).
 	more_popup.reset_size()
 	var popup_h: int = int(more_popup.size.y)
 	var anchor_x: float = more_button.global_position.x + more_button.size.x - more_popup.size.x
@@ -302,7 +302,7 @@ func _on_more_item_pressed(id: int) -> void:
 		MORE_ITEM_SHOW_GUILD:
 			# Route to the guild panel via the same open_menu_requested signal
 			# the rest of the world uses. Guild id isn't currently shipped on
-			# the profile payload — emit by name and let the guild menu resolve
+			# the profile payload - emit by name and let the guild menu resolve
 			# the active guild for the target if a future change adds it.
 			ClientState.open_menu_requested.emit(&"guild", str(_current_profile.get("guild_name", "")))
 			hide()

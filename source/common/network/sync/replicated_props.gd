@@ -1,13 +1,13 @@
 @tool
 class_name ReplicatedPropsContainer
 extends Node2D
-#Deterministic baked IDs → zero bootstrap for statics (no “200 jars” payload).
+#Deterministic baked IDs -> zero bootstrap for statics (no '200 jars' payload).
 #Simple lookups (child index/id maps), cheap wire format (CPID 16/16).
 #Clean split cold props (container) vs hot actors (StateSynchronizer).
 #The tradeoffs are acceptable:
 #Props must be direct children.
 
-## Compact container for “cold” scene props (static & dynamic), independent from StateSynchronizer.
+## Compact container for 'cold' scene props (static & dynamic), independent from StateSynchronizer.
 ## Provides:
 ##  - Server: mark props (cpid->value), queue spawns/despawns/ops, capture bootstrap.
 ##  - Client: apply spawns, pairs, and rp_* ops.
@@ -18,7 +18,7 @@ const STATIC_MAX: int = 32767
 
 ## Hardcoded table of dynamically-spawnable scenes, keyed by a small id sent on
 ## the spawn op. These scenes are constants (e.g. the generic NPC), so there's no
-## need for a scan-generated `scenes` registry — add an entry to make a new scene
+## need for a scan-generated `scenes` registry - add an entry to make a new scene
 ## spawnable. load() (not preload) avoids a class cycle with the scene's script.
 const SCENE_HOSTILE_NPC: int = 0
 const DYNAMIC_SCENE_PATHS: Dictionary = {
@@ -72,7 +72,7 @@ var _ops_named_queued: Array
 var _state_by_cpid: Dictionary[int, Variant] = {}   # cpid -> last value
 var _dirty_pairs: Dictionary[int, Variant] = {}     # cpid -> pending value
 
-# Optional: baseline “ops” per child (scene-owned state for newcomers).
+# Optional: baseline 'ops' per child (scene-owned state for newcomers).
 var _baseline_ops_by_child: Dictionary[int, Array] = {}  # child_id -> [[method:StringName, args:Array], ...]
 
 var _cpid_cache: Dictionary[int, PropertyCache]
@@ -120,12 +120,12 @@ func apply_spawns(spawns: Array) -> void:
 
 		var instance: Node = packed_scene.instantiate()
 		# Per-spawn init (e.g. enemy_type_id) applied BEFORE add_child so the
-		# child's _ready sees it — mirrors how the server configured it.
+		# child's _ready sees it - mirrors how the server configured it.
 		var init: Dictionary = to_spawn[2] if to_spawn.size() > 2 and to_spawn[2] is Dictionary else {}
 		_apply_spawn_init(instance, init)
 		dynamic_nodes[child_id] = instance
 		# Register in node_to_id too so child_id_of_node(self) resolves for a
-		# dynamic prop — HostileNpc._ready relies on it to find its prop_id.
+		# dynamic prop - HostileNpc._ready relies on it to find its prop_id.
 		node_to_id[instance] = child_id
 		instance.set_meta(&"rp_container", self)
 		add_child(instance)
@@ -347,7 +347,7 @@ func capture_bootstrap_block() -> Dictionary:
 	# - current dynamics (spawns with scene_id from node.meta),
 	# - optional pairs baseline,
 	# - named ops baseline (scene-owned state like rp_pause).
-	# Client apply order must be: spawns → ops_named → pairs → despawns
+	# Client apply order must be: spawns -> ops_named -> pairs -> despawns
 	var spawns: Array = []
 	for child_id: int in dynamic_nodes:
 		var n: Node = dynamic_nodes[child_id]

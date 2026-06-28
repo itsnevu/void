@@ -2,11 +2,11 @@ class_name EmoteRegistry
 ## Shared emote table + server broadcast helper. Lives in common/ so the client
 ## (render the bubble) and the server (validate + broadcast) agree on the ids.
 ##
-## Emotes are one-shot social "pops" above the head — purely cosmetic, broadcast
+## Emotes are one-shot social "pops" above the head - purely cosmetic, broadcast
 ## to everyone in the instance. Triggered by chat commands (/wave, /emote dance,
 ## ...) so they work on desktop, web AND mobile (no extra input/UI needed).
 ##
-## NOTE: glyphs are plain text/symbols, not color emoji — the project's UI fonts
+## NOTE: glyphs are plain text/symbols, not color emoji - the project's UI fonts
 ## (Cinzel / Atkinson) don't ship an emoji set, so emoji would render as tofu.
 
 const WAVE: int = 0

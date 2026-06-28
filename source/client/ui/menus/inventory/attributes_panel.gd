@@ -25,13 +25,13 @@ const STAT_LABELS: Dictionary = {
 }
 
 ## Attributes whose stats aren't wired into gameplay yet. Empty since the magic
-## update went live (AP scales wand damage/heals, MR mitigates magic damage) —
+## update went live (AP scales wand damage/heals, MR mitigates magic damage) -
 ## add a name here to disable its row with a "Coming soon" tag.
 const LOCKED_ATTRIBUTES: PackedStringArray = []
 
 
 func _ready() -> void:
-	# Re-fetch every time the panel becomes visible — without this, the
+	# Re-fetch every time the panel becomes visible - without this, the
 	# values shown reflect the first open only, and a mid-session level-up
 	# leaves the panel reporting stale "available points" until relog.
 	visibility_changed.connect(_refetch_if_visible)
@@ -75,7 +75,7 @@ func _setup_attribute_row(row: HBoxContainer) -> void:
 	# Find the + button by type (robust to the inserted description label).
 	for node: Node in row.get_children():
 		if node is Button:
-			# Locked attributes (magic, not wired yet) can't be spent — disable the
+			# Locked attributes (magic, not wired yet) can't be spent - disable the
 			# button instead of letting players waste points. Re-enable by removing
 			# the name from LOCKED_ATTRIBUTES once the magic system ships.
 			if locked:
@@ -86,7 +86,7 @@ func _setup_attribute_row(row: HBoxContainer) -> void:
 			break
 
 
-## "+1 Max HP", "+0.7 Mana, +0.53 Energy", ... — what one point in this attribute grants.
+## "+1 Max HP", "+0.7 Mana, +0.53 Energy", ... - what one point in this attribute grants.
 func _describe_attribute(attribute_name: String) -> String:
 	var stats: Dictionary = AttributeMap.attr_to_stats({attribute_name: 1})
 	var parts: PackedStringArray = []

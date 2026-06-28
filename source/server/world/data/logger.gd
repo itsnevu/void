@@ -59,7 +59,7 @@ static func _write(level: String, msg: String) -> void:
 		_file.flush() # Make sure crashes don't lose the most recent lines.
 
 
-## Returns the last [param n] lines from the in-memory ring. Cheap — used by
+## Returns the last [param n] lines from the in-memory ring. Cheap - used by
 ## the dashboard's /v1/logs poll and by the heartbeat snapshot.
 static func recent(n: int = 200) -> PackedStringArray:
 	if n <= 0 or _recent.is_empty():

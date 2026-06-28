@@ -6,7 +6,7 @@ extends Control
 ## the title on the left, an optional centre slot (tabs), and a Close button on
 ## the right.
 ##
-## Usage — a menu's root script does `extends MenuShell` and, in `_ready`:
+## Usage - a menu's root script does `extends MenuShell` and, in `_ready`:
 ## [codeblock]
 ## func _ready() -> void:
 ##     build_shell("Shop", $Body)   # reparents the authored body into the card
@@ -15,20 +15,20 @@ extends Control
 ## [/codeblock]
 ##
 ## Reparenting an authored body keeps its `unique_name_in_owner` (`%Foo`)
-## lookups working — unique names resolve via the scene owner, not the parent,
+## lookups working - unique names resolve via the scene owner, not the parent,
 ## so moving nodes within the same scene is safe.
 
 ## Emitted when the Close button is pressed (the shell also hides itself).
 signal close_requested
 
-## The card content area — put the menu body here (build_shell does this for
+## The card content area - put the menu body here (build_shell does this for
 ## the `body` argument; add more children directly if needed). It's a
 ## borderless container: the Card already draws one frame, so menus add their
 ## own master/detail sub-panels inside without stacking a third border.
 var content: MarginContainer
-## Centre slot of the header bar — for tab bars / status labels.
+## Centre slot of the header bar - for tab bars / status labels.
 var header_center: HBoxContainer
-## Right slot of the header bar (holds Close) — add header-right widgets here.
+## Right slot of the header bar (holds Close) - add header-right widgets here.
 var header_right: HBoxContainer
 
 var _title_label: Label
@@ -56,7 +56,7 @@ func build_shell(title_text: String = "", body: Control = null, fullscreen: bool
 
 	var card: PanelContainer = PanelContainer.new()
 	if fullscreen:
-		# Full-screen menus drop the card frame — content sits straight on the dim full-rect backdrop
+		# Full-screen menus drop the card frame - content sits straight on the dim full-rect backdrop
 		# (world faint behind), not in an inset floating panel. The dim ColorRect IS the "background".
 		card.add_theme_stylebox_override(&"panel", StyleBoxEmpty.new())
 	margin.add_child(card)

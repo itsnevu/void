@@ -2,7 +2,7 @@ extends DataRequestHandler
 ## Redeems a code for the requesting character: rate-limits, validates the code,
 ## checks this character hasn't already claimed it, applies the reward bundle, and
 ## records the claim on PlayerResource.redeemed_codes. Per-character + online-only
-## by design — see docs/redeem_codes.md.
+## by design - see docs/redeem_codes.md.
 ##
 ## Returns {"ok": true, "rewards": [{"type", "name", "amount"}, ...]}
 ##      or {"ok": false, "reason": "unknown|expired|already|misconfigured|rate_limited|no_player"}.

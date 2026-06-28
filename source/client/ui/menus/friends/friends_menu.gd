@@ -15,7 +15,7 @@ func _ready() -> void:
 	build_shell("Friends", null, true)
 
 	# content is a MarginContainer (sizes every child to the same rect), so all the
-	# pieces go in ONE VBox — otherwise the scroll list overlaps and covers the
+	# pieces go in ONE VBox - otherwise the scroll list overlaps and covers the
 	# search bar (you can't click it).
 	var col: VBoxContainer = VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -127,7 +127,7 @@ func _fill_search_results(payload: Dictionary) -> void:
 		var account: String = str(entry.get("account", ""))
 		var subtitle: String = ("@%s" % account) if not account.is_empty() else ""
 		if entry.get("friend", false):
-			subtitle = ("%s  · friend" % subtitle).strip_edges()
+			subtitle = ("%s  - friend" % subtitle).strip_edges()
 		_add_row(int(entry.get("id", 0)), str(entry.get("name", "Unknown")), subtitle, entry.get("online", false))
 
 	DragScroll.enable(_scroll) # touch/mouse drag-to-scroll the search results
@@ -145,7 +145,7 @@ func _add_row(player_id: int, display_name: String, subtitle: String, is_online:
 	var label: String = display_name
 	if not subtitle.is_empty():
 		label += "   %s" % subtitle
-	label += "    %s" % ("● Online" if is_online else "Offline")
+	label += "    %s" % ("- Online" if is_online else "Offline")
 
 	var button: Button = Button.new()
 	button.custom_minimum_size = Vector2(0, 44)

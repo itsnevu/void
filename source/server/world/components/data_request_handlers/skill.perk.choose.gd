@@ -9,7 +9,7 @@ func data_request_handler(
 	var skill_name: StringName = StringName(args.get("skill", ""))
 	var perk_id: StringName = StringName(args.get("perk", ""))
 
-	# Validate via the registry — JobPerks.perks is the source of truth.
+	# Validate via the registry - JobPerks.perks is the source of truth.
 	var jp: JobPerks = JobRegistry.perks_for(skill_name)
 	if jp == null or not jp.has_perk(perk_id):
 		return {"ok": false}

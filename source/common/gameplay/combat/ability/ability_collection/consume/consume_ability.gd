@@ -1,7 +1,7 @@
 class_name ConsumeAbility
 extends AbilityResource
 ## The "main action" of a held CONSUMABLE: consuming it. In the unified-hand model
-## a consumable equipped to hand mounts this as its only ability — so the SAME main
+## a consumable equipped to hand mounts this as its only ability - so the SAME main
 ## action that swings a weapon drinks a potion, with NO special-case path. The hand
 ## mounter sets [member consumable] and copies the item's tuning onto this instance:
 ## the item's shared cooldown -> [member cooldown], and its use_freeze -> [member
@@ -11,7 +11,7 @@ extends AbilityResource
 ## Server-authoritative: the heal + the spend happen on the server; every client
 ## sees the result through the regular stat sync (their HP/mana bars update).
 
-## The consumable this consumes — set at mount time (NOT @export: it's owned per
+## The consumable this consumes - set at mount time (NOT @export: it's owned per
 ## hand instance and must never be shared across players, like every mounted ability).
 var consumable: ConsumableItem
 
@@ -29,7 +29,7 @@ func can_use(user: Entity = null) -> bool:
 	if user is Character and not consumable.can_use(user as Character):
 		return false
 	# Ownership is SERVER-authoritative: only the server holds player_resource (the
-	# client's local player node has none — touching it there crashed), so gate on stock
+	# client's local player node has none - touching it there crashed), so gate on stock
 	# only there. The client optimistically allows; a depleted potion auto-unequips.
 	if GameMode.is_world_server() and user is Player:
 		var player: Player = user as Player
@@ -40,7 +40,7 @@ func can_use(user: Entity = null) -> bool:
 
 
 func use_ability(entity: Entity, _direction: Vector2) -> void:
-	# Client (owner only): root briefly so the sip reads as a committed action — the
+	# Client (owner only): root briefly so the sip reads as a committed action - the
 	# same movement lock a heavy weapon swing uses (see HammerWeapon). root_s was copied
 	# from the item's use_freeze.
 	if GameMode.is_client() and entity == ClientState.local_player and ClientState.local_player != null:
@@ -51,7 +51,7 @@ func use_ability(entity: Entity, _direction: Vector2) -> void:
 	if not GameMode.is_world_server() or consumable == null or entity is not Character:
 		return
 	consumable.on_use(entity as Character)
-	# Drank the LAST one → put the empty hand away so no dangling un-drinkable potion is
+	# Drank the LAST one -> put the empty hand away so no dangling un-drinkable potion is
 	# left mounted. Clearing the synced slot unequips it for everyone and the quickslot
 	# un-highlights.
 	if entity is Player:

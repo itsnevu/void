@@ -625,7 +625,7 @@ function humanizeDuration(ms) {
 // flow would query the SQLite messages table via a new endpoint.
 async function openPlayerChatHistory(playerId, playerName) {
   $("chatHistoryTitle").textContent = `Recent chat — ${playerName}`;
-  $("chatHistoryFeed").innerHTML = `<div class="muted center" style="padding: 16px;">Loading…</div>`;
+  $("chatHistoryFeed").innerHTML = `<div class="muted center" style="padding: 16px;">Loading...</div>`;
   $("chatHistoryModal").classList.remove("hidden");
   const r = await api(`/v1/chat?world_id=${activeWorldId}`);
   const feed = $("chatHistoryFeed");

@@ -30,7 +30,7 @@ PATCH_NOTES,Patch notes,Notas de atualização,Notas de actualización
 LOGOUT,Log out,Sair,Salir
 CLOSE_GAME,Close game,Fechar jogo,Cerrar el juego
 CONNECTING,Connecting to Mythreach...,Conectando ao Mythreach...,Conectando a Mythreach...
-SERVER_ONLINE,Connected · Mythreach,Conectado · Mythreach,Conectado · Mythreach
+SERVER_ONLINE,Connected - Mythreach,Conectado - Mythreach,Conectado - Mythreach
 STATUS_ONLINE,Connected,Conectado,Conectado
 STATUS_OFFLINE,Offline,Offline,Sin conexión
 NOT_LOGGED_IN,Not logged in,Não autenticado,No autenticado
@@ -67,5 +67,5 @@ ERR_GENERIC,Something went wrong. Please try again.,Algo deu errado. Tente novam
 NO_WORLDS_ONLINE,No worlds are online right now. Trying again shortly...,Nenhum mundo está online no momento. Tentando novamente em breve...,No hay mundos en línea ahora mismo. Reintentando en breve...
 ERR_RATE_LIMITED,Too many attempts. Please wait a moment and try again.,Muitas tentativas. Aguarde um momento e tente novamente.,Demasiados intentos. Espera un momento e inténtalo de nuevo.
 SHOW_PASSWORD,Show password,Mostrar senha,Mostrar contraseña
-CONNECTED_AS,Connected · %s,Conectado · %s,Conectado · %s
+CONNECTED_AS,Connected - %s,Conectado - %s,Conectado - %s
 NAME_LEVEL,%s\nLevel %d,%s\nNível %d,%s\nNivel %d

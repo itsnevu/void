@@ -42,7 +42,7 @@ func data_request_handler(peer_id: int, instance: ServerInstance, args: Dictiona
 	store.save_player(accepter)
 	store.commit()
 
-	# May have been auto-tagged — keep the client's cached active_guild_id current.
+	# May have been auto-tagged - keep the client's cached active_guild_id current.
 	world_server.data_push.rpc_id(peer_id, &"active_guild_id.set", {"active_guild_id": accepter.active_guild_id})
 	var pnode: Player = instance.players_by_peer_id.get(peer_id)
 	if pnode != null:

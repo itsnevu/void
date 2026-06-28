@@ -30,7 +30,7 @@ func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInsta
 		var online: bool = ws.player_id_to_peer_id.get(pid, 0) != 0
 		lines.append("- %s (#%d)  Lv %d%s" % [
 			str(info.get("name", "?")), pid, int(info.get("level", 1)),
-			"  ● online" if online else "",
+			"  - online" if online else "",
 		])
 
 	return "Characters on @%s (%d):\n%s" % [account, lines.size(), "\n".join(lines)]

@@ -1,17 +1,17 @@
 extends ChatCommand
-## GM mailbox sender (docs/mailbox.md). Thin wrapper over MailSender — pipe-splits
+## GM mailbox sender (docs/mailbox.md). Thin wrapper over MailSender - pipe-splits
 ## the chat line into target | subject | body | extras, then delegates. For
 ## LONG-FORM mail (patch notes etc.) use the in-game compose menu instead; chat
 ## caps message length.
 ##
 ## /mail <target> | <subject> | <body> [| <attachments>]
-##   target:      #<id> (online/offline) · @account (online) · self · all · online
+##   target:      #<id> (online/offline) - @account (online) - self - all - online
 ##   attachments: comma-separated  gold:100, item:1x3, skin:24, title:Ember Founder, xp:500, from:Sender
 
 
 func _init() -> void:
 	command_name = "mail"
-	command_priority = 100 # senior_admin — can grant rewards (matches /give, /gold, /grant)
+	command_priority = 100 # senior_admin - can grant rewards (matches /give, /gold, /grant)
 	command_usage = "/mail <#id|@acc|self|all|online> | <subject> | <body> [| gold:100, item:1x3, skin:24, title:Name, xp:500, from:Sender]"
 
 

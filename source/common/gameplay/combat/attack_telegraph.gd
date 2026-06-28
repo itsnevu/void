@@ -2,10 +2,10 @@ class_name AttackTelegraph
 extends Node2D
 ## A brief red danger-zone preview. Two shapes:
 ##  - CIRCLE (default): an enemy's melee range when it swings.
-##  - CORRIDOR: set [member line_to] — a capsule from this node's position to
+##  - CORRIDOR: set [member line_to] - a capsule from this node's position to
 ##    the dash landing point (the lunge path), so players see WHO is charging
 ##    and exactly which strip of ground to vacate.
-## Purely a client visual (spawned via the container's rp_ ops) — never affects
+## Purely a client visual (spawned via the container's rp_ ops) - never affects
 ## gameplay.
 
 const COLOR: Color = Color(1.0, 0.15, 0.15, 0.35)

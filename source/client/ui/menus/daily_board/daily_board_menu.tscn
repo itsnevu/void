@@ -40,10 +40,10 @@ text = "Daily Quest Board"
 
 [node name="Refresh" type="Label" parent="CenterContainer/Card/Margin/VBox/Header"]
 modulate = Color(1, 1, 1, 0.7)
-text = "—"
+text = "-"
 
 [node name="CloseButton" type="Button" parent="CenterContainer/Card/Margin/VBox/Header"]
-text = "✕"
+text = ""
 
 [node name="StatusLabel" type="Label" parent="CenterContainer/Card/Margin/VBox"]
 modulate = Color(1, 1, 1, 0.7)

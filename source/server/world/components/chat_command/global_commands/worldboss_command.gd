@@ -1,6 +1,6 @@
 extends ChatCommand
 ## Spawn the live WORLD BOSS at your feet and rally the server (admin event). The
-## master dashboard is owner-only, so live events are triggered in-game from here —
+## master dashboard is owner-only, so live events are triggered in-game from here -
 ## this is the first command of the admin event system. See EventService.
 
 
@@ -12,7 +12,7 @@ func _init() -> void:
 
 
 func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInstance) -> String:
-	# /worldboss end — dispel the active boss (admin abort, no rewards distributed).
+	# /worldboss end - dispel the active boss (admin abort, no rewards distributed).
 	if args.size() >= 2 and args[1].to_lower() == "end":
 		return EventService.end_world_boss()
 

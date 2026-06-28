@@ -1,6 +1,6 @@
 class_name QuestService
 ## Server-side quest logic shared by the kill/craft hooks and the quest handlers.
-## Pure functions over a PlayerResource — no per-instance state.
+## Pure functions over a PlayerResource - no per-instance state.
 
 
 ## A player killed an enemy of [param enemy_type]: advance matching KILL objectives.
@@ -63,13 +63,13 @@ static func _advance_matching(
 			])
 		if not was_complete and is_complete(resource, quest_id, resource.inventory):
 			if quest.auto_complete:
-				# apply_turn_in pushes its own quest.update toast — don't append
-				# the "ready — return" line that'd confuse the player.
+				# apply_turn_in pushes its own quest.update toast - don't append
+				# the "ready - return" line that'd confuse the player.
 				pending_auto_complete.append(quest)
 			else:
 				# Latch so notify_passive_ready (the COLLECT path) doesn't re-toast this.
 				resource.set_quest_ready_notified(quest_id, true)
-				updates.append("✓ %s ready to turn in. Return to the quest giver." % quest.quest_name)
+				updates.append("v %s ready to turn in. Return to the quest giver." % quest.quest_name)
 	for quest: QuestResource in pending_auto_complete:
 		apply_turn_in(resource, quest, peer_id, instance)
 	return updates
@@ -129,7 +129,7 @@ static func apply_turn_in(
 	var quest_id: int = int(quest.get_meta(&"id", 0))
 	resource.set_quest_turned_in(quest_id)
 
-	# Vanity title grant — auto-equips only if no title currently displayed.
+	# Vanity title grant - auto-equips only if no title currently displayed.
 	var quest_messages: Array = ["Quest complete: %s" % quest.quest_name]
 	if not quest.grant_title.is_empty() and not resource.titles_unlocked.has(quest.grant_title):
 		resource.titles_unlocked.append(quest.grant_title)
@@ -168,7 +168,7 @@ static func is_complete(resource: PlayerResource, quest_id: int, inventory: Dict
 	if quest == null:
 		return false
 	if quest.objectives.is_empty():
-		# No-objective quest (e.g. visit-then-turn-in) — complete on accept.
+		# No-objective quest (e.g. visit-then-turn-in) - complete on accept.
 		return true
 	var any_met: bool = false
 	for i: int in quest.objectives.size():
@@ -200,7 +200,7 @@ static func notify_passive_ready(resource: PlayerResource, peer_id: int) -> void
 		if complete and not notified:
 			resource.set_quest_ready_notified(quest_id, true)
 			WorldServer.curr.data_push.rpc_id(peer_id, &"quest.update", {
-				"messages": ["✓ %s ready to turn in. Return to the quest giver." % quest.quest_name]
+				"messages": ["v %s ready to turn in. Return to the quest giver." % quest.quest_name]
 			})
 		elif not complete and notified:
 			resource.set_quest_ready_notified(quest_id, false)

@@ -6,7 +6,7 @@ extends GearItem
 ## &"hammer"). Killing with it earns mastery xp for the category; empty = no
 ## mastery (tools, special-case weapons). See docs/mastery.md.
 @export var category: StringName
-## Max ability weight (= node tier) the special slot accepts — the gear half
+## Max ability weight (= node tier) the special slot accepts - the gear half
 ## of the mastery system: higher-tier weapons channel heavier abilities.
 @export_range(1, 3) var capacity: int = 1
 
@@ -22,10 +22,10 @@ extends GearItem
 
 func stat_lines() -> Array[Dictionary]:
 	var lines: Array[Dictionary] = []
-	# Mastery weapons lead with type + ability-slot capacity ("Sword · Power 2/3").
+	# Mastery weapons lead with type + ability-slot capacity ("Sword - Power 2/3").
 	# Tools (empty category) skip it. Then the inherited modifiers + level gate.
 	if not category.is_empty():
-		lines.append({"text": "%s · Power %d/3" % [String(category).capitalize(), capacity], "kind": &"weapon"})
+		lines.append({"text": "%s - Power %d/3" % [String(category).capitalize(), capacity], "kind": &"weapon"})
 	lines.append_array(super())
 	return lines
 

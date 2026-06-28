@@ -2,9 +2,9 @@ class_name CommandTarget
 ## Unified target resolution for admin chat commands. Every targeted command
 ## parses its target token through here, so the syntax is identical everywhere:
 ##
-##   self          → the caller
-##   @account      → the account's currently-online character (account lookup)
-##   #1042 / 1042  → a character by its permanent player_id
+##   self          -> the caller
+##   @account      -> the account's currently-online character (account lookup)
+##   #1042 / 1042  -> a character by its permanent player_id
 ##
 ## Account names are the stable handle: only one character per account can be
 ## online at a time, so an online @account is unambiguous and is what staff will
@@ -16,7 +16,7 @@ class_name CommandTarget
 
 ## Outcome of a resolution attempt. Check [member ok] first; on failure
 ## [member error] is a ready-to-send player-facing message. On success the
-## fields are filled as far as known — online targets carry a live
+## fields are filled as far as known - online targets carry a live
 ## [member resource]/[member peer_id]; offline targets carry the
 ## [member account_name]/[member player_id] resolved from the DB.
 class Result extends RefCounted:
@@ -53,7 +53,7 @@ static func resolve(token: String, caller_peer_id: int, instance: ServerInstance
 		r.error = "No target. Use self, @account or #id."
 		return r
 
-	# self → the caller.
+	# self -> the caller.
 	if clean == "self":
 		var caller: PlayerResource = ws.connected_players.get(caller_peer_id)
 		if caller == null:
@@ -62,7 +62,7 @@ static func resolve(token: String, caller_peer_id: int, instance: ServerInstance
 		_fill_online(r, caller_peer_id, caller)
 		return r
 
-	# @account → the online character on that account (lowercased to match how
+	# @account -> the online character on that account (lowercased to match how
 	# accounts are stored). Offline accounts resolve to the name only.
 	if clean.begins_with("@"):
 		var account: String = clean.substr(1).strip_edges().to_lower()
@@ -78,7 +78,7 @@ static func resolve(token: String, caller_peer_id: int, instance: ServerInstance
 			r.online = false
 		return r
 
-	# #id / bare number → a character by player_id (online or, via the DB, offline).
+	# #id / bare number -> a character by player_id (online or, via the DB, offline).
 	var id_token: String = clean.trim_prefix("#")
 	if id_token.is_valid_int():
 		var pid: int = id_token.to_int()

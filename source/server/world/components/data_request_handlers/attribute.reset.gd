@@ -16,14 +16,14 @@ func data_request_handler(
 
 	var pr: PlayerResource = player.player_resource
 
-	# Total refundable points. Nothing spent → nothing to do (don't charge a no-op).
+	# Total refundable points. Nothing spent -> nothing to do (don't charge a no-op).
 	var refunded: int = 0
 	for attr: StringName in pr.attributes:
 		refunded += int(pr.attributes[attr])
 	if refunded <= 0:
 		return {"ok": false, "reason": "nothing"}
 
-	# Charge the fee — checks + removes atomically (false = can't afford, nothing removed).
+	# Charge the fee - checks + removes atomically (false = can't afford, nothing removed).
 	var gold_id: int = Economy.gold_id()
 	if gold_id <= 0 or not Inventory.remove_amount_by_id(pr.inventory, gold_id, AttributeResetInteraction.COST):
 		return {"ok": false, "reason": "gold"}

@@ -1,8 +1,8 @@
 extends DataRequestHandler
 ## Kicks a member from a guild. Args: { guild_name, target_id }. Gated by the
 ## KICK permission + Guild.can_act (grade hierarchy; never the leader). The
-## target's player record is updated too — loaded live if online, else from the
-## DB — so an offline kick doesn't leave a dangling membership.
+## target's player record is updated too - loaded live if online, else from the
+## DB - so an offline kick doesn't leave a dangling membership.
 
 
 func data_request_handler(peer_id: int, instance: ServerInstance, args: Dictionary) -> Dictionary:
@@ -30,7 +30,7 @@ func data_request_handler(peer_id: int, instance: ServerInstance, args: Dictiona
 	if not guild.can_act(actor.player_id, target_id):
 		return {"error": 1, "ok": false, "message": "You can't kick this member."}
 
-	# Resolve the target's record — the live one if they're online, else the DB.
+	# Resolve the target's record - the live one if they're online, else the DB.
 	var target: PlayerResource = _find_online(world_server, target_id)
 	if target == null:
 		target = store.get_player(target_id)

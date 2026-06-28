@@ -1,5 +1,5 @@
 extends ChatCommand
-## Scale a player's sprite 1–4× (cosmetic / testing).
+## Scale a player's sprite 1-4x (cosmetic / testing).
 
 
 func _init() -> void:

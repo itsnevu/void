@@ -1,7 +1,7 @@
 class_name LevelMilestoneService
 ## On level-up, fire styled chat messages for any quest whose min_level matches
 ## the player's new level. Quests author the message themselves
-## (QuestResource.unlock_message) — usually as a personal note from the giving
+## (QuestResource.unlock_message) - usually as a personal note from the giving
 ## NPC, e.g. "[Duel Master] I've heard you've been honing your blade. Find me
 ## at the arena." Empty unlock_message = no notification (the quest just
 ## becomes available silently on the giver's offer list).
@@ -11,7 +11,7 @@ class_name LevelMilestoneService
 static var _by_min_level: Dictionary = {} # int -> Array[QuestResource]
 static var _loaded: bool
 
-## Capstone vanity title awarded once for reaching PlayerResource.MAX_LEVEL — the
+## Capstone vanity title awarded once for reaching PlayerResource.MAX_LEVEL - the
 ## game's top-line goal. Free-form string, granted the same way quests grant
 ## titles (see grant_capstone).
 const CAPSTONE_TITLE: String = "Ascendant"
@@ -42,7 +42,7 @@ static func on_levels_gained(player_res: PlayerResource, old_level: int, new_lev
 	if old_level < PlayerResource.MAX_LEVEL and new_level >= PlayerResource.MAX_LEVEL:
 		ws.chat_service.push_system_to_player(
 			instance, player_res.player_id,
-			"You have reached the pinnacle of Mythreach — %s." % CAPSTONE_TITLE
+			"You have reached the pinnacle of Mythreach - %s." % CAPSTONE_TITLE
 		)
 
 

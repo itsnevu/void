@@ -1,9 +1,9 @@
 extends MenuShell
-## Skin wardrobe — a big animated preview with prev/next arrows to browse every player skin,
+## Skin wardrobe - a big animated preview with prev/next arrows to browse every player skin,
 ## an idle/run/death animation toggle, and a single action button that Buys a locked skin
 ## (50g, which auto-equips it) or Equips an owned one. Equipping swaps the local player's
 ## sprite instantly (the server syncs :skin_id to everyone else). Opened from an NPC
-## (WardrobeInteraction → open_menu_requested(&"wardrobe")); ownership refreshes on show.
+## (WardrobeInteraction -> open_menu_requested(&"wardrobe")); ownership refreshes on show.
 
 const PREVIEW_BOX: float = 200.0
 const PREVIEW_SCALE: float = 3.0
@@ -197,7 +197,7 @@ func _update_preview() -> void:
 
 
 ## Play the selected animation, falling back to idle (then the first available clip) for
-## skins that don't define it — so the preview never sits on a blank frame.
+## skins that don't define it - so the preview never sits on a blank frame.
 func _play_best_anim() -> void:
 	if _preview == null or _preview.sprite_frames == null:
 		return
@@ -229,7 +229,7 @@ func _update_action() -> void:
 		_action_button.disabled = false
 		_status_label.text = "Owned."
 	else:
-		_action_button.text = "Buy — %d gold" % SKIN_COST
+		_action_button.text = "Buy - %d gold" % SKIN_COST
 		var can_afford: bool = _gold >= SKIN_COST
 		_action_button.disabled = not can_afford
 		_status_label.text = "Locked." if can_afford else "Not enough gold (%d needed)." % SKIN_COST

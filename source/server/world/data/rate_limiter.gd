@@ -1,10 +1,10 @@
 class_name RateLimiter
 ## Per-peer-per-endpoint sliding-window limiter. Cheap, in-memory, all static.
 ## Holds at most one short Array of msec timestamps per (peer, endpoint); old
-## entries get popped each call so memory stays bounded by max_calls × peers.
+## entries get popped each call so memory stays bounded by max_calls x peers.
 ##
 ## Use this on hot RPCs that can be spammed by a malicious or buggy client.
-## It's not cryptographic — restart resets all state — which is the right
+## It's not cryptographic - restart resets all state - which is the right
 ## tradeoff for alpha: it stops abuse without imposing a Redis dependency.
 ##
 ## Usage at the start of a data request handler:
@@ -33,7 +33,7 @@ static func check(peer_id: int, endpoint: StringName, max_calls: int, window_ms:
 	return true
 
 
-## Wipe a peer's entries — call on disconnect so the dictionary doesn't grow
+## Wipe a peer's entries - call on disconnect so the dictionary doesn't grow
 ## across reconnect cycles.
 static func forget(peer_id: int) -> void:
 	var prefix: String = "%d::" % peer_id

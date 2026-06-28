@@ -1,6 +1,6 @@
 extends DataRequestHandler
 ## Returns the count of unread, non-deleted mail visible to the requesting
-## character — used to badge the launcher's Mail tile. See docs/mailbox.md.
+## character - used to badge the launcher's Mail tile. See docs/mailbox.md.
 
 
 func data_request_handler(

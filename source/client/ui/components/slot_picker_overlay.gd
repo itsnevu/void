@@ -5,13 +5,13 @@ extends ColorRect
 ## (label shows the slot's key + current occupant; picking an occupied slot
 ## replaces the occupant). Click the dim area or Cancel to close.
 ##
-## Generic on purpose — used by the inventory hotkey assigner; the mastery
+## Generic on purpose - used by the inventory hotkey assigner; the mastery
 ## panel's ability picker is the same pattern and can migrate here later.
 ## Parent it to a full-rect, non-container Control (a menu's scene root) so
 ## it covers the menu and dies with it.
 
 
-## [param entries] one label per slot button ("Slot 1 (1) — Health Potion").
+## [param entries] one label per slot button ("Slot 1 (1) - Health Potion").
 ## [param on_pick] called with the chosen slot index; the overlay closes itself.
 static func open(host: Control, title_text: String, entries: PackedStringArray, on_pick: Callable) -> SlotPickerOverlay:
 	var overlay: SlotPickerOverlay = SlotPickerOverlay.new()
@@ -27,7 +27,7 @@ static func open(host: Control, title_text: String, entries: PackedStringArray, 
 	)
 	host.add_child(overlay)
 	# AND_OFFSETS: the anchors-only preset keeps the fresh control's zero rect
-	# (collapsed top-left) — same trap as the mastery picker hit.
+	# (collapsed top-left) - same trap as the mastery picker hit.
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	var center: CenterContainer = CenterContainer.new()

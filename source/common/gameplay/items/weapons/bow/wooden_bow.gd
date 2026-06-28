@@ -1,10 +1,10 @@
 extends Weapon
-## Bow VISUALS only — draw frames + charge/idle animation states. All gameplay
+## Bow VISUALS only - draw frames + charge/idle animation states. All gameplay
 ## (charge timing, damage ratios, projectile speed, multishot, mana cost) lives
 ## in the ChargeAbility .tres files on the scene's abilities array:
 ##   abilities[0] = primary charged shot, abilities[1] = multishot.
 ## Input, charge state, cooldowns and firing are the base Weapon + ChargeAbility
-## pipeline — this script just reacts to "is my ability charging?" after each
+## pipeline - this script just reacts to "is my ability charging?" after each
 ## action to keep the bow's sprite honest.
 
 ## bone.png sprite-sheet regions for the bow's 3 charge frames. Frame 0 =
@@ -16,7 +16,7 @@ const BOW_CHARGE_FRAMES: Array[Rect2] = [
 ]
 
 ## Active tween driving the WeaponSprite region swap. Killed on each new phase
-## so charge → release → re-charge doesn't leave a stale frame.
+## so charge -> release -> re-charge doesn't leave a stale frame.
 var _charge_tween: Tween
 
 
@@ -37,8 +37,8 @@ func perform_action(action_index: int, direction: Vector2, released: bool = fals
 		_reset_charge_frame()
 
 
-## Steps the WeaponSprite through its 3 charge frames: frame 0 → 1 at half the
-## charge time, 1 → 2 at full charge. Snap transitions (no Rect2 lerp — that
+## Steps the WeaponSprite through its 3 charge frames: frame 0 -> 1 at half the
+## charge time, 1 -> 2 at full charge. Snap transitions (no Rect2 lerp - that
 ## produces nonsense intermediate regions).
 func _play_charge_frames(charge_time_s: float) -> void:
 	if weapon_sprite == null:

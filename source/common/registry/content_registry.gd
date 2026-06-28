@@ -25,7 +25,7 @@ func id_from_slug(slug: StringName) -> int:
 	return _slug_to_id.get(slug, 0)
 
 
-## Every content id in this registry (unordered — sort at the call site if needed).
+## Every content id in this registry (unordered - sort at the call site if needed).
 func all_ids() -> Array[int]:
 	var out: Array[int] = []
 	for id: int in _id_to_path:
@@ -33,7 +33,7 @@ func all_ids() -> Array[int]:
 	return out
 
 
-## Slug for an id (&"" if unknown) — the inverse of id_from_slug, for display names.
+## Slug for an id (&"" if unknown) - the inverse of id_from_slug, for display names.
 func slug_from_id(id: int) -> StringName:
 	return _id_to_slug.get(id, &"")
 

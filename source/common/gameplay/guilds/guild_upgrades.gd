@@ -1,8 +1,8 @@
 class_name GuildUpgrades
-## Catalog + effect resolvers for Guild Hall upgrades. Pure/static — the only
+## Catalog + effect resolvers for Guild Hall upgrades. Pure/static - the only
 ## per-guild state is `Guild.upgrades` (upgrade_id -> level). Every perk here is
 ## HORIZONTAL (capacity / economy QoL / cosmetic), never combat power or faster
-## progression — see the fair-perks principle in docs/guild.md.
+## progression - see the fair-perks principle in docs/guild.md.
 
 # --- Upgrade ids ---
 const MEMBER_CAPACITY: StringName = &"member_capacity"

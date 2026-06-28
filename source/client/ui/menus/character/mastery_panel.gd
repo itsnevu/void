@@ -1,5 +1,5 @@
 extends VBoxContainer
-## Weapon Mastery HUB (Character > Mastery tab): a split view —
+## Weapon Mastery HUB (Character > Mastery tab): a split view -
 ##   - Left:  one row per weapon category that has a mastery tree.
 ##   - Right: the selected category's summary (level + XP, points available, its
 ##            current Q/E loadout) and an "Open tree" button.
@@ -10,14 +10,14 @@ extends VBoxContainer
 ## (common/ data the client already has); only per-player state (level, xp,
 ## points, loadout) is fetched via mastery.get when the tab is shown.
 
-## Input labels per special-slot position — purely cosmetic (binds live in the
+## Input labels per special-slot position - purely cosmetic (binds live in the
 ## InputMap); mirrors the tree menu's SLOT_KEYS.
 const SLOT_KEYS: Array[String] = ["Q", "E"]
 
 ## Per-category server state: category (String) -> {level, xp, xp_to_next,
 ## points, spent: Array, loadout: Array}.
 var _state: Dictionary
-## The wielded weapon's {category, capacity} — the power budget the loadout
+## The wielded weapon's {category, capacity} - the power budget the loadout
 ## fits within. Empty category = no (mastery) weapon equipped.
 var _wielded: Dictionary = {}
 var _selected: String = ""
@@ -76,7 +76,7 @@ func _on_mastery_received(data: Dictionary) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Left — category list
+# Left - category list
 # ---------------------------------------------------------------------------
 
 func _rebuild_list() -> void:
@@ -110,8 +110,8 @@ func _rebuild_list() -> void:
 		button.button_pressed = (String(category) == _selected)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.custom_minimum_size = Vector2(0, 42)
-		var badge: String = "   ●%d" % points if points > 0 else ""
-		button.text = ("%s · Lv %d%s" % [display, level, badge]) if level > 0 else ("%s · unpracticed" % display)
+		var badge: String = "   -%d" % points if points > 0 else ""
+		button.text = ("%s - Lv %d%s" % [display, level, badge]) if level > 0 else ("%s - unpracticed" % display)
 		if points > 0:
 			button.add_theme_color_override(&"font_color", Color(1.0, 0.9, 0.5))
 		button.pressed.connect(_select_category.bind(String(category)))
@@ -127,7 +127,7 @@ func _select_category(category: String) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Right — selected category summary
+# Right - selected category summary
 # ---------------------------------------------------------------------------
 
 func _rebuild_summary() -> void:
@@ -149,7 +149,7 @@ func _rebuild_summary() -> void:
 	var display: String = tree.display_name if not tree.display_name.is_empty() else _selected.capitalize()
 
 	var title: Label = Label.new()
-	title.text = ("%s Mastery · Lv %d" % [display, level]) if level > 0 else ("%s Mastery" % display)
+	title.text = ("%s Mastery - Lv %d" % [display, level]) if level > 0 else ("%s Mastery" % display)
 	title.add_theme_font_size_override(&"font_size", 20)
 	title.add_theme_color_override(&"font_color", Color(1.0, 0.95, 0.75))
 	_summary.add_child(title)
@@ -173,12 +173,12 @@ func _rebuild_summary() -> void:
 		var status: Label = Label.new()
 		var at_cap: bool = level >= int(PlayerResource.MASTERY_LEVEL_CAP)
 		var xp_text: String = "Max level" if at_cap else "%d / %d XP" % [int(info.get("xp", 0)), int(info.get("xp_to_next", 1))]
-		status.text = "%s    ·    %d point%s available" % [xp_text, points, "" if points == 1 else "s"]
+		status.text = "%s    -    %d point%s available" % [xp_text, points, "" if points == 1 else "s"]
 		status.add_theme_color_override(&"font_color", Color(1.0, 0.9, 0.5) if points > 0 else Color(0.7, 0.72, 0.78))
 		status.add_theme_font_size_override(&"font_size", 12)
 		_summary.add_child(status)
 
-	# Loadout — read-only Q/E summary; equipping happens in the tree.
+	# Loadout - read-only Q/E summary; equipping happens in the tree.
 	var loadout_label: Label = Label.new()
 	loadout_label.text = "Loadout"
 	loadout_label.add_theme_color_override(&"font_color", Color(0.8, 0.82, 0.9))
@@ -186,7 +186,7 @@ func _rebuild_summary() -> void:
 	_summary.add_child(loadout_label)
 	_summary.add_child(_make_loadout_strip(info))
 
-	# Power line — what the loadout demands vs the wielded weapon's capacity.
+	# Power line - what the loadout demands vs the wielded weapon's capacity.
 	var cap: int = _wielded_capacity()
 	var used: int = _loadout_power_used(info.get("loadout", []), tree)
 	if cap >= 0 or used > 0:
@@ -224,7 +224,7 @@ func _open_tree() -> void:
 	ClientState.open_menu_requested.emit(&"mastery_tree", _selected)
 
 
-## The category's two special slots (Q / E) at a glance — read-only here.
+## The category's two special slots (Q / E) at a glance - read-only here.
 func _make_loadout_strip(info: Dictionary) -> Control:
 	var loadout: Array = info.get("loadout", [])
 	var row: HBoxContainer = HBoxContainer.new()

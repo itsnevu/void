@@ -26,7 +26,7 @@ func _ready() -> void:
 	notification_button.visible = false
 	notification_button.disabled = true
 	# Adopt the buttons' editor-assigned .tscn icons as crisp mounted glyphs (integer-scaled to fit,
-	# whole-pixel centered) — visible in the scene, sharp at runtime.
+	# whole-pixel centered) - visible in the scene, sharp at runtime.
 	PixelIcon.from_button(menu_button)
 	PixelIcon.from_button(notification_button)
 	Client.subscribe(&"notification", _on_notification_received)
@@ -44,10 +44,10 @@ func _ready() -> void:
 		_maybe_show_welcome())
 	_refresh_progression()
 
-	# Sparring countdown — big centered text fired each second by the server.
+	# Sparring countdown - big centered text fired each second by the server.
 	Client.subscribe(&"sparring.countdown", _on_sparring_countdown)
 
-	# Dungeon run HUD (live clock + revive pool) — self-contained; shows itself on dungeon.hud pushes.
+	# Dungeon run HUD (live clock + revive pool) - self-contained; shows itself on dungeon.hud pushes.
 	add_child(DungeonHud.new())
 
 	# UI sound: wire every Button under the HUD to tap/hover cues (menus build theirs lazily, so also
@@ -110,7 +110,7 @@ func _on_player_died(data: Dictionary) -> void:
 var _xp_tween: Tween
 
 ## The level cap is mirrored client-side only for the "(MAX)" label/full-bar
-## presentation — the server stays authoritative (it sends xp_to_next == 0 at cap).
+## presentation - the server stays authoritative (it sends xp_to_next == 0 at cap).
 const MAX_LEVEL: int = 20
 
 
@@ -118,7 +118,7 @@ const MAX_LEVEL: int = 20
 func _apply_progression(data: Dictionary) -> void:
 	var level: int = int(data.get("level", -1))
 	var xp_to_next: int = int(data.get("xp_to_next", -1))
-	# At the cap the server sends xp_to_next == 0 — show MAX instead of a fake
+	# At the cap the server sends xp_to_next == 0 - show MAX instead of a fake
 	# threshold, and pin the bar full. This holds for both the combat.reward push
 	# and the progression.get refetch.
 	var at_max: bool = (data.has("xp_to_next") and xp_to_next <= 0) or (data.has("level") and level >= MAX_LEVEL)
@@ -158,7 +158,7 @@ func open_player_profile(player_id: int) -> void:
 	menus[&"player_profile"].open_player_profile(player_id)
 
 
-## Open a profile by the target's PEER id (a world click) — the server resolves it to
+## Open a profile by the target's PEER id (a world click) - the server resolves it to
 ## the persistent player_id. Mirrors open_player_profile for the by-peer path.
 func open_player_profile_by_peer(peer_id: int) -> void:
 	display_menu(&"player_profile")
@@ -232,7 +232,7 @@ func _on_notification_received(payload: Dictionary) -> void:
 ## Big centered "3 / 2 / 1 / FIGHT!" pushed each second of the sparring countdown.
 ## Lazily creates the label so we don't carry the node when nobody spars.
 ##
-## Smoothing: each tick is a hard text swap (no fade between digits — fading
+## Smoothing: each tick is a hard text swap (no fade between digits - fading
 ## while the next digit arrives just looks twitchy). Only the final FIGHT!
 ## tick (seconds=0) fades out, and we kill any prior tween so it can't leak
 ## across into the next match.
@@ -315,7 +315,7 @@ func _on_node_added(node: Node) -> void:
 
 
 ## Fade a just-shown menu in + play the reveal cue, so menus arrive with a little motion + sound
-## instead of snapping on. Open only — close stays an instant hide for now.
+## instead of snapping on. Open only - close stays an instant hide for now.
 func _animate_menu_open(menu: Control) -> void:
 	UISound.reveal()
 	menu.modulate.a = 0.0

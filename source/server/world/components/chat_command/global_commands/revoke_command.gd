@@ -1,6 +1,6 @@
 extends ChatCommand
 ## Remove a persisted server role from an online player and save. Roles granted
-## via the admin config file are live and can't be revoked here — remove the
+## via the admin config file are live and can't be revoked here - remove the
 ## account from the admin config instead.
 
 

@@ -2,7 +2,7 @@ extends DataRequestHandler
 ## Buy a skin for a flat price, adding it to the player's owned set. Equipping is a separate
 ## step (wardrobe.equip). Server-authoritative: validates it's a real player skin, isn't
 ## already owned, and that the player can pay. The change persists on the world's periodic
-## player save (same as shop purchases — no explicit save here).
+## player save (same as shop purchases - no explicit save here).
 
 const SKIN_COST: int = 50
 

@@ -114,7 +114,7 @@ func _finalize_login(account: AccountResource) -> Dictionary:
 		# Last-login-wins. peer_id marks the account connected, but the ONLY thing
 		# that clears it is a world-side game-peer disconnect (player_disconnected).
 		# A drop during the world handoff (token issued, client never reached the
-		# world) or a world crash leaves no peer to disconnect, orphaning the flag —
+		# world) or a world crash leaves no peer to disconnect, orphaning the flag -
 		# every later login is then refused forever (the reported permanent lockout).
 		# So don't refuse: boot any still-live session on the player's last world
 		# (character ids are per-world, so resolve the world by name first), then

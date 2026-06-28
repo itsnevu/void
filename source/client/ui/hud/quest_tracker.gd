@@ -29,8 +29,8 @@ func _ready() -> void:
 	ClientState.tracked_quest_changed.connect(func(_id: int): _refresh())
 	Client.subscribe(&"quest.update", func(_data: Dictionary): _refresh())
 	# COLLECT objectives track live inventory, which never fires quest.update on its
-	# own. Refresh on the two open-world item-gain pushes — loot (combat.reward) and
-	# gathering (mining.gather_result) — so a "Bring N item" objective climbs live
+	# own. Refresh on the two open-world item-gain pushes - loot (combat.reward) and
+	# gathering (mining.gather_result) - so a "Bring N item" objective climbs live
 	# instead of only updating when a menu is reopened.
 	Client.subscribe(&"combat.reward", func(_data: Dictionary): _refresh())
 	Client.subscribe(&"mining.gather_result", func(_data: Dictionary): _refresh())
@@ -73,7 +73,7 @@ func _on_received(data: Dictionary) -> void:
 	show()
 
 
-## Dark card with a thick amber left border — visually ties the floating
+## Dark card with a thick amber left border - visually ties the floating
 ## tracker to the quest log's selected-row / section-tab accent.
 func _make_panel_style() -> StyleBoxFlat:
 	var box: StyleBoxFlat = StyleBoxFlat.new()
@@ -104,12 +104,12 @@ func _display(quest: Dictionary) -> void:
 	eyebrow.add_theme_color_override(&"font_color", Color(0.6, 0.66, 0.78))
 	_content.add_child(eyebrow)
 
-	# Name: yellow while in progress, bright green with a ✓ prefix once ready.
+	# Name: yellow while in progress, bright green with a v prefix once ready.
 	# The shift in color is the player's primary "I'm done!" cue.
 	var name_label: Label = Label.new()
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	name_label.add_theme_font_size_override(&"font_size", 14)
-	var prefix: String = "✓ " if complete else ""
+	var prefix: String = "v " if complete else ""
 	name_label.text = prefix + str(quest.get("name", "?"))
 	name_label.add_theme_color_override(
 		&"font_color",
@@ -141,11 +141,11 @@ func _display(quest: Dictionary) -> void:
 			_content.add_child(or_label)
 		var objective_label: Label = Label.new()
 		objective_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		# VISIT rows aren't counted — show a ✓ when done, not "(0/1)".
+		# VISIT rows aren't counted - show a v when done, not "(0/1)".
 		if bool(objective.get("countable", true)):
-			objective_label.text = "• %s (%d/%d)" % [str(objective.get("desc", "")), count, required]
+			objective_label.text = "- %s (%d/%d)" % [str(objective.get("desc", "")), count, required]
 		else:
-			objective_label.text = "• %s%s" % [str(objective.get("desc", "")), "  ✓" if met else ""]
+			objective_label.text = "- %s%s" % [str(objective.get("desc", "")), "  v" if met else ""]
 		if met:
 			objective_label.add_theme_color_override(&"font_color", Color(0.5, 0.9, 0.5))
 		_content.add_child(objective_label)
@@ -155,6 +155,6 @@ func _display(quest: Dictionary) -> void:
 	if complete:
 		var ready_label: Label = Label.new()
 		ready_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		ready_label.text = "↩ Return to the quest giver"
+		ready_label.text = "<- Return to the quest giver"
 		ready_label.add_theme_color_override(&"font_color", Color(0.55, 0.9, 0.55))
 		_content.add_child(ready_label)

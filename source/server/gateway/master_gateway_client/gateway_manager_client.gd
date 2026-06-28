@@ -9,7 +9,7 @@ signal response_received(request_id: int, response: Dictionary)
 var worlds_info: Dictionary
 
 ## True only while the WebSocket up to the master is established. The HTTP server
-## checks this before forwarding a request — at cold start (multi-instance launch)
+## checks this before forwarding a request - at cold start (multi-instance launch)
 ## the HTTP listener is up before this link is, and firing an RPC at an absent
 ## master throws ERR_CONNECTION_ERROR.
 var master_connected: bool = false

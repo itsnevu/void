@@ -4,7 +4,7 @@ extends Control
 ## Right column shows the full details of the selected quest (description,
 ## objectives, rewards, action button).
 ##
-## Standard RPG/MMO journal pattern — lets a giver carry many quests without
+## Standard RPG/MMO journal pattern - lets a giver carry many quests without
 ## scrolling and keeps the first read clean: the player sees all titles at a
 ## glance and drills in on what catches their eye.
 
@@ -95,8 +95,8 @@ func _make_title_row(quest: Dictionary) -> Button:
 	var tag: String = _status_tag(quest)
 	var quest_name: String = str(quest.get("name", "?"))
 	# Tag right-aligned by padding the name with spaces is fragile across fonts;
-	# simpler is a plain "  · TAG" suffix the eye reads as a status pill.
-	button.text = "%s   ·  %s" % [quest_name, tag] if not tag.is_empty() else quest_name
+	# simpler is a plain "  - TAG" suffix the eye reads as a status pill.
+	button.text = "%s   -  %s" % [quest_name, tag] if not tag.is_empty() else quest_name
 	button.add_theme_color_override(&"font_color", _status_color(quest))
 	return button
 
@@ -219,7 +219,7 @@ func _show_details(quest: Dictionary) -> void:
 		for i: int in objectives.size():
 			# ANY-mode quests intersperse an OR line between objectives so the
 			# player reads them as alternatives, not a checklist. We render OR
-			# rows even though they're not part of the data — they're a pure
+			# rows even though they're not part of the data - they're a pure
 			# layout affordance.
 			if any_mode and i > 0:
 				details_container.add_child(_make_or_separator())
@@ -241,12 +241,12 @@ func _make_objective_row(objective: Dictionary) -> Label:
 	var met: bool = count >= required
 	var desc: String = str(objective.get("desc", ""))
 	var row: Label = Label.new()
-	# VISIT objectives aren't counted ("Speak with X") — show a ✓ when done rather
+	# VISIT objectives aren't counted ("Speak with X") - show a v when done rather
 	# than a clumsy "(0/1)". Countable rows (defeat/bring/craft) show "(c/r)".
 	if bool(objective.get("countable", true)):
-		row.text = "• %s (%d/%d)" % [desc, count, required]
+		row.text = "- %s (%d/%d)" % [desc, count, required]
 	else:
-		row.text = "• %s%s" % [desc, "  ✓" if met else ""]
+		row.text = "- %s%s" % [desc, "  v" if met else ""]
 	if met:
 		row.add_theme_color_override(&"font_color", COLOR_OBJ_MET)
 	return row
@@ -291,7 +291,7 @@ func _make_action(quest_id: int, state: String, complete: bool, meets_level: boo
 			return in_progress
 		_:
 			var done: Label = Label.new()
-			done.text = "Completed ✓"
+			done.text = "Completed v"
 			done.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			done.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			done.add_theme_color_override(&"font_color", COLOR_READY)

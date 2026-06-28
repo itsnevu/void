@@ -7,20 +7,20 @@ extends StaticBody2D
 ## to *be* the holder.
 ##
 ## Server-authoritative. Clients receive state via the `flag.update` data_push
-## topic and only render — they never write to hp/owner directly.
+## topic and only render - they never write to hp/owner directly.
 ##
 ## Designer setup:
 ##   - Place a TerritoryFlag node as a direct child of a Map.
-##   - Set `flag_id` (must be unique across the project — used as DB primary key).
+##   - Set `flag_id` (must be unique across the project - used as DB primary key).
 ##   - Set `territory_name` (display string).
 ##   - Add a CollisionShape2D child (so arrows can hit it).
 ##   - Wire the @export slots (banner / health_bar / grace_label) to the children you
-##     want. All optional — leave any unset to skip that feature.
+##     want. All optional - leave any unset to skip that feature.
 
 const GRACE_MS: int = 2 * 60 * 1000
 const MAX_HP: float = 500.0
 ## Raw weapon damage is multiplied by this before hitting the flag. A flag is an
-## objective, not a duel — but capturing one shouldn't be a minute-long solo slog
+## objective, not a duel - but capturing one shouldn't be a minute-long solo slog
 ## either. At 1.5 a fresh solo player needs ~20 swings; a leveled player or a
 ## 2-3 person group is much faster, which is the intended "bring friends" feel.
 const HIT_SCALE: float = 1.5
@@ -43,11 +43,11 @@ const LOGO_PATHS: PackedStringArray = [
 ## Max on-screen size (px) for the emblem. Downscaled by an integer divisor (1/N)
 ## from the source texture so it stays crisp under nearest-neighbor filtering.
 const EMBLEM_MAX_PX: float = 32.0
-## Emblem Y — above the nameplate (Sprite2D centers on its position).
+## Emblem Y - above the nameplate (Sprite2D centers on its position).
 const EMBLEM_Y: float = -82.0
 ## Color used for the banner when the flag is unowned (guild_id = 0).
 const NEUTRAL_COLOR: Color = Color(0.7, 0.7, 0.7)
-## Per-guild banner color is a hash of guild_id mapped into a saturated palette —
+## Per-guild banner color is a hash of guild_id mapped into a saturated palette -
 ## good enough for prototype until guild customization exists.
 const PALETTE: PackedColorArray = [
 	Color(0.95, 0.30, 0.30), Color(0.30, 0.65, 0.95), Color(0.40, 0.85, 0.40),
@@ -92,7 +92,7 @@ var _bar_fill: StyleBoxFlat
 var _attack_notice_sent: bool = false
 ## Client-only: true once any live flag.update broadcast has been applied. Stops a
 ## late flag.get pull response (initial-state fallback) from clobbering fresher
-## state — e.g. resetting HP to full right after the first hit, hiding the HP.
+## state - e.g. resetting HP to full right after the first hit, hiding the HP.
 var _state_initialized: bool = false
 
 
@@ -124,7 +124,7 @@ func _process(_delta: float) -> void:
 		@warning_ignore("integer_division")
 		var seconds: int = remaining_ms / 1000
 		@warning_ignore("integer_division")
-		grace_label.text = "🛡 Immune %d:%02d" % [seconds / 60, seconds % 60]
+		grace_label.text = " Immune %d:%02d" % [seconds / 60, seconds % 60]
 		grace_label.visible = true
 	elif grace_label.visible:
 		grace_label.visible = false
@@ -147,7 +147,7 @@ func take_damage(amount: float, attacker: Character = null) -> void:
 	if attacker_guild <= 0:
 		return
 
-	# Own guild REPAIRS the flag instead of attacking it — allies can't grief
+	# Own guild REPAIRS the flag instead of attacking it - allies can't grief
 	# their own territory (and no "under attack" spam), and chipping in mends it.
 	if owner_guild_id > 0 and attacker_guild == owner_guild_id:
 		_repair(amount)
@@ -169,7 +169,7 @@ func take_damage(amount: float, attacker: Character = null) -> void:
 		_broadcast_state()
 
 
-## An owning-guild member's hit mends the flag instead of damaging it — half the
+## An owning-guild member's hit mends the flag instead of damaging it - half the
 ## damage it would have dealt (REPAIR_FRACTION), so repairing helps but can't beat
 ## an attacker trading blow-for-blow. No-op at full HP.
 func _repair(amount: float) -> void:
@@ -179,7 +179,7 @@ func _repair(amount: float) -> void:
 	hp = minf(MAX_HP, hp + mend)
 	_broadcast_hit(mend, true)
 	if hp >= MAX_HP:
-		_attack_notice_sent = false # full again → a fresh assault re-notifies
+		_attack_notice_sent = false # full again -> a fresh assault re-notifies
 	_broadcast_state()
 
 
@@ -203,7 +203,7 @@ func _broadcast_hit(amount: float, is_heal: bool) -> void:
 
 func _capture(killer: Character) -> void:
 	# Only guilded Players capture. Solo / NPC last-hits absorb the kill blow
-	# (HP refills) but don't transfer ownership — this stops lone-wolf griefing
+	# (HP refills) but don't transfer ownership - this stops lone-wolf griefing
 	# of guild-controlled territory.
 	var new_owner_id: int = 0
 	if killer is Player:
@@ -246,7 +246,7 @@ func _load_state_from_db() -> void:
 		var owner_guild: Guild = WorldServer.curr.database.store.get_guild(owner_guild_id)
 		owner_guild_name = owner_guild.guild_name if owner_guild != null else ""
 		owner_logo_id = owner_guild.logo_id if owner_guild != null else 0
-	# Grace from the persisted last_capture_ms — so a restart doesn't reset the
+	# Grace from the persisted last_capture_ms - so a restart doesn't reset the
 	# defender's protection window. last_capture_ms is unix-ms; grace_until_ms
 	# is ticks-ms (uptime). Convert via the current offset.
 	var last_capture_unix: int = int(row.get("last_capture_ms", 0))
@@ -267,7 +267,7 @@ func _broadcast_state() -> void:
 	)
 
 
-## Public accessor for the current state — used by the flag.get pull handler so a
+## Public accessor for the current state - used by the flag.get pull handler so a
 ## client entering the instance can fetch it on _ready (the one-shot flag.update
 ## broadcast may have fired before they joined, e.g. on warp re-entry).
 func get_state_payload() -> Dictionary:
@@ -307,7 +307,7 @@ func _notify_under_attack() -> void:
 			continue
 		ws.chat_service.push_system_to_player(
 			_server_instance(), player.player_id,
-			"⚔ Your territory '%s' is under attack!" % territory_name
+			" Your territory '%s' is under attack!" % territory_name
 		)
 
 
@@ -318,9 +318,9 @@ func _announce_capture(killer: Player, previous_id: int, previous_name: String) 
 	var killer_name: String = killer.player_resource.display_name if killer else "Someone"
 	var msg: String
 	if previous_id <= 0:
-		msg = "🏴 %s claimed '%s' for %s!" % [killer_name, territory_name, owner_guild_name]
+		msg = " %s claimed '%s' for %s!" % [killer_name, territory_name, owner_guild_name]
 	else:
-		msg = "🏴 %s took '%s' from %s for %s!" % [killer_name, territory_name, previous_name, owner_guild_name]
+		msg = " %s took '%s' from %s for %s!" % [killer_name, territory_name, previous_name, owner_guild_name]
 	for peer_id: int in ws.connected_players:
 		var player: PlayerResource = ws.connected_players[peer_id]
 		if player == null:
@@ -352,7 +352,7 @@ func _on_flag_update_pushed(payload: Dictionary) -> void:
 	_refresh_visuals()
 
 
-## Pull the current flag state from the server on entry — robust to warp re-entry
+## Pull the current flag state from the server on entry - robust to warp re-entry
 ## (the one-shot flag.update broadcast may have fired before this client joined).
 func _request_state() -> void:
 	if InstanceClient.current == null:
@@ -375,11 +375,11 @@ func _refresh_visuals() -> void:
 		if health_bar is CanvasItem:
 			(health_bar as CanvasItem).visible = hp < MAX_HP
 	# Blue fill when the local viewer's guild owns this flag (same blue guildmates
-	# get), red otherwise — instant "mine vs theirs" read.
+	# get), red otherwise - instant "mine vs theirs" read.
 	var owned_by_viewer: bool = owner_guild_id > 0 and owner_guild_id == Character.local_viewer_guild_id
 	if _bar_fill != null:
 		_bar_fill.bg_color = Character.BAR_COLOR_ALLY if owned_by_viewer else Color(0.86, 0.33, 0.28)
-	# Dedicated HP readout — shown only while contested, tinted to match the bar.
+	# Dedicated HP readout - shown only while contested, tinted to match the bar.
 	if _hp_label != null:
 		var damaged: bool = hp < MAX_HP
 		_hp_label.visible = damaged
@@ -456,7 +456,7 @@ func _build_emblem() -> void:
 
 ## Show the owning guild's logo on the emblem (hidden when unclaimed). Downscaled
 ## by an integer divisor (1/N) so it stays at or under EMBLEM_MAX_PX without
-## fractional sampling — sharp under nearest-neighbor.
+## fractional sampling - sharp under nearest-neighbor.
 func _update_emblem() -> void:
 	if _emblem == null:
 		return

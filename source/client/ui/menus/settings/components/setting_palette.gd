@@ -1,6 +1,6 @@
 extends SettingWidget
 
-## Palette picker for the UI theme — drives BOTH the gateway and the in-game UI. Populates the
+## Palette picker for the UI theme - drives BOTH the gateway and the in-game UI. Populates the
 ## controller OptionButton with the gateway palettes found on disk and persists the chosen slug to
 ## [gateway]/palette. Mirrors setting_language.gd. The gateway and the in-game HUD both live-apply
 ## the change via ClientState.settings.setting_changed, so no relaunch is needed.

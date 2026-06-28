@@ -3,7 +3,7 @@ class_name RedeemCodes
 ## logic. Per-character redemption tracking lives on PlayerResource.redeemed_codes;
 ## this class only knows the codes themselves. Full design: docs/redeem_codes.md.
 ##
-## SECURITY — why the code table is a function BODY, not a const: the tinymmo
+## SECURITY - why the code table is a function BODY, not a const: the tinymmo
 ## export plugin replaces every source/server/*.gd with a reflection stub on
 ## CLIENT exports (faithful consts, push_error bodies). A const would be copied
 ## faithfully and LEAK every code into shipped client builds; a function body is
@@ -17,9 +17,9 @@ class_name RedeemCodes
 ##   {"type": "skin",     "id": int}                cosmetic (owned_skins)
 ##   {"type": "xp",       "amount": int}
 ## A code entry: {"note": String, "expires_at": int (unix-s, 0 = never),
-##   "max_uses": int (-1 = ∞; NOT enforced in per-character v1), "grants": Array}.
+##   "max_uses": int (-1 = inf; NOT enforced in per-character v1), "grants": Array}.
 
-## Reward discipline (owner rule): codes grant ONLY minimal, non-tradable things —
+## Reward discipline (owner rule): codes grant ONLY minimal, non-tradable things -
 ## starter-scale currency, non-tradable consumables, account-bound cosmetics/titles.
 ## That's what makes per-character tracking safe (nothing worth farming/funneling).
 
@@ -27,14 +27,14 @@ static var _cache: Dictionary = {}
 
 
 ## The authored code table. Keys are matched case-insensitively (stored UPPER).
-## Body intentional — see class docstring (stripped from client exports).
+## Body intentional - see class docstring (stripped from client exports).
 static func _table() -> Dictionary:
 	return {
 		"EMBERFOUNDER": {
 			"note": "Alpha-tester thank-you. Universal, no expiry.",
 			"grants": [
 				{"type": "title", "title": "Ember Founder"},
-				{"type": "skin", "id": 24},  # royal_knight — keep OUT of the wardrobe shop for true exclusivity
+				{"type": "skin", "id": 24},  # royal_knight - keep OUT of the wardrobe shop for true exclusivity
 				{"type": "currency", "amount": 100},
 			],
 		},
@@ -53,7 +53,7 @@ static func _table() -> Dictionary:
 			],
 		},
 		"STREAMDROP": {
-			"note": "Example marketing code — dated/capped shape (max_uses not enforced in v1).",
+			"note": "Example marketing code - dated/capped shape (max_uses not enforced in v1).",
 			"expires_at": 0,
 			"max_uses": 5000,
 			"grants": [
@@ -71,7 +71,7 @@ static func get_code(code: String) -> Dictionary:
 
 
 ## True if the entry has an expiry in the past. max_uses is intentionally NOT
-## checked here — a global cap needs a shared counter the per-character v1 lacks
+## checked here - a global cap needs a shared counter the per-character v1 lacks
 ## (see docs/redeem_codes.md).
 static func is_expired(entry: Dictionary) -> bool:
 	var expires_at: int = int(entry.get("expires_at", 0))
@@ -112,7 +112,7 @@ static func validate_grants(grants: Array) -> bool:
 ## place. Returns reward descriptors for the client (see _grant_descriptor). No
 ## explicit save: the grants AND the redeemed-code record live on the same
 ## PlayerResource, so the world's periodic save persists them atomically. A crash
-## before that loses both together — the player just redeems again, no dupes.
+## before that loses both together - the player just redeems again, no dupes.
 static func apply_grants(pr: PlayerResource, grants: Array) -> Array:
 	var rewards: Array = []
 	for g: Variant in grants:
@@ -138,7 +138,7 @@ static func apply_grants(pr: PlayerResource, grants: Array) -> Array:
 	return rewards
 
 
-## Resolves a bundle to display descriptors WITHOUT granting — lets mail preview
+## Resolves a bundle to display descriptors WITHOUT granting - lets mail preview
 ## its attachments before they're claimed. Same shape apply_grants returns.
 static func describe_grants(grants: Array) -> Array:
 	var out: Array = []
@@ -148,7 +148,7 @@ static func describe_grants(grants: Array) -> Array:
 	return out
 
 
-## One grant → {"type", "name", "amount"} for the client (name resolved from the
+## One grant -> {"type", "name", "amount"} for the client (name resolved from the
 ## item / skin registries). Pure: no mutation, so apply and preview agree.
 static func _grant_descriptor(grant: Dictionary) -> Dictionary:
 	match str(grant.get("type", "")):

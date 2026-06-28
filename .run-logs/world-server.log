@@ -1,88 +1,12 @@
 Godot Engine v4.7.stable.official.5b4e0cb0f - https://godotengine.org
 
 Opened database successfully (/Users/navy/Documents/Game/godot-tiny-mmo/source/server/world/data/classic.db)
-
-================================================================
-handle_crash: Program crashed with signal 11
-Engine version: Godot Engine v4.7.stable.official (5b4e0cb0fd279832bbdd69fed5354d4e5ad26f88)
-Dumping the backtrace. Please include this when reporting the bug on: https://github.com/godotengine/godot/issues
-Load address: 100d08000
-
-[1] 1828a17a4 (libsystem_platform.dylib+37a4) - _sigtramp + 56
-[2] 10190d300 (main+c05300) - main + 4965480
-[3] 1018f76b4 (main+bef6b4) - main + 4876316
-[4] 1019086a0 (main+c006a0) - main + 4945928
-[5] 1018f7724 (main+bef724) - main + 4876428
-[6] 1018fe0cc (main+bf60cc) - main + 4903476
-[7] 1018fc7f8 (main+bf47f8) - main + 4897120
-[8] 1018fa96c (main+bf296c) - main + 4889300
-[9] 1018fc340 (main+bf4340) - main + 4895912
-[10] 1018fa6e0 (main+bf26e0) - main + 4888648
-[11] 1018fc340 (main+bf4340) - main + 4895912
-[12] 1018fa6e0 (main+bf26e0) - main + 4888648
-[13] 1018fcd40 (main+bf4d40) - main + 4898472
-[14] 10191f5f8 (main+c175f8) - main + 5039968
-[15] 1018d7da8 (main+bcfda8) - main + 4747024
-[16] 101938d20 (main+c30d20) - main + 5144200
-[17] 1019e8628 (main+ce0628) - main + 5863312
-[18] 1056d8e9c (main+49d0e9c) - ZSTD_decompressStream_simpleArgs + 2664048
-[19] 1056dabec (main+49d2bec) - ZSTD_decompressStream_simpleArgs + 2671552
-[20] 1056dd3f4 (main+49d53f4) - ZSTD_decompressStream_simpleArgs + 2681800
-[21] 104894914 (main+3b8c914) - SDL_GetPerformanceFrequency + 31285564
-[22] 10489b558 (main+3b93558) - SDL_GetPerformanceFrequency + 31313280
-[23] 1056d8e9c (main+49d0e9c) - ZSTD_decompressStream_simpleArgs + 2664048
-[24] 1056dabec (main+49d2bec) - ZSTD_decompressStream_simpleArgs + 2671552
-[25] 1056dd3f4 (main+49d53f4) - ZSTD_decompressStream_simpleArgs + 2681800
-[26] 104894914 (main+3b8c914) - SDL_GetPerformanceFrequency + 31285564
-[27] 10489b558 (main+3b93558) - SDL_GetPerformanceFrequency + 31313280
-[28] 1056d8e9c (main+49d0e9c) - ZSTD_decompressStream_simpleArgs + 2664048
-[29] 1056dabec (main+49d2bec) - ZSTD_decompressStream_simpleArgs + 2671552
-[30] 1056dd3f4 (main+49d53f4) - ZSTD_decompressStream_simpleArgs + 2681800
-[31] 104894914 (main+3b8c914) - SDL_GetPerformanceFrequency + 31285564
-[32] 10489b558 (main+3b93558) - SDL_GetPerformanceFrequency + 31313280
-[33] 1056d8e9c (main+49d0e9c) - ZSTD_decompressStream_simpleArgs + 2664048
-[34] 1056dabec (main+49d2bec) - ZSTD_decompressStream_simpleArgs + 2671552
-[35] 1056dd3f4 (main+49d53f4) - ZSTD_decompressStream_simpleArgs + 2681800
-[36] 104894914 (main+3b8c914) - SDL_GetPerformanceFrequency + 31285564
-[37] 10489b558 (main+3b93558) - SDL_GetPerformanceFrequency + 31313280
-[38] 1056d8e9c (main+49d0e9c) - ZSTD_decompressStream_simpleArgs + 2664048
-[39] 1056dabec (main+49d2bec) - ZSTD_decompressStream_simpleArgs + 2671552
-[40] 1056dd3f4 (main+49d53f4) - ZSTD_decompressStream_simpleArgs + 2681800
-[41] 104894914 (main+3b8c914) - SDL_GetPerformanceFrequency + 31285564
-[42] 10489b558 (main+3b93558) - SDL_GetPerformanceFrequency + 31313280
-[43] 1056d8e9c (main+49d0e9c) - ZSTD_decompressStream_simpleArgs + 2664048
-[44] 1056dabec (main+49d2bec) - ZSTD_decompressStream_simpleArgs + 2671552
-[45] 1056dd3f4 (main+49d53f4) - ZSTD_decompressStream_simpleArgs + 2681800
-[46] 1056dd9bc (main+49d59bc) - ZSTD_decompressStream_simpleArgs + 2683280
-[47] 1019fbf20 (main+cf3f20) - main + 5943432
-[48] 101a04d50 (main+cfcd50) - main + 5979832
-[49] 1018dea80 (main+bd6a80) - main + 4774888
-[50] 1072eed60 (main+65e6d60) - GL_ShadingRateQCOM + 22718260
-[51] 1057dfe3c (main+4ad7e3c) - ZSTD_decompressStream_simpleArgs + 3741200
-[52] 101a0d770 (main+d05770) - main + 6015192
-[53] 1018dea80 (main+bd6a80) - main + 4774888
-[54] 1072eed60 (main+65e6d60) - GL_ShadingRateQCOM + 22718260
-[55] 1057dfe3c (main+4ad7e3c) - ZSTD_decompressStream_simpleArgs + 3741200
-[56] 101a0d798 (main+d05798) - main + 6015232
-[57] 1018dea80 (main+bd6a80) - main + 4774888
-[58] 1072eed60 (main+65e6d60) - GL_ShadingRateQCOM + 22718260
-[59] 1057dfe3c (main+4ad7e3c) - ZSTD_decompressStream_simpleArgs + 3741200
-[60] 101a0d770 (main+d05770) - main + 6015192
-[61] 1018dea80 (main+bd6a80) - main + 4774888
-[62] 1072eed60 (main+65e6d60) - GL_ShadingRateQCOM + 22718260
-[63] 1057ad530 (main+4aa5530) - ZSTD_decompressStream_simpleArgs + 3534084
-[64] 105a88820 (main+4d80820) - ZSTD_decompressStream_simpleArgs + 6529012
-[65] 105a88b08 (main+4d80b08) - ZSTD_decompressStream_simpleArgs + 6529756
-[66] 10147628c (main+76e28c) - main + 152564
-[67] 1013eeee0 (main+6e6ee0) - mvk::SPIRVToMSLConverter::convert(mvk::SPIRVToMSLConversionConfiguration&, mvk::SPIRVToMSLConversionResult&, bool, bool, bool)
-[68] 101451250 (main+749250) - main (in Godot) + 952
-[69] 1824dbda4 (dyld+1fda4) - start + 6992
--- END OF C++ BACKTRACE --
-================================================================
-GDScript backtrace (most recent call first):
-    [0] load_map (res://source/server/world/components/instance_server.gd:103)
-    [1] prepare_instance (res://source/server/world/components/instance_manager.gd:238)
-    [2] charge_instance (res://source/server/world/components/instance_manager.gd:221)
-    [3] set_instance_collection (res://source/server/world/components/instance_manager.gd:255)
--- END OF GDSCRIPT BACKTRACE --
-================================================================
+Error while creating peer: Already in use
+Successfully connected to the MasterServer as WorldServer - Peer ID:577097696!
+Checking unload_unused_instances
+Checking unload_unused_instances
+Checking unload_unused_instances
+Checking unload_unused_instances
+Checking unload_unused_instances
+Checking unload_unused_instances
+Checking unload_unused_instances

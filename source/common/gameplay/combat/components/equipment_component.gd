@@ -3,8 +3,8 @@ extends Node
 
 
 ## Pseudo-slots carrying the mastery-chosen special abilities ("abilities"
-## registry ids, 0 = none). Synced exactly like gear slots so every machine —
-## server, owner, remote clients replaying action echoes — mounts the SAME
+## registry ids, 0 = none). Synced exactly like gear slots so every machine -
+## server, owner, remote clients replaying action echoes - mounts the SAME
 ## specials on the weapon. Only the server writes them (MasteryService.refresh).
 const SPECIAL_SLOT: StringName = &"special_ability"
 const SPECIAL_SLOT_2: StringName = &"special_ability_2"
@@ -47,7 +47,7 @@ func equip_item(item_id: int) -> bool:
 	return false
 
 
-## Put ANY item in the HAND (the &"weapon" slot) — weapon, potion, material. Synced
+## Put ANY item in the HAND (the &"weapon" slot) - weapon, potion, material. Synced
 ## like every slot, so all clients mount it; the item's own equip() does the mounting.
 ## Validation (ownership, can_equip for gear) is the handler's job before this.
 func set_hand(item_id: int) -> void:

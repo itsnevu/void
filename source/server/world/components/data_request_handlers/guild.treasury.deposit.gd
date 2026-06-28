@@ -2,7 +2,7 @@ extends DataRequestHandler
 
 ## A member deposits gold into their guild treasury. Gold converts to treasury
 ## (the abstract guild currency) and is NOT transferable back to players. Any
-## member may donate to a guild they belong to. Conversion is 1:1 for now —
+## member may donate to a guild they belong to. Conversion is 1:1 for now -
 ## tune via the rate below if gold deposits start trivializing territory income.
 const GOLD_PER_TREASURY: int = 1
 const MIN_DEPOSIT: int = 1

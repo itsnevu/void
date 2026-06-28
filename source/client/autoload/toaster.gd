@@ -1,19 +1,19 @@
 extends CanvasLayer
 ## Lightweight transient toasts (client only). Call from anywhere:
 ##   Toaster.toast("Saved!")
-##   Toaster.toast("Mining — Level 2!", 3.0)
+##   Toaster.toast("Mining - Level 2!", 3.0)
 ## Toasts stack at the top-center of the screen and each fades out then frees itself.
-## Purely cosmetic feedback — never gameplay-authoritative.
+## Purely cosmetic feedback - never gameplay-authoritative.
 
 ## How many toasts can be on screen at once (oldest is dropped past this).
 const MAX_TOASTS: int = 5
 
 ## A repeat of the same coalesce key within this window merges into the existing
-## card (bumps a ×N counter + pulses it) instead of spawning a new one. After this
+## card (bumps a xN counter + pulses it) instead of spawning a new one. After this
 ## much silence the next event opens a fresh card.
 const COALESCE_WINDOW_MS: int = 6000
 
-## Sentinel for toast()'s optional font color — alpha 0 means "leave the theme
+## Sentinel for toast()'s optional font color - alpha 0 means "leave the theme
 ## default", any opaque color tints the label.
 const NO_TINT: Color = Color(0, 0, 0, 0)
 
@@ -79,7 +79,7 @@ func toast_group(title: String, lines: PackedStringArray, duration: float = 2.0)
 
 ## Coalescing card for high-frequency events (kills, gather yields, quest
 ## progress). A repeat of [param key] within COALESCE_WINDOW_MS updates the SAME
-## card — refreshes its lines, bumps a ×N counter into the title, and pulses it —
+## card - refreshes its lines, bumps a xN counter into the title, and pulses it -
 ## instead of stacking another card. Empty key = no coalescing (falls back to a
 ## normal grouped card). This is what stops a pack of mobs / a vein of ore from
 ## flooding the screen.
@@ -101,7 +101,7 @@ func toast_feed(key: String, title: String, lines: PackedStringArray, duration: 
 			_pulse(existing)
 			_restart_dwell(existing, duration)
 			return
-		_active.erase(key) # stale / freed — open a fresh card
+		_active.erase(key) # stale / freed - open a fresh card
 
 	while _container.get_child_count() >= MAX_TOASTS:
 		var oldest: Node = _container.get_child(0)
@@ -123,8 +123,8 @@ func toast_feed(key: String, title: String, lines: PackedStringArray, duration: 
 	_restart_dwell(panel, duration)
 
 
-## (Re)render a feed card's content into its vbox: a title carrying the ×N count
-## (hidden at 1) plus the event's lines. Reused on create and on every repeat —
+## (Re)render a feed card's content into its vbox: a title carrying the xN count
+## (hidden at 1) plus the event's lines. Reused on create and on every repeat -
 ## the panel node stays the same so its dwell + pulse tweens survive.
 func _render_feed(vbox: VBoxContainer, title: String, lines: PackedStringArray, count: int) -> void:
 	for child: Node in vbox.get_children():
@@ -132,7 +132,7 @@ func _render_feed(vbox: VBoxContainer, title: String, lines: PackedStringArray, 
 		child.queue_free()
 
 	var title_label: Label = Label.new()
-	title_label.text = title + (" ×%d" % count if count > 1 else "")
+	title_label.text = title + (" x%d" % count if count > 1 else "")
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.add_theme_font_size_override(&"font_size", 15)
 	title_label.add_theme_color_override(&"font_color", Color(1, 0.95, 0.75, 1))
@@ -148,7 +148,7 @@ func _render_feed(vbox: VBoxContainer, title: String, lines: PackedStringArray, 
 		vbox.add_child(sub)
 
 
-## A short scale bump — the "it happened again" feedback on a coalesced card.
+## A short scale bump - the "it happened again" feedback on a coalesced card.
 ## Independent of the fade/dwell tween (touches scale only, never modulate:a).
 func _pulse(panel: Control) -> void:
 	panel.pivot_offset = panel.size / 2.0
@@ -158,7 +158,7 @@ func _pulse(panel: Control) -> void:
 
 
 ## Cancel any in-flight tween on this panel and start a fresh fade-in / dwell /
-## fade-out sequence. Idempotent — calling repeatedly just keeps shifting the
+## fade-out sequence. Idempotent - calling repeatedly just keeps shifting the
 ## dismissal forward, which is exactly the "burst keeps the stack alive" behaviour.
 func _restart_dwell(panel: Control, dwell: float) -> void:
 	if panel == null:

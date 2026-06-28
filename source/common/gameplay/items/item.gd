@@ -8,7 +8,7 @@ extends Resource
 @export_multiline var description: String
 
 ## Can this item be drawn into the player's HAND (shown off, and tapped to act if it has
-## an action)? True for nearly everything — set false only for items that should never be
+## an action)? True for nearly everything - set false only for items that should never be
 ## wielded. Gear ignores it (armor equips to its body slot via its own path); this gates
 ## plain items (materials, trophies) and consumables.
 @export var holdable: bool = true
@@ -85,8 +85,8 @@ func unequip(character: Character) -> void:
 
 # --- Generic in-hand mount (the unified hand) ---
 ## The bare in-hand rig: a sprite + the player's hand, with NO abilities of its own.
-## ANY item that isn't a weapon mounts off this — consumables now, materials / trophies
-## / a "circus ticket" later — so the hand logic lives in ONE place, not per item type.
+## ANY item that isn't a weapon mounts off this - consumables now, materials / trophies
+## / a "circus ticket" later - so the hand logic lives in ONE place, not per item type.
 ## (A weapon overrides equip() with its own rig: right_hand_scene + skin + modifiers.)
 ## Loaded at RUNTIME, never preloaded: a parse-time preload on this BASE class forms an
 ## Item <-> weapon.tscn dependency cycle that nulls Item's implicit initializer, which
@@ -112,7 +112,7 @@ func mount_in_hand(character: Character) -> Weapon:
 	return node
 
 
-## Generic hand unmount — free the node a matching mount_in_hand() created. Call from
+## Generic hand unmount - free the node a matching mount_in_hand() created. Call from
 ## the item's unequip().
 func unmount_hand(character: Character) -> void:
 	var node: Node = character.equipment_component.mounted_nodes.get(&"weapon", null)

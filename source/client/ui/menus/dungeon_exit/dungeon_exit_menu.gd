@@ -1,7 +1,7 @@
 extends Control
 ## Confirm leaving the current dungeon. Opened by clicking a DungeonExit station
-## (open_menu_requested(&"dungeon_exit")). Leave → return to town and drop from the
-## run (server dungeon.leave → recall); Stay → close.
+## (open_menu_requested(&"dungeon_exit")). Leave -> return to town and drop from the
+## run (server dungeon.leave -> recall); Stay -> close.
 
 var _content: VBoxContainer
 

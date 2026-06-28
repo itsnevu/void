@@ -1,5 +1,5 @@
 extends Control
-## Shown when a dungeon run ENDS — CLEARED (name, time, reward) or FAILED (a hardcore
+## Shown when a dungeon run ENDS - CLEARED (name, time, reward) or FAILED (a hardcore
 ## wipe: name, time survived, no reward). The payload's "failed" flag picks the variant.
 ## Opened via open_menu_requested(&"dungeon_recap", recap_dict). Auto-closes when the
 ## server ejects the party (after eject_in seconds), or on Close.
@@ -19,7 +19,7 @@ func open(data: Dictionary) -> void:
 		_title("Run Failed", Color(1.0, 0.45, 0.4))
 		_line(str(data.get("dungeon", "Dungeon")), Color(0.86, 0.8, 0.82), 16)
 		_line("Survived: %ds" % int(data.get("seconds", 0)))
-		_line("The party has fallen — no reward.", Color(0.92, 0.58, 0.52))
+		_line("The party has fallen - no reward.", Color(0.92, 0.58, 0.52))
 	else:
 		_title("Dungeon Cleared!")
 		_line(str(data.get("dungeon", "Dungeon")), Color(0.8, 0.85, 1.0), 16)
@@ -47,7 +47,7 @@ func _render_reward(reward: Dictionary) -> void:
 		return
 	if bool(reward.get("locked", false)):
 		var hours: int = int(ceil(float(reward.get("available_in", 0)) / 3600.0))
-		_line("Already cleared today — reward in ~%dh" % maxi(hours, 1), Color(0.86, 0.7, 0.5))
+		_line("Already cleared today - reward in ~%dh" % maxi(hours, 1), Color(0.86, 0.7, 0.5))
 		return
 	_line("Rewards", Color(1.0, 0.92, 0.55), 15)
 	var gold: int = int(reward.get("gold", 0))
@@ -55,7 +55,7 @@ func _render_reward(reward: Dictionary) -> void:
 		_line("%d gold" % gold, Color(1.0, 0.86, 0.4))
 	for entry: Variant in reward.get("items", []):
 		if entry is Dictionary:
-			_line("%s ×%d" % [
+			_line("%s x%d" % [
 				str((entry as Dictionary).get("name", "?")),
 				int((entry as Dictionary).get("amount", 1)),
 			], Color(0.8, 0.9, 0.8))

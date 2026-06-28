@@ -1,5 +1,5 @@
 extends DataRequestHandler
-## Marks one mail read for the requesting character (first read only — preserves
+## Marks one mail read for the requesting character (first read only - preserves
 ## the original read time). See docs/mailbox.md.
 
 

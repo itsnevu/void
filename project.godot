@@ -21,7 +21,7 @@ config/use_custom_user_dir=true
 config/custom_user_dir_name="slayhorizon"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 boot_splash/show_image=false
-config/icon="res://assets/project_icon/ekonia_e_logo.png"
+config/icon="res://assets/project_icon/mythreach_icon.png"
 
 [audio]
 
@@ -33,6 +33,7 @@ ClientState="*res://source/client/autoload/client_state.gd"
 Client="*res://source/client/autoload/client.tscn"
 Toaster="*res://source/client/autoload/toaster.gd"
 Transition="*res://source/client/autoload/transition.gd"
+CursorManager="*res://source/client/autoload/cursor_manager.gd"
 
 [debug]
 

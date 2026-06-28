@@ -12,7 +12,7 @@ func data_request_handler(
 	var shop_id: int = int(args.get("shop_id", 0))
 
 	# Authorization: the shop must be sold by a merchant present in the player's own
-	# map — not just a valid id anywhere. Later, tighten to radius proximity via the
+	# map - not just a valid id anywhere. Later, tighten to radius proximity via the
 	# merchant's Area2D (body_entered presence). Faction/quest gating slots in here.
 	if instance.instance_map.get_shop(shop_id) == null:
 		return {"ok": false}

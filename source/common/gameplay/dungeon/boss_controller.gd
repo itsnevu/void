@@ -2,7 +2,7 @@ class_name BossController
 extends Node
 ## The BRAIN of a dungeon boss. The boss itself stays a plain HostileNpc (the BODY:
 ## moves, basic-attacks, takes damage, dies); this node watches the body's HP and
-## orchestrates the fight on top — phase transition, a telegraphed slam, and an
+## orchestrates the fight on top - phase transition, a telegraphed slam, and an
 ## enrage that summons adds + speeds the body up. Every move is composed from
 ## primitives that ALREADY exist (AttackTelegraph via the body's rp_lunge_telegraph,
 ## container.spawn_dynamic for summons, plain stat tweaks), so none of it bloats
@@ -11,9 +11,9 @@ extends Node
 ## RoomNode attaches one to a boss marker's mob on spawn. Server-only: it frees
 ## itself anywhere else (and since it's added AFTER the dynamic spawn, clients never
 ## receive it). Tuning is data-driven from the body's EnemyTypeResource (the vars
-## below are fallbacks that mirror the resource defaults — see _load_config).
+## below are fallbacks that mirror the resource defaults - see _load_config).
 
-## Extra seconds the body stays planted AFTER a slam lands — sells the weight and
+## Extra seconds the body stays planted AFTER a slam lands - sells the weight and
 ## stops the boss snapping straight back into a chase.
 const SLAM_RECOVER_S: float = 0.25
 
@@ -23,7 +23,7 @@ var enrage_at_health_fraction: float = 0.5
 var slam_radius: float = 110.0
 var slam_windup_s: float = 1.1
 var slam_damage: float = 45.0
-## Seconds between slams — phase 1, then the faster enraged cadence.
+## Seconds between slams - phase 1, then the faster enraged cadence.
 var slam_interval_s: float = 6.0
 var enraged_slam_interval_s: float = 3.5
 ## Adds summoned the moment the boss enrages.
@@ -47,7 +47,7 @@ func _ready() -> void:
 		return
 	_load_config()
 	_next_slam_ms = Time.get_ticks_msec() + int(slam_interval_s * 1000.0)
-	# Boss-event music is driven by the boss's own lifecycle — automatic for EVERY boss
+	# Boss-event music is driven by the boss's own lifecycle - automatic for EVERY boss
 	# (world + dungeon both attach this brain): the combat track on spawn, the victory
 	# sting on death. An admin abort (boss removed WITHOUT dying) is cued as "end" by
 	# EventService. Client side: Client._on_boss_music. boss.container is wired by now
@@ -56,7 +56,7 @@ func _ready() -> void:
 	boss.died.connect(_on_boss_died_music)
 
 
-## Server → clients: a boss-event music cue (fight / victory / end) for everyone in
+## Server -> clients: a boss-event music cue (fight / victory / end) for everyone in
 ## [param instance]. Static so EventService can fire "end" on an admin abort too.
 static func push_boss_music(instance: Node, state: String) -> void:
 	if instance == null or WorldServer.curr == null:
@@ -93,7 +93,7 @@ func _physics_process(_delta: float) -> void:
 		return
 	if not _enraged and _health_fraction() <= enrage_at_health_fraction:
 		_enrage()
-	# Only slam while someone is actually engaging — no flailing at an empty room.
+	# Only slam while someone is actually engaging - no flailing at an empty room.
 	if not _casting and boss.targeted_player != null and Time.get_ticks_msec() >= _next_slam_ms:
 		_slam()
 
@@ -106,7 +106,7 @@ func _health_fraction() -> float:
 
 
 ## Telegraph a danger ring at the boss, give players the windup to step out, then
-## hit everyone still inside it. Reuses rp_lunge_telegraph — with the target point
+## hit everyone still inside it. Reuses rp_lunge_telegraph - with the target point
 ## AT the boss, its AttackTelegraph draws a CIRCLE (line_to == 0), world-pinned.
 func _slam() -> void:
 	_casting = true
@@ -114,7 +114,7 @@ func _slam() -> void:
 	# Commit the body: hold position through the wind-up + a short recovery so it
 	# doesn't stroll out of its own danger ring while the slam resolves.
 	boss.action_root_until_ms = Time.get_ticks_msec() + int((slam_windup_s + SLAM_RECOVER_S) * 1000.0)
-	# Filling telegraph (clock-wedge countdown) — players read WHEN it lands.
+	# Filling telegraph (clock-wedge countdown) - players read WHEN it lands.
 	boss.replicate_visual(&"rp_cast_telegraph", [center, slam_radius, slam_windup_s])
 	await get_tree().create_timer(slam_windup_s).timeout
 	if not is_instance_valid(boss) or boss.is_dead:
@@ -141,7 +141,7 @@ func _enrage() -> void:
 	boss.move_speed = int(boss.move_speed * enrage_speed_mult)
 	_next_slam_ms = Time.get_ticks_msec() + int(enraged_slam_interval_s * 1000.0)
 	_announce_enrage()
-	_summon_adds.call_deferred() # spawn_dynamic toggles collision — defer out of the physics step
+	_summon_adds.call_deferred() # spawn_dynamic toggles collision - defer out of the physics step
 
 
 ## Phase 2 is loud: a ground burst on the body + a danger banner & camera shake to
@@ -172,7 +172,7 @@ func _summon_adds() -> void:
 			RoomNode.make_dungeon_mob(add, false)
 
 
-## boss → ReplicatedPropsContainer → Map → ServerInstance.
+## boss -> ReplicatedPropsContainer -> Map -> ServerInstance.
 func _instance() -> Node:
 	if boss == null or boss.container == null:
 		return null

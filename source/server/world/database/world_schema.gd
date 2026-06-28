@@ -57,8 +57,8 @@ static func _migration_v1(db: SQLite) -> void:
 
 		"friends_json": {"data_type": "text", "not_null": true},
 		"server_roles_json": {"data_type": "text", "not_null": true},
-		# Free-form per-player stats — currently holds leaderboard counters
-		# (pvp/pve kills × day/week/total + bucket timestamps). JSON so adding
+		# Free-form per-player stats - currently holds leaderboard counters
+		# (pvp/pve kills x day/week/total + bucket timestamps). JSON so adding
 		# new metrics later is data-only, no schema migration.
 		"stats_json": {"data_type": "text", "not_null": true},
 		# Vanity titles: {"unlocked": ["Master Duelist", ...], "display": "..."}.
@@ -137,14 +137,14 @@ static func _migration_v3(db: SQLite) -> void:
 
 ## v4: soft dungeon lockout. One JSON blob per player: {dungeon_key -> unix-seconds
 ## of the last completion reward}. A re-clear inside the dungeon's window grants no
-## reward (you can still run it to help). Added via ALTER — no DB wipe needed.
+## reward (you can still run it to help). Added via ALTER - no DB wipe needed.
 static func _migration_v4(db: SQLite) -> void:
 	if not _column_exists(db, "players", "dungeon_lockouts_json"):
 		db.query("ALTER TABLE players ADD COLUMN dungeon_lockouts_json TEXT NOT NULL DEFAULT '{}';")
 
 
 ## v5: owned skins for the wardrobe. JSON array of skin ids the player has purchased (the
-## equipped one is players.skin_id). Added via ALTER — no DB wipe. Defaults to '[]';
+## equipped one is players.skin_id). Added via ALTER - no DB wipe. Defaults to '[]';
 ## existing players backfill their current skin_id on load (see _row_to_player).
 static func _migration_v5(db: SQLite) -> void:
 	if not _column_exists(db, "players", "owned_skins_json"):
@@ -152,17 +152,17 @@ static func _migration_v5(db: SQLite) -> void:
 
 
 ## v6: per-character redeemed codes (see docs/redeem_codes.md). JSON array of
-## upper-cased code strings the character has already claimed. Added via ALTER —
+## upper-cased code strings the character has already claimed. Added via ALTER -
 ## no DB wipe. Defaults to '[]'.
 static func _migration_v6(db: SQLite) -> void:
 	if not _column_exists(db, "players", "redeemed_codes_json"):
 		db.query("ALTER TABLE players ADD COLUMN redeemed_codes_json TEXT NOT NULL DEFAULT '[]';")
 
 
-## v7: mailbox — see docs/mailbox.md. `mail` holds content once (recipient_id = 0
+## v7: mailbox - see docs/mailbox.md. `mail` holds content once (recipient_id = 0
 ## means broadcast to everyone in this world); `mail_state` holds per-player
 ## read/claimed/deleted flags, created lazily. Two tables so a broadcast is one
-## row with per-player state. Added via _create_table_if_missing — no DB wipe.
+## row with per-player state. Added via _create_table_if_missing - no DB wipe.
 static func _migration_v7(db: SQLite) -> void:
 	_create_table_if_missing(db, "mail", {
 		"mail_id": {"data_type": "int", "primary_key": true, "not_null": true, "auto_increment": true},

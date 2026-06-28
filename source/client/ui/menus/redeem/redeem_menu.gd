@@ -1,5 +1,5 @@
 extends Control
-## Small centered popup to redeem a code — from the HUD launcher's "Redeem" tile.
+## Small centered popup to redeem a code - from the HUD launcher's "Redeem" tile.
 ## Two states in one card: an input step, then a "You received" result step the
 ## player dismisses at their own pace (a toast was too fleeting for a reward list).
 ## Errors show inline on the input step so the player can fix a typo and retry.
@@ -64,7 +64,7 @@ func _make_title(text: String) -> Label:
 	return title
 
 
-## Input step — title, code field, optional inline error, Redeem + Close.
+## Input step - title, code field, optional inline error, Redeem + Close.
 func _show_input_state(error: String = "") -> void:
 	_busy = false
 	_clear_body()
@@ -103,7 +103,7 @@ func _show_input_state(error: String = "") -> void:
 	field.grab_focus.call_deferred()
 
 
-## Result step — persistent "You received" list the player closes when ready.
+## Result step - persistent "You received" list the player closes when ready.
 func _show_result_state(lines: PackedStringArray) -> void:
 	_clear_body()
 	_body.add_child(_make_title("Code redeemed!"))
@@ -115,7 +115,7 @@ func _show_result_state(lines: PackedStringArray) -> void:
 
 	for line: String in lines:
 		var row: Label = Label.new()
-		row.text = "•  " + line
+		row.text = "-  " + line
 		row.add_theme_color_override(&"font_color", Color(0.95, 0.92, 0.78))
 		_body.add_child(row)
 
@@ -158,6 +158,6 @@ func _humanize(reason: String) -> String:
 		"unknown": return "That code doesn't exist."
 		"already": return "You've already redeemed this code on this character."
 		"expired": return "This code has expired."
-		"rate_limited": return "Too many tries — wait a moment and try again."
+		"rate_limited": return "Too many tries - wait a moment and try again."
 		"misconfigured": return "This code isn't set up correctly. Please report it."
 		_: return "Couldn't redeem that code."

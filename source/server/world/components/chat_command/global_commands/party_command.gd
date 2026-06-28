@@ -42,7 +42,7 @@ func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInsta
 			if gid == 0:
 				return "You have no pending party invite."
 			if gid < 0:
-				return "Couldn't join — the party is full or no longer exists."
+				return "Couldn't join - the party is full or no longer exists."
 			var me: PlayerResource = ws.connected_players.get(peer_id)
 			var my_name: String = me.display_name if me else "A player"
 			if ws.chat_service != null:

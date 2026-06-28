@@ -1,18 +1,18 @@
 extends CanvasLayer
-## Transition — a fullscreen overlay covering scene/world transitions (client only).
+## Transition - a fullscreen overlay covering scene/world transitions (client only).
 ##
-## Today it covers the gateway → world hand-off: the gateway calls
+## Today it covers the gateway -> world hand-off: the gateway calls
 ## `Transition.start_world_load(...)` and frees itself; this overlay hard-cuts in to
 ## hide the grey gap, then fades out when the world is actually playable
 ## (`ClientState.local_player_ready`). On a failed / auth-rejected connect it shows
 ## Retry / Back-to-login instead of the old black-screen hang.
 ##
-## Built in code (like Toaster) so it stays one self-contained file — intended to
+## Built in code (like Toaster) so it stays one self-contained file - intended to
 ## fold into a single UI autoload (with Toaster) later.
 
 const _SPINNER_TEX: String = "res://assets/sprites/gui/spinner.png"
 const _CREAM: Color = Color(0.929, 0.894, 0.820)
-# "Entering the world" payoff cue — a soft magical swell, played once as the cover
+# "Entering the world" payoff cue - a soft magical swell, played once as the cover
 # begins. Lives here (not the gateway) so every enter path triggers it identically.
 const _SFX_ENTER: String = "res://assets/audio/sfx/ui/ui_enter.wav"
 
@@ -52,7 +52,7 @@ func start_world_load(address: String, port: int, token: String, background: Tex
 	_background.texture = background
 	_show_loading()
 	# Enter cue plays now (audio runs off the main thread, so the world load can't
-	# freeze it). The visual bloom waits for the reveal — see _fade_out.
+	# freeze it). The visual bloom waits for the reveal - see _fade_out.
 	if is_instance_valid(Client) and Client.audio_manager:
 		Client.audio_manager.play_ui_sound(_SFX_ENTER)  # the "you're going in" moment
 	Client.connect_to_server(address, port, token)
@@ -66,8 +66,8 @@ func _on_world_ready(_local_player: Node) -> void:
 
 
 func _on_connection_changed(connected: bool) -> void:
-	# Only during a load. connected == true → socket up, world still loading (wait for
-	# local_player_ready). false → the connect failed or auth was rejected.
+	# Only during a load. connected == true -> socket up, world still loading (wait for
+	# local_player_ready). false -> the connect failed or auth was rejected.
 	if not _active or connected:
 		return
 	_show_error()
@@ -94,13 +94,13 @@ func _show_error() -> void:
 
 ## Mid-game server drop (Client.server_disconnected): replace the old silent freeze
 ## with a clear overlay. Most restarts ship a new build, so the safe action is "Back
-## to login" — it reloads the scene, which re-runs the gateway's version handshake and
+## to login" - it reloads the scene, which re-runs the gateway's version handshake and
 ## shows the update gate if the build moved on (on web it does a full page reload to
 ## pull the new build). "Retry" covers the transient-blip case (reconnect to the same
 ## world). Called while the tree is paused; this layer is PROCESS_MODE_ALWAYS so the
 ## buttons stay live, and _retry / _back_to_login unpause.
 func show_disconnected() -> void:
-	_active = false  # not a load — keep _on_world_ready / the load path from firing here
+	_active = false  # not a load - keep _on_world_ready / the load path from firing here
 	if _fade_tween and _fade_tween.is_valid():
 		_fade_tween.kill()
 	visible = true
@@ -112,7 +112,7 @@ func show_disconnected() -> void:
 	_buttons.visible = true
 
 
-## The reveal. Runs on local_player_ready — the world's loaded, so the main thread is
+## The reveal. Runs on local_player_ready - the world's loaded, so the main thread is
 ## free and these tweens actually animate (a bloom at the START is frozen by the
 ## synchronous world load, hence the static "white filter" look). The cover fades
 ## while a warm-white bloom dissolves over it, so the world appears through a soft
@@ -137,7 +137,7 @@ func _retry() -> void:
 
 
 ## Public "Leave Game" (from the in-game menu): identical to the disconnect screen's
-## Back-to-login — drop the world connection and return to the title screen.
+## Back-to-login - drop the world connection and return to the title screen.
 func quit_to_login() -> void:
 	_back_to_login()
 
@@ -225,7 +225,7 @@ func _build_ui() -> void:
 	vbox.add_child(_buttons)
 
 	# The enter-world bloom (warm white, softer than stark white). Parented to the
-	# LAYER, not _root — so when _root (the cover) fades out on reveal, the bloom
+	# LAYER, not _root - so when _root (the cover) fades out on reveal, the bloom
 	# survives to dissolve over the unveiled world on its own timeline.
 	_bloom = ColorRect.new()
 	_bloom.color = Color(1.0, 0.98, 0.92)

@@ -1,5 +1,5 @@
 extends ChatCommand
-## /p <message> — quick party (Team) chat shortcut. Routes through the same TEAM
+## /p <message> - quick party (Team) chat shortcut. Routes through the same TEAM
 ## channel handler the Team tab uses, so it reaches every party member.
 
 

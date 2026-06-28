@@ -1,6 +1,6 @@
 extends DataRequestHandler
 ## Broadcasts a per-player "is typing" flag to everyone in the sender's
-## instance. Triggered by focus_entered / focus_exited on the chat input —
+## instance. Triggered by focus_entered / focus_exited on the chat input -
 ## at most two packets per typing session, regardless of how many keystrokes
 ## the user actually produces.
 ##
@@ -28,7 +28,7 @@ func data_request_handler(
 		"typing": is_typing,
 	}
 
-	# Broadcast to everyone else in the instance — skip the sender (they
+	# Broadcast to everyone else in the instance - skip the sender (they
 	# don't need to see their own typing indicator) and anyone who has
 	# blocked them.
 	for other_peer_id: int in instance.connected_peers:

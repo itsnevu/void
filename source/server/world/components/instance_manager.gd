@@ -11,7 +11,7 @@ const JAIL_INSTANCE_NAME: String = "jail"
 ## instance_name). Change this to repoint recall at a different home map.
 const RECALL_INSTANCE_NAME: String = "Overworld"
 ## Social hub players spawn at on every login AFTER their first (the tavern / guild house).
-## A brand-new character's first-ever login starts in the jail cell instead — see
+## A brand-new character's first-ever login starts in the jail cell instead - see
 ## _on_peer_connected.
 const TAVERN_INSTANCE_NAME: String = "GuildHouse"
 
@@ -38,7 +38,7 @@ func start_instance_manager() -> void:
 	timer.timeout.connect(unload_unused_instances)
 	add_sibling(timer)
 
-	# Basing: territory tick — every owning guild earns +1 SG per held flag.
+	# Basing: territory tick - every owning guild earns +1 SG per held flag.
 	# Lower this constant temporarily if you want to watch ticks land during testing.
 	var territory_tick_timer: Timer = Timer.new()
 	territory_tick_timer.wait_time = BasingService.TERRITORY_TICK_SECONDS
@@ -95,14 +95,14 @@ func _on_peer_connected(peer_id: int) -> void:
 				jail_inst.awaiting_peers[peer_id] = {}
 				return
 
-	# First-ever login? current_instance can't tell us — it's in-memory only (set on spawn,
+	# First-ever login? current_instance can't tell us - it's in-memory only (set on spawn,
 	# shown on the dashboard, but never written to the DB). Instead read three values that ARE
 	# persisted: a pristine new character is level 1 with zero experience and zero banked
-	# playtime. Anything past that means they've played before — level/experience catch any
+	# playtime. Anything past that means they've played before - level/experience catch any
 	# progression, played_seconds (banked into lb_stats on every disconnect) catches a character
-	# that walked out of the cell without gaining XP. First login → the jail cell (lore:
+	# that walked out of the cell without gaining XP. First login -> the jail cell (lore:
 	# condemned by the Capital; NOT JailList-jailed, so the cell's warper lets them walk straight
-	# out — no lock, no forced tutorial). Every later login → the tavern (guild house) hub.
+	# out - no lock, no forced tutorial). Every later login -> the tavern (guild house) hub.
 	var played_seconds: int = int(player_resource.lb_stats.get("played_seconds", 0))
 	var is_first_login: bool = player_resource.level <= 1 and player_resource.experience <= 0 and played_seconds <= 0
 	var target_name: String = JAIL_INSTANCE_NAME if is_first_login else TAVERN_INSTANCE_NAME
@@ -118,13 +118,13 @@ func _on_peer_connected(peer_id: int) -> void:
 			target_inst.awaiting_peers[peer_id] = {} # {} = the map's default spawn point (index 0)
 			return
 
-	# Fallback: the tavern/jail map is missing or mid-load — land in the default overworld so
+	# Fallback: the tavern/jail map is missing or mid-load - land in the default overworld so
 	# we never strand the player in a black void.
 	charge_new_instance.rpc_id(peer_id, default_instance.map_path, default_instance.charged_instances[0].name)
 
 
 func _on_player_entered_warper(player: Player, current_instance: ServerInstance, warper: Warper) -> void:
-	# Jailed players can't traverse warpers — that's the whole point of jail.
+	# Jailed players can't traverse warpers - that's the whole point of jail.
 	# We notify them once per attempt so they know it's intentional.
 	if JailList.is_jailed(player.player_resource.account_name):
 		world_server.chat_service.push_system_to_player(
@@ -153,7 +153,7 @@ func _on_player_entered_warper(player: Player, current_instance: ServerInstance,
 
 
 ## Recall travel: send the peer to the town hub (RECALL_INSTANCE_NAME) at its
-## default spawn (index 0). A faithful copy of send_player_to_jail — resolve the
+## default spawn (index 0). A faithful copy of send_player_to_jail - resolve the
 ## current instance authoritatively, charge the hub if it isn't live yet, then
 ## switch. Rolling our own current-instance lookup is what crashed recall before.
 func recall_player(peer_id: int) -> void:
@@ -166,7 +166,7 @@ func recall_player(peer_id: int) -> void:
 	var player: Player = current_inst.get_player(peer_id)
 	if player == null:
 		return
-	# Already in the hub — recall still yanks you to its spawn point (the hub is a
+	# Already in the hub - recall still yanks you to its spawn point (the hub is a
 	# big map), via the same same-instance teleport /goto uses.
 	if current_inst.instance_resource == res:
 		teleport_peer_to(peer_id, current_inst, current_inst.instance_map.get_spawn_position(0))
@@ -303,7 +303,7 @@ func send_player_to_jail(peer_id: int) -> bool:
 	if player == null:
 		return false
 
-	# Already in jail — nothing to do.
+	# Already in jail - nothing to do.
 	if current_inst.instance_resource == jail_res:
 		return false
 
@@ -321,7 +321,7 @@ func send_player_to_jail(peer_id: int) -> bool:
 ## or another one. Used by /goto and /summon. Returns true if scheduled.
 ##
 ## Same instance: move server-side state (so other viewers see it) AND push an
-## explicit teleport to the moved client — its LocalPlayer owns its position, so
+## explicit teleport to the moved client - its LocalPlayer owns its position, so
 ## a state delta alone won't move it (it'd overwrite next input frame).
 ## Cross instance: despawn here and respawn at the position over there; the fresh
 ## spawn places the LocalPlayer correctly with no extra push.

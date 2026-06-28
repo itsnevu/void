@@ -1,5 +1,5 @@
 extends ChatCommand
-## Teleport yourself to another online player — their map and position.
+## Teleport yourself to another online player - their map and position.
 
 
 func _init() -> void:

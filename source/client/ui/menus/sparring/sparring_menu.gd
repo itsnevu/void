@@ -1,10 +1,10 @@
 extends Control
-## Spar lobby — opened by clicking a DuelMaster station. Renders ONE COLUMN PER
+## Spar lobby - opened by clicking a DuelMaster station. Renders ONE COLUMN PER
 ## TEAM (however many the station defines: 1v1, 2v2, 1v3, 1v1v1, ...), each with
 ## its roster of names, empty slots, and a Join button. Updates live as players
 ## join/leave; auto-hides when the match starts (the countdown lives on the HUD).
 ##
-## Opened via HUD.display_menu("sparring", master_id) → open(arg).
+## Opened via HUD.display_menu("sparring", master_id) -> open(arg).
 
 var _master_id: int = 0
 var _master_name: String = "Arena"
@@ -100,7 +100,7 @@ func _render(data: Dictionary) -> void:
 	for c: Variant in capacities:
 		shape.append(str(int(c)))
 	var title: Label = Label.new()
-	title.text = "%s — %s" % [_master_name, "v".join(shape)]
+	title.text = "%s - %s" % [_master_name, "v".join(shape)]
 	title.add_theme_font_size_override(&"font_size", 20)
 	title.add_theme_color_override(&"font_color", Color(1.0, 0.95, 0.8))
 	_content.add_child(title)
@@ -142,11 +142,11 @@ func _team_column(team_index: int, header: String, names: Array, capacity: int) 
 
 	for n: Variant in names:
 		var row: Label = Label.new()
-		row.text = "• " + str(n)
+		row.text = "- " + str(n)
 		col.add_child(row)
 	for _i: int in range(names.size(), capacity): # empty slots
 		var empty: Label = Label.new()
-		empty.text = "• —"
+		empty.text = "- -"
 		empty.modulate.a = 0.4
 		col.add_child(empty)
 
@@ -178,7 +178,7 @@ func _on_leave() -> void:
 
 
 ## Live roster push. The broadcast carries rosters/capacities/team_names but not
-## per-viewer fields — keep our locally-known team + station name.
+## per-viewer fields - keep our locally-known team + station name.
 func _on_queue_update(payload: Dictionary) -> void:
 	if not visible or int(payload.get("master_id", 0)) != _master_id:
 		return

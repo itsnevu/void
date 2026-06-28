@@ -1,6 +1,6 @@
 class_name LeaderboardService
 ## Tracks per-player rolling counters (PvP kills, PvE kills) across UTC day,
-## UTC week, and lifetime buckets. Buckets roll over lazily — i.e. we check
+## UTC week, and lifetime buckets. Buckets roll over lazily - i.e. we check
 ## "is the stored bucket start still the current bucket?" on every increment.
 ## Players who never increment after a bucket boundary simply don't appear in
 ## that bucket's leaderboard until they do.
@@ -36,14 +36,14 @@ static func record_pvp_kill(killer: Character) -> void:
 	if killer_player.player_resource.active_guild_id > 0:
 		BasingService.record_guild_kill(killer_player.player_resource.active_guild_id)
 		# Glory: a guilded member's PvP kill feeds the 200-kill SG milestone (global, not
-		# territory-gated — bases can span several instances, so no Area2D can cover them).
+		# territory-gated - bases can span several instances, so no Area2D can cover them).
 		BasingService.credit_glory_kill(killer_player.player_resource.active_guild_id)
 
 
-## Record a dungeon clear time (seconds) — keeps the player's BEST (lowest) per
+## Record a dungeon clear time (seconds) - keeps the player's BEST (lowest) per
 ## dungeon in lb_stats["dungeon_best"]. The "dungeon:<name>" board ranks these
 ## ASCENDING (fastest first). Data-only (lb_stats JSON), no schema change. Called
-## for HARD clears only — the fixed hand-designed course is the fair race.
+## for HARD clears only - the fixed hand-designed course is the fair race.
 static func record_dungeon_clear(player: Player, dungeon_name: String, seconds: int) -> void:
 	if player == null or player.player_resource == null or seconds <= 0:
 		return
@@ -61,7 +61,7 @@ static func record_dungeon_clear(player: Player, dungeon_name: String, seconds: 
 ##   pvp_day, pvp_week, pvp_total
 ##   pve_day, pve_week, pve_total
 ##   level
-##   gold            (richest — total gold held in inventory)
+##   gold            (richest - total gold held in inventory)
 ##   glory_seasonal, glory_eternal
 ##
 ## Returns an Array of {id, name, score, [bonus_field]} entries, ranked.
@@ -85,7 +85,7 @@ static func _increment(player: PlayerResource, base_key: String) -> void:
 	player.lb_stats[base_key + "_day"] = int(player.lb_stats.get(base_key + "_day", 0)) + 1
 	player.lb_stats[base_key + "_week"] = int(player.lb_stats.get(base_key + "_week", 0)) + 1
 	player.lb_stats[base_key + "_total"] = int(player.lb_stats.get(base_key + "_total", 0)) + 1
-	# Don't save_player here — the existing periodic save / save-on-disconnect
+	# Don't save_player here - the existing periodic save / save-on-disconnect
 	# captures it. Avoiding per-kill DB writes keeps the kill path cheap.
 
 
@@ -126,8 +126,8 @@ static func _top_n_player(world_server: Node, board: String, limit: int) -> Arra
 	var gold_id: int = Economy.gold_id()
 
 	# Index online players by player_id so live counters override the (stale)
-	# DB row. _increment doesn't flush to disk on every kill — saving each kill
-	# would cost a DB write per arrow — so without this merge the leaderboard
+	# DB row. _increment doesn't flush to disk on every kill - saving each kill
+	# would cost a DB write per arrow - so without this merge the leaderboard
 	# would only reflect what was saved on the player's last disconnect.
 	var live_by_player_id: Dictionary = {}
 	for peer_id: int in world_server.connected_players:
@@ -183,7 +183,7 @@ static func _top_n_player(world_server: Node, board: String, limit: int) -> Arra
 			"level":
 				score = level
 			"gold":
-				# Richest board — total gold held. Live players use their
+				# Richest board - total gold held. Live players use their
 				# in-memory inventory; offline rows parse the saved JSON.
 				var inv: Dictionary
 				if live != null:
@@ -213,7 +213,7 @@ static func _top_n_player(world_server: Node, board: String, limit: int) -> Arra
 
 
 ## Fastest-clear board for one dungeon. Score = best clear SECONDS, ranked
-## ASCENDING (lower is better) — the inverse of the kill/level boards. Live players
+## ASCENDING (lower is better) - the inverse of the kill/level boards. Live players
 ## override their stale DB row, same as _top_n_player.
 static func _top_n_dungeon(world_server: Node, dungeon_name: String, limit: int) -> Array:
 	var db = world_server.database.store.db

@@ -56,7 +56,7 @@ func _on_periodic_save() -> void:
 
 
 ## Graceful shutdown: flush every still-connected player + snapshot the DB before
-## the process exits. Fires on a clean quit — Ctrl+C in a console, a graceful
+## the process exits. Fires on a clean quit - Ctrl+C in a console, a graceful
 ## window close, or `systemctl stop` when the unit delivers SIGINT (set
 ## KillSignal=SIGINT + a few seconds of TimeoutStopSec in the systemd unit so
 ## this can finish). Without it, a deploy that stops the process dropped up to one

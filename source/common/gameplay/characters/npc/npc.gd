@@ -1,11 +1,11 @@
 class_name NPC
 extends Character
 ## A friendly, INTERACTIVE NPC (shopkeeper, quest giver, ...). Everything about it
-## — name, look, greeting, and what it can do — lives in one NPCResource. Clicking
+## - name, look, greeting, and what it can do - lives in one NPCResource. Clicking
 ## opens a greeting dialogue (or, with a single action, that action directly).
 ## Place it as a direct child of a Map, like other interactables.
 ##
-## Hostile enemies are HostileNpc — a separate Character subclass — so they get
+## Hostile enemies are HostileNpc - a separate Character subclass - so they get
 ## none of this interaction machinery. The display name uses Character.display_name
 ## (which drives the shared name label).
 
@@ -27,7 +27,7 @@ var _interactable_hovered: bool = false
 func _ready() -> void:
 	_apply_resource()
 	super._ready() # Character setup (animations, sync, etc.)
-	# Friendly NPCs never take damage — hide the health bar Character wires up.
+	# Friendly NPCs never take damage - hide the health bar Character wires up.
 	if has_node(^"ProgressBar"):
 		($ProgressBar as CanvasItem).hide()
 	if npc_resource == null:
@@ -40,7 +40,7 @@ func _ready() -> void:
 		if map != null:
 			for interaction: NPCInteraction in npc_resource.interactions:
 				if interaction == null:
-					continue # empty array slot (a designer added a slot but no resource) — skip, don't crash
+					continue # empty array slot (a designer added a slot but no resource) - skip, don't crash
 				interaction.register(map, self)
 		return
 
@@ -49,7 +49,7 @@ func _ready() -> void:
 	if animation_tree != null:
 		animation_tree.active = true
 	anim = Animations.IDLE
-	# An interactive NPC needs a click target + a floating "talk" glyph — spawn
+	# An interactive NPC needs a click target + a floating "talk" glyph - spawn
 	# both dynamically so the scene stays clean and the server carries no useless
 	# nodes.
 	if not npc_resource.interactions.is_empty():
@@ -146,7 +146,7 @@ func _player_in_range() -> bool:
 func _open_interactions() -> void:
 	if npc_resource == null:
 		return
-	# Talking to a quest-giver NPC counts as "visiting" it — advance any
+	# Talking to a quest-giver NPC counts as "visiting" it - advance any
 	# "talk to NPC X" objective server-side (fire-and-forget; the server pushes
 	# quest.update if anything changed). Pure shop/flavor NPCs (npc_id 0) skip it.
 	if npc_id > 0 and InstanceClient.current != null:
@@ -154,19 +154,19 @@ func _open_interactions() -> void:
 	var entries: Array = []
 	for interaction: NPCInteraction in npc_resource.interactions:
 		if interaction == null:
-			continue # empty array slot — skip
+			continue # empty array slot - skip
 		var entry: Dictionary = interaction.menu_entry(self)
 		if not entry.is_empty():
 			entries.append(entry)
 	if entries.is_empty():
 		return
-	# A single ROUTING action (shop, quests, ...) opens directly — no pointless
+	# A single ROUTING action (shop, quests, ...) opens directly - no pointless
 	# one-option dialogue. A lone "Talk" still goes through the box (it plays lines
 	# inline, it has no menu to route to).
 	if entries.size() == 1 and entries[0].has("menu"):
 		ClientState.open_menu_requested.emit(entries[0]["menu"], entries[0]["arg"])
 		return
-	# Several → the greeting dialogue.
+	# Several -> the greeting dialogue.
 	ClientState.open_menu_requested.emit(&"npc", {
 		"name": display_name,
 		"greeting": npc_resource.greeting,

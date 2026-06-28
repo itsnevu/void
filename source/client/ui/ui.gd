@@ -2,7 +2,7 @@ class_name UI
 extends CanvasLayer
 
 ## In-game UI root. The full-screen menus mount under a sibling Control ("Submenu") of the HUD, both
-## under THIS CanvasLayer — and a CanvasLayer breaks theme inheritance up to the root Window, so each
+## under THIS CanvasLayer - and a CanvasLayer breaks theme inheritance up to the root Window, so each
 ## Control child must be themed directly (this used to assign the static `Client.theme`). We pick the
 ## variant matching the shared [gateway]/palette setting, so the single Settings "Theme" picker reskins
 ## BOTH the gateway and the in-game UI; live-applied on change, no relaunch.
@@ -30,7 +30,7 @@ func _saved_palette() -> StringName:
 	return StringName(saved) if saved is String or saved is StringName else ThemePalettes.DEFAULT
 
 
-## Live-apply a palette change made in the Settings menu — no relaunch. Persistence is the widget's job.
+## Live-apply a palette change made in the Settings menu - no relaunch. Persistence is the widget's job.
 func _on_setting_changed(section: StringName, property: StringName, value: Variant) -> void:
 	if section == &"gateway" and property == &"palette" and (value is String or value is StringName):
 		_apply_palette(StringName(value))

@@ -7,7 +7,7 @@ extends RefCounted
 ## broadcast is one row with independent per-player state.
 
 ## Broadcasts (recipient_id = 0, e.g. patch notes) stop showing once older than
-## this — so a new character sees only recent ones, and old news auto-clears from
+## this - so a new character sees only recent ones, and old news auto-clears from
 ## every inbox. Personal mail (gifts / compensation) never expires. Tunable.
 ## See docs/mailbox.md.
 const BROADCAST_TTL_MS: int = 10 * 24 * 60 * 60 * 1000 # 10 days
@@ -66,7 +66,7 @@ func unread_count(player_id: int) -> int:
 	return int(db.query_result[0].get("c", 0))
 
 
-## Marks a mail read (first read only — preserves the original read time).
+## Marks a mail read (first read only - preserves the original read time).
 func mark_read(player_id: int, mail_id: int) -> void:
 	_ensure_state(player_id, mail_id)
 	db.query_with_bindings(
@@ -110,7 +110,7 @@ func get_claimable(player_id: int, mail_id: int) -> Dictionary:
 	return {"ok": true, "attachments": attachments}
 
 
-## Marks a mail claimed for a player (idempotent — only the first claim sticks,
+## Marks a mail claimed for a player (idempotent - only the first claim sticks,
 ## which also guards a broadcast's reward to one claim per player).
 func mark_claimed(player_id: int, mail_id: int) -> void:
 	_ensure_state(player_id, mail_id)

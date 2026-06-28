@@ -1,7 +1,7 @@
 extends DataRequestHandler
 ## Returns the requesting character's inbox (personal mail + this world's
 ## broadcasts), newest first, each entry with read/claimed flags. Reward details
-## stay server-side until claimed — the client only learns there ARE rewards and
+## stay server-side until claimed - the client only learns there ARE rewards and
 ## how many. See docs/mailbox.md.
 
 
@@ -29,6 +29,6 @@ func data_request_handler(
 			"claimed": row.get("claimed_at_ms", null) != null,
 			"rewards": RedeemCodes.describe_grants(attachments),
 		})
-	# can_send drives the GM-only "New mail" button (server is the real gate — see mail.send).
+	# can_send drives the GM-only "New mail" button (server is the real gate - see mail.send).
 	var can_send: bool = CommandPermissions.effective_priority(pr, instance) >= 100 # senior_admin
 	return {"ok": true, "mails": mails, "can_send": can_send}

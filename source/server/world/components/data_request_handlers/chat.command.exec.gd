@@ -21,7 +21,7 @@ func data_request_handler(
 	else:
 		result = "Command not found."
 	# A command that does its own player-facing messaging (e.g. /worldboss announces
-	# server-wide) returns "" to skip this echo — otherwise the admin gets a near-
+	# server-wide) returns "" to skip this echo - otherwise the admin gets a near-
 	# duplicate "Server" line right after the announcement. Errors still come back here.
 	if not result.is_empty():
 		WorldServer.curr.data_push.rpc_id(

@@ -47,8 +47,8 @@ func _ready() -> void:
 
 	# Status tick: ONE 1 Hz timer per instance for everything that regenerates
 	# periodically (mana today; HP regen / poison / buffs slot in here later).
-	# Deliberately not a per-frame poll on every Player node — N updates per
-	# SECOND instead of 60×N, and clients run nothing at all.
+	# Deliberately not a per-frame poll on every Player node - N updates per
+	# SECOND instead of 60xN, and clients run nothing at all.
 	var status_tick: Timer = Timer.new()
 	status_tick.name = "StatusTick"
 	status_tick.wait_time = 1.0
@@ -67,11 +67,11 @@ func _on_status_tick() -> void:
 			continue
 		# Expire finished buffs FIRST so this tick's regen uses the post-buff rate.
 		BuffService.tick(player)
-		# Status HUD snapshot (buffs / DoTs / in-combat) — after the expiry pass
+		# Status HUD snapshot (buffs / DoTs / in-combat) - after the expiry pass
 		# so dropped buffs vanish from the strip the same second they end.
 		StatusService.sync(player)
 		# Mana (magic) and stamina/ENERGY (physical) both regen here off their own
-		# *_REGEN stats — itemizable, not constant.
+		# *_REGEN stats - itemizable, not constant.
 		_regen_resource(player, Stat.MANA, Stat.MANA_MAX, Stat.MANA_REGEN)
 		_regen_resource(player, Stat.ENERGY, Stat.ENERGY_MAX, Stat.ENERGY_REGEN)
 
@@ -246,7 +246,7 @@ func instantiate_player(peer_id: int) -> Player:
 				# Rule changed (level/slot) -> return it to inventory rather than lose it.
 				Inventory.add_item(player_resource.inventory, equip_id, 1)
 
-		# Stats were rebuilt from base + attributes + gear above — put any live
+		# Stats were rebuilt from base + attributes + gear above - put any live
 		# timed buffs (potions) back on top so an instance change doesn't strip them.
 		BuffService.reapply(new_player)
 
@@ -264,12 +264,12 @@ func instantiate_player(peer_id: int) -> Player:
 			Stat.HEALTH,
 			new_player.stats_component.get_stat(Stat.HEALTH_MAX)
 		)
-		# Same for mana — spawn with a full pool.
+		# Same for mana - spawn with a full pool.
 		new_player.stats_component.set_stat(
 			Stat.MANA,
 			new_player.stats_component.get_stat(Stat.MANA_MAX)
 		)
-		# And stamina (ENERGY) — spawn full.
+		# And stamina (ENERGY) - spawn full.
 		new_player.stats_component.set_stat(
 			Stat.ENERGY,
 			new_player.stats_component.get_stat(Stat.ENERGY_MAX)

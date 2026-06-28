@@ -1,13 +1,13 @@
 class_name ChargeAbility
 extends AbilityResource
 ## Generic hold-to-charge projectile ability: press starts the charge, release
-## fires — damage and projectile speed scale with how long the button was held.
+## fires - damage and projectile speed scale with how long the button was held.
 ## The bow's primary shot AND its multishot are both just .tres instances of
 ## this (multishot = projectile_count 3 + a mana cost); a future crossbow or
 ## fireball staff is data, not a new weapon script.
 ##
 ## Server-authoritative: the SERVER's instance of this resource tracks
-## charge_start, so held-time (and therefore damage) is computed server-side —
+## charge_start, so held-time (and therefore damage) is computed server-side -
 ## a client can't lie about its charge. Clients run the same code for visuals.
 ##
 ## Cooldown stamps on RELEASE (via the weapon), mana likewise.
@@ -43,14 +43,14 @@ var _charge_start: float = -1.0
 
 
 func use_ability(_entity: Entity, _direction: Vector2) -> void:
-	# PRESS — begin charging. Weapon visuals (draw frames, anim) hook off
+	# PRESS - begin charging. Weapon visuals (draw frames, anim) hook off
 	# `charging` after this call.
 	charging = true
 	_charge_start = Time.get_ticks_msec() / 1000.0
 
 
 func release_ability(entity: Entity, direction: Vector2) -> void:
-	# RELEASE — fire, scaled by held time.
+	# RELEASE - fire, scaled by held time.
 	charging = false
 	var t: float = 0.0
 	if _charge_start >= 0.0 and charge_time_s > 0.0:
@@ -90,7 +90,7 @@ func can_use_release() -> bool:
 
 
 func predict_release() -> void:
-	# Flip ONLY the flag — keep _charge_start so the server echo's
+	# Flip ONLY the flag - keep _charge_start so the server echo's
 	# release_ability still computes the right charge ratio for the local
 	# visual arrow (release_ability clears the timestamp itself).
 	charging = false

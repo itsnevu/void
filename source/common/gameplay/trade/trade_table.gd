@@ -210,7 +210,7 @@ func _format_seat(seat: Dictionary) -> String:
 	var occupant: String = str(seat.get("name", ""))
 	if occupant.is_empty():
 		return ""
-	var text: String = occupant + (" ✓" if seat.get("accepted", false) else "")
+	var text: String = occupant + (" v" if seat.get("accepted", false) else "")
 	for item: Dictionary in seat.get("items", []):
 		text += "\n  %dx %s" % [int(item.get("amount", 1)), str(item.get("name", ""))]
 	var gold: int = int(seat.get("gold", 0))

@@ -2,7 +2,7 @@ class_name MasteryTreeResource
 extends Resource
 ## A weapon category's full mastery tree. Branch grouping lives on the nodes
 ## themselves (MasteryNode.branch). One .tres per category in
-## res://source/common/gameplay/mastery/trees/ — MasteryService discovers them
+## res://source/common/gameplay/mastery/trees/ - MasteryService discovers them
 ## by folder and keys them by [member category].
 
 
@@ -18,7 +18,7 @@ func get_node_by_id(node_id: StringName) -> MasteryNode:
 	return null
 
 
-## Sum of every node's cost — design target: equals the points available at
+## Sum of every node's cost - design target: equals the points available at
 ## mastery cap, so a capped player can own the whole tree.
 func total_cost() -> int:
 	var total: int = 0

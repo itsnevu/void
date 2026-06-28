@@ -1,13 +1,13 @@
 extends DataRequestHandler
 ## Self-only profile customization. The caller edits their own profile fields
 ## (status text, display title, profile animation) from the Edit panel on the
-## player profile menu. Each field is optional — only sent keys are applied,
+## player profile menu. Each field is optional - only sent keys are applied,
 ## so the client can ship partial updates.
 ##
 ## Validation:
-##   • display_title must be empty OR already in titles_unlocked (no inventing).
-##   • profile_status is trimmed and capped at MAX_PROFILE_STATUS_LEN.
-##   • profile_animation must be one of ALLOWED_PROFILE_ANIMATIONS.
+##   - display_title must be empty OR already in titles_unlocked (no inventing).
+##   - profile_status is trimmed and capped at MAX_PROFILE_STATUS_LEN.
+##   - profile_animation must be one of ALLOWED_PROFILE_ANIMATIONS.
 ## Failure returns {"ok": false, "reason": "..."} and leaves all fields untouched.
 
 
@@ -46,7 +46,7 @@ func data_request_handler(
 
 	# Trophy strip: an Array of strings, capped at MAX_DISPLAYED_TROPHIES, each
 	# entry validated against titles_unlocked (no "showing a title you haven't
-	# earned"). Order matters — preserved client-side as the chip order.
+	# earned"). Order matters - preserved client-side as the chip order.
 	var new_trophies: Variant = null
 	if args.has("displayed_trophies"):
 		var raw_v: Variant = args["displayed_trophies"]
@@ -65,7 +65,7 @@ func data_request_handler(
 				break
 		new_trophies = cleaned
 
-	# All validated — commit.
+	# All validated - commit.
 	if new_title != null:
 		player.display_title = new_title
 	if new_status != null:

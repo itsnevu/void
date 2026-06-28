@@ -4,7 +4,7 @@ extends Node2D
 ## more staggered shockwave rings, rock-chunk debris AND a lingering dust puff
 ## across the hit circle, plus radiating ground cracks that fade. Everything
 ## scales with the ability's tier (more rings/debris = a bigger hit). Pure
-## client visual — spawn it at the impact point and forget it; it frees itself.
+## client visual - spawn it at the impact point and forget it; it frees itself.
 
 const RING_DURATION: float = 0.32
 ## Delay between successive rings so they ripple instead of overlapping.
@@ -13,12 +13,12 @@ const RING_STAGGER: float = 0.08
 const CRACK_LIFE: float = 0.7
 const CRACK_COLOR: Color = Color(0.1, 0.08, 0.07)
 
-## Final radius each shockwave ring + the debris/dust spread reaches — pass the
+## Final radius each shockwave ring + the debris/dust spread reaches - pass the
 ## slam's reach so the visual matches the hit area.
 var max_radius: float = 44.0
-## Ring + flash tint (set per ability — T3 runs hotter/redder).
+## Ring + flash tint (set per ability - T3 runs hotter/redder).
 var color: Color = Color(1.0, 0.92, 0.55, 0.9)
-## Debris chunks flung up on impact (0 = none). CPUParticles2D, not GPU — it's
+## Debris chunks flung up on impact (0 = none). CPUParticles2D, not GPU - it's
 ## web-export safe.
 var debris: int = 0
 ## How many concentric ripples (1 = a basic hit, 3 = an ultimate).
@@ -39,7 +39,7 @@ func _ready() -> void:
 		_spawn_dust()
 
 
-## Jagged cracks radiating from the impact — count scales with the hit's power.
+## Jagged cracks radiating from the impact - count scales with the hit's power.
 func _build_cracks() -> void:
 	var count: int = ring_count * 3
 	for i: int in count:
@@ -71,7 +71,7 @@ func _spawn_debris() -> void:
 	add_child(p)
 
 
-## A soft dust cloud that puffs outward across the circle and lingers/fades —
+## A soft dust cloud that puffs outward across the circle and lingers/fades -
 ## the "dirt flying" that sells a shattered ground beyond the hard chunks.
 func _spawn_dust() -> void:
 	var d: CPUParticles2D = CPUParticles2D.new()

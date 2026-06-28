@@ -9,7 +9,7 @@ extends ChatCommand
 
 func _init() -> void:
 	command_name = "resetglory"
-	command_priority = 100 # senior_admin (owner tier — matches /give, /gold, /grant)
+	command_priority = 100 # senior_admin (owner tier - matches /give, /gold, /grant)
 	command_usage = "/resetglory confirm  (wipes Glory + base hours for ALL guilds)"
 
 

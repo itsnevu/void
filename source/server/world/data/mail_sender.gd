@@ -9,7 +9,7 @@ extends RefCounted
 const DEFAULT_SENDER: String = "System"
 
 
-## Sends a mail. subject/body are plain strings — the composer supplies them as
+## Sends a mail. subject/body are plain strings - the composer supplies them as
 ## separate fields; the chat command pipe-splits them first. extras_text is the
 ## comma-separated token string (gold:100, item:1x3, title:Name, from:Sender, ...).
 static func compose(target: String, subject: String, body: String, extras_text: String, caller_peer_id: int, instance: ServerInstance, sender_override: String = "") -> Dictionary:
@@ -53,7 +53,7 @@ static func compose(target: String, subject: String, body: String, extras_text: 
 	if not result.ok:
 		return {"ok": false, "message": result.error}
 	if result.player_id <= 0:
-		return {"ok": false, "message": "Couldn't resolve a character id — use #<id> (an offline @account can't be targeted)."}
+		return {"ok": false, "message": "Couldn't resolve a character id - use #<id> (an offline @account can't be targeted)."}
 	store.send(result.player_id, sender, subject, body, attachments_json)
 	return {"ok": true, "message": "Mailed %s (from %s)." % [result.label(), sender]}
 
@@ -71,7 +71,7 @@ static func _parse_extras(text: String) -> Dictionary:
 			continue
 		var colon: int = token.find(":")
 		if colon < 0:
-			return {"ok": false, "error": "Bad token '%s' — use type:value." % token}
+			return {"ok": false, "error": "Bad token '%s' - use type:value." % token}
 		var key: String = token.substr(0, colon).strip_edges().to_lower()
 		var val: String = token.substr(colon + 1).strip_edges()
 		match key:

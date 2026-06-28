@@ -62,7 +62,7 @@ func _draw() -> void:
 	
 	var outline: Color = tint.darkened(0.35)
 
-	# EditorInterface is editor-only — the identifier doesn't exist in exports
+	# EditorInterface is editor-only - the identifier doesn't exist in exports
 	# and would parse-fail. Look it up dynamically so the parser sees only
 	# Engine.get_singleton(), which is always available. _draw only fires in
 	# the editor anyway (this is a @tool script), so the singleton is there.

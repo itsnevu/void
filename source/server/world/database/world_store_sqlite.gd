@@ -120,7 +120,7 @@ func create_player_character(account_name: String, character_data: Dictionary) -
 	# The chosen creation skin is owned from the start, so it's equippable in the wardrobe.
 	player.owned_skins = PackedInt64Array([player.skin_id])
 
-	# Starting kit: ONE potion + gold, no weapon — a fresh character's first
+	# Starting kit: ONE potion + gold, no weapon - a fresh character's first
 	# decision is choosing a weapon at the starter shop (sword / bow / wand /
 	# hammer, 6-8g), which seeds build identity and teaches the economy. 25g
 	# covers a weapon + a potion or a cheap armor piece.
@@ -157,7 +157,7 @@ func get_account_characters(account_name: String) -> Dictionary:
 
 
 ## Returns the persisted ownership of a flag, or {} if no row exists (flag never
-## captured — treat as unowned, full HP, no grace period).
+## captured - treat as unowned, full HP, no grace period).
 func get_flag_state(flag_id: int) -> Dictionary:
 	db.query_with_bindings(
 		"SELECT flag_id, owner_guild_id, last_capture_ms FROM flags WHERE flag_id=?;",
@@ -238,9 +238,9 @@ func _row_to_player(row: Dictionary) -> PlayerResource:
 		}
 
 	# Weapon mastery: {"masteries": {category -> {"level","xp","spent"}},
-	# "loadout": {category -> node_id}}. JSON gives string keys / float values —
+	# "loadout": {category -> node_id}}. JSON gives string keys / float values -
 	# normalize like skills above (categories back to StringName, spent ids stay
-	# String — that's how the runtime reads them).
+	# String - that's how the runtime reads them).
 	var mastery_v: Variant = JSON.parse_string(str(row.get("mastery_json", "{}")))
 	player.masteries = {}
 	player.ability_loadout = {}
@@ -260,7 +260,7 @@ func _row_to_player(row: Dictionary) -> PlayerResource:
 		var loadout_raw: Dictionary = (mastery_v as Dictionary).get("loadout", {})
 		for category in loadout_raw:
 			# Array of node ids in slot order. Early saves stored a single
-			# string — wrap it so alpha characters keep their pick.
+			# string - wrap it so alpha characters keep their pick.
 			var picks_v: Variant = loadout_raw[category]
 			var picks: Array = []
 			if picks_v is Array:
@@ -292,7 +292,7 @@ func _row_to_player(row: Dictionary) -> PlayerResource:
 
 	var owned_skins_v: Variant = JSON.parse_string(str(row.get("owned_skins_json", "[]")))
 	player.owned_skins = PackedInt64Array(owned_skins_v if owned_skins_v is Array else [])
-	# The equipped skin is always owned — backfills existing players (pre-wardrobe) and any
+	# The equipped skin is always owned - backfills existing players (pre-wardrobe) and any
 	# row whose blob drifted, so the wardrobe never shows your current look as locked.
 	if not player.owned_skins.has(player.skin_id):
 		player.owned_skins.append(player.skin_id)
@@ -386,14 +386,14 @@ func get_guild(guild_id: int) -> Guild:
 		for pid: Variant in data.get("pending_invites", []):
 			guild.pending_invites.append(int(pid))
 
-		# JSON object keys are strings — coerce back to int player ids.
+		# JSON object keys are strings - coerce back to int player ids.
 		guild.member_perms.clear()
 		var perms_raw: Variant = data.get("member_perms", {})
 		if perms_raw is Dictionary:
 			for key: Variant in perms_raw:
 				guild.member_perms[int(key)] = int(perms_raw[key])
 
-		# Glory state — defaults to 0 for guilds that pre-dated this column.
+		# Glory state - defaults to 0 for guilds that pre-dated this column.
 		guild.seasonal_glory = int(data.get("seasonal_glory", 0))
 		guild.eternal_glory = int(data.get("eternal_glory", 0))
 		guild.total_sg_ever = int(data.get("total_sg_ever", 0))
@@ -402,7 +402,7 @@ func get_guild(guild_id: int) -> Guild:
 		guild.territory_seconds = int(data.get("territory_seconds", 0))
 		guild.spar_score = int(data.get("spar_score", 0))
 		guild.treasury = int(data.get("treasury", 0))
-		# JSON object keys are strings & values floats — coerce to StringName/int.
+		# JSON object keys are strings & values floats - coerce to StringName/int.
 		var ups_raw: Variant = data.get("upgrades", {})
 		if ups_raw is Dictionary:
 			for key: Variant in ups_raw:

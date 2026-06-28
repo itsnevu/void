@@ -29,8 +29,8 @@ func _connect_multiplayer_api_signals(api: SceneMultiplayer) -> void:
 func _on_connection_succeeded() -> void:
 	print("Successfully connected to the MasterServer as WorldServer - Peer ID:%d!" % multiplayer.get_unique_id())
 	# Address reported to clients. Two forms supported:
-	#   • bare host like "127.0.0.1" — paired with `port` to build ws://host:port
-	#   • full URL like "wss://ws.example.com/world/1" — used as-is, port ignored
+	#   - bare host like "127.0.0.1" - paired with `port` to build ws://host:port
+	#   - full URL like "wss://ws.example.com/world/1" - used as-is, port ignored
 	# The latter is the production path when Caddy/nginx proxies WSS by path.
 	# Set `public_url` in [world-server] of world.cfg to override the localhost
 	# default; leave unset for local-dev where address+port is enough.
@@ -79,7 +79,7 @@ func _build_snapshot() -> Dictionary:
 		for res: InstanceResource in world_server.instance_manager.instance_collection.values():
 			instance_count += res.charged_instances.size()
 
-	# Lightweight player roster — fields the dashboard needs to render the
+	# Lightweight player roster - fields the dashboard needs to render the
 	# Players table + drive per-player actions.
 	var players: Array = []
 	for peer_id: int in world_server.connected_players:
@@ -123,7 +123,7 @@ func _build_snapshot() -> Dictionary:
 
 @rpc("any_peer")
 func heartbeat(_snapshot: Dictionary) -> void:
-	# Server-bound payload — declared so Godot's RPC table accepts the call;
+	# Server-bound payload - declared so Godot's RPC table accepts the call;
 	# the master side overrides this with its own implementation.
 	pass
 
@@ -143,7 +143,7 @@ func master_save() -> void:
 func master_shutdown() -> void:
 	if world_server == null or database == null:
 		return
-	ServerLog.info("Dashboard 'shutdown' triggered — saving + quitting.")
+	ServerLog.info("Dashboard 'shutdown' triggered - saving + quitting.")
 	database.save_all_connected(world_server.connected_players)
 	database.backup_database()
 	get_tree().quit.call_deferred()
@@ -151,7 +151,7 @@ func master_shutdown() -> void:
 
 ## Master tells this world to run a staged restart countdown: warn every connected
 ## player at decreasing marks (5m / 2m / 1m / 30s / 10s, only those <= total), then a
-## final save when it elapses. It does NOT quit — the deploy's `systemctl stop` stops
+## final save when it elapses. It does NOT quit - the deploy's `systemctl stop` stops
 ## the process (and saves again via WorldServer._notification). The deploy waits the
 ## same [param seconds] before stopping, so the countdown and the stop line up.
 @rpc("authority")
@@ -159,7 +159,7 @@ func master_restart(seconds: int, message: String) -> void:
 	if world_server == null or world_server.chat_service == null:
 		return
 	var note: String = message if not message.is_empty() else "Server restarting for an update."
-	ServerLog.info("Restart countdown started: %ds — %s" % [seconds, note])
+	ServerLog.info("Restart countdown started: %ds - %s" % [seconds, note])
 	var remaining: int = maxi(seconds, 0)
 	_broadcast_restart_notice(remaining, note)  # immediate heads-up
 	for mark: int in [300, 120, 60, 30, 10]:
@@ -174,7 +174,7 @@ func master_restart(seconds: int, message: String) -> void:
 	if database != null:
 		var saved: int = database.save_all_connected(world_server.connected_players)
 		database.backup_database()
-		ServerLog.info("Restart countdown elapsed — final save (%d player(s)); awaiting stop." % saved)
+		ServerLog.info("Restart countdown elapsed - final save (%d player(s)); awaiting stop." % saved)
 
 
 ## One restart-warning line to every connected player, phrased in minutes or seconds.
@@ -206,7 +206,7 @@ func master_broadcast(message: String) -> void:
 	ServerLog.info("Dashboard broadcast sent: %s" % message)
 
 
-# --- Per-player moderation actions (master → world) ---
+# --- Per-player moderation actions (master -> world) ---
 #
 # All target a specific player_id. The world looks up the matching online
 # PlayerResource (or no-ops if the player went offline between dashboard
@@ -278,13 +278,13 @@ func master_kick(player_id: int) -> void:
 	if peer_id == 0:
 		return
 	ServerLog.info("Dashboard kick: player #%d (peer %d)" % [player_id, peer_id])
-	# Critical: there are TWO multiplayer instances on the world process —
+	# Critical: there are TWO multiplayer instances on the world process -
 	#   * `multiplayer` here = the master connection (this script is a client
 	#     of the master server). The peer_id 1042 from the game-client
 	#     connection doesn't exist in this peer table.
 	#   * world_server.multiplayer_api = the world's player connections,
 	#     which is where peer_id lives.
-	# Using the wrong one throws "!peers_map.has(p_peer_id)" — exactly the
+	# Using the wrong one throws "!peers_map.has(p_peer_id)" - exactly the
 	# error you hit. The right peer table is the game world's.
 	var game_mp: MultiplayerAPI = world_server.multiplayer_api
 	if game_mp != null and game_mp.multiplayer_peer != null:
@@ -301,7 +301,7 @@ func master_grant_role(player_id: int, role: String) -> void:
 		return
 	target.server_roles[role] = {}
 	database.save_player(target)
-	ServerLog.info("Dashboard grant: player #%d ← role '%s'" % [player_id, role])
+	ServerLog.info("Dashboard grant: player #%d <- role '%s'" % [player_id, role])
 	_notify_player(player_id, "You have been granted the role '%s'." % role)
 
 
@@ -315,7 +315,7 @@ func master_revoke_role(player_id: int, role: String) -> void:
 		return
 	target.server_roles.erase(role)
 	database.save_player(target)
-	ServerLog.info("Dashboard revoke: player #%d ← role '%s'" % [player_id, role])
+	ServerLog.info("Dashboard revoke: player #%d <- role '%s'" % [player_id, role])
 	_notify_player(player_id, "Your role '%s' has been revoked." % role)
 
 

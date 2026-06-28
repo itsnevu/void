@@ -10,8 +10,8 @@ extends Resource
 ## The `npc` params are typed Node (not NPC) to avoid a circular class dependency
 ## (NPC's resource holds these); subclasses that need the NPC cast it (`npc as NPC`).
 
-## Optional overrides for the dialogue button — empty means "use the subclass
-## default" (so a ShopInteraction reads "Shop" / 🛒 without configuration).
+## Optional overrides for the dialogue button - empty means "use the subclass
+## default" (so a ShopInteraction reads "Shop" /  without configuration).
 @export var label_override: String = ""
 @export var icon_override: String = ""
 

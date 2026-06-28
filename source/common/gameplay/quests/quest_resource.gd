@@ -16,7 +16,7 @@ enum Completion { ALL, ANY }
 @export var objectives: Array[QuestObjective]
 ## How many objectives need to be done. Defaults to ALL (classic AND behavior).
 @export var completion: Completion = Completion.ALL
-## When true, the quest turns in instantly the moment its objectives are met —
+## When true, the quest turns in instantly the moment its objectives are met -
 ## no walk-back-to-the-giver step. Reserved for "self-evident" quests like the
 ## welcome tour where forcing a return trip is just friction.
 @export var auto_complete: bool = false

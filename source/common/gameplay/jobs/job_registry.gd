@@ -6,7 +6,7 @@ class_name JobRegistry
 ##
 ## `static var` (not `const`) because preload() expressions, while
 ## constant-folded at parse time, can't initialise typed `const Dictionary`
-## with class-shaped values in GDScript 4 — `Assigned value isn't a
+## with class-shaped values in GDScript 4 - `Assigned value isn't a
 ## constant expression`. `static var` initialises lazily, no issue.
 
 static var JOBS: Dictionary[StringName, JobPerks] = {
@@ -34,7 +34,7 @@ static func perks_for(job_slug: StringName) -> JobPerks:
 
 
 ## Human-readable label for [param job_slug]. Falls back to a capitalised
-## slug if the job is unknown — UI never crashes on a typo.
+## slug if the job is unknown - UI never crashes on a typo.
 static func display_name(job_slug: StringName) -> String:
 	var p: JobPerks = perks_for(job_slug)
 	if p != null and not p.display_name.is_empty():

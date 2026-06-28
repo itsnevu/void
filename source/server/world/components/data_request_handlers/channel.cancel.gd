@@ -1,5 +1,5 @@
 extends DataRequestHandler
-## Client → server: the caster moved (or otherwise wants out), so stop their
+## Client -> server: the caster moved (or otherwise wants out), so stop their
 ## active channel. ChannelInstance.cancel() pushes channel.end itself, which
 ## clears the aura on every client and the root on the caster's. No-op if the
 ## player has no channel running (a stale cancel after it already ended).

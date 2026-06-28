@@ -1,11 +1,11 @@
 class_name PixelIcon
 extends RefCounted
-## Crisp pixel-art icons in UI: NEAREST + INTEGER-scale-to-fit + WHOLE-pixel centering — the fix for the
+## Crisp pixel-art icons in UI: NEAREST + INTEGER-scale-to-fit + WHOLE-pixel centering - the fix for the
 ## half-pixel smear that `Button.icon`/`expand_icon` and container centering produce at 1:1 (see the menu
 ## launcher + inventory icon saga). [method mount] adds one to a host; [method set_art] swaps its art.
 
 ## Adds a crisp icon as a child of [param host]: integer-scaled to fit the host, centered on whole GLOBAL
-## pixels. Re-fits whenever the host's rect changes — DEFERRED, so it survives async / first-frame layout
+## pixels. Re-fits whenever the host's rect changes - DEFERRED, so it survives async / first-frame layout
 ## timing (an immediate fit caught freshly-built grids at 0-size, drawing tiny in the corner). Returns the
 ## TextureRect so callers that change the art later can pass it to [method set_art].
 static func mount(host: Control, texture: Texture2D = null) -> TextureRect:
@@ -34,7 +34,7 @@ static func set_art(icon: TextureRect, texture: Texture2D) -> void:
 
 
 ## Adopt a Button's editor-assigned icon as a crisp mounted glyph: reads [member Button.icon], mounts it
-## via [method mount], then clears the native icon so it's drawn once — crisply. Lets a scene assign the
+## via [method mount], then clears the native icon so it's drawn once - crisply. Lets a scene assign the
 ## glyph in the editor (visible there, nothing loaded in code) while runtime renders it sharp. Returns the
 ## TextureRect for later [method set_art].
 static func from_button(button: Button) -> TextureRect:

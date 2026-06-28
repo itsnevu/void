@@ -4,13 +4,13 @@ extends Resource
 ## Healing Herb, ...). A [MineableNode] scene instanced in a map points at
 ## one of these resources via its `data` export, then reads the gathering
 ## config from it. Tuning copper vein values now updates every copper vein
-## in every map at once — same pattern as [JobPerks] for jobs.
+## in every map at once - same pattern as [JobPerks] for jobs.
 ##
 ## Author one `.tres` per node type under
 ## `source/common/gameplay/maps/components/mineable_nodes/`. The
 ## upcoming jobs/source-slug bake tool will scan that folder, look at each
 ## resource's `job_xp` dict, and auto-populate the matching JobPerks
-## `source_slugs` lists — killing the hand-maintained content drift.
+## `source_slugs` lists - killing the hand-maintained content drift.
 
 ## The item granted per yield. Use a MaterialItem with vendor_value set.
 @export var ore: Item
@@ -42,7 +42,7 @@ extends Resource
 
 @export_group("Visual")
 ## Sprite shown at the node. Use an [AtlasTexture] (right-click in the
-## inspector → "New AtlasTexture", then assign the spritesheet to its `atlas`
+## inspector -> "New AtlasTexture", then assign the spritesheet to its `atlas`
 ## and click "Edit Region" to pick the sub-rect visually). A plain Texture2D
 ## also works for one-off art.
 @export var texture: Texture2D

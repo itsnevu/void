@@ -2,7 +2,7 @@ class_name HealBoltAbility
 extends BoltShootAbility
 ## Support twin of BoltShootAbility: fires a bolt that HEALS the first ally it
 ## hits instead of damaging enemies (see HealBolt for the ally rules). Heal
-## amount = AP × ap_ratio. The game's first support tool — a 2v2 with a healer
+## amount = AP x ap_ratio. The game's first support tool - a 2v2 with a healer
 ## plays like a different game.
 
 

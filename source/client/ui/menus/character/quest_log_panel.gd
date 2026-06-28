@@ -1,5 +1,5 @@
 extends VBoxContainer
-## Quest log (Character → Quests tab). Split view: quest list on the left,
+## Quest log (Character -> Quests tab). Split view: quest list on the left,
 ## selected-quest details on the right with a pinned Track/Untrack button.
 ## Replaces the older list-only + modal-popup design.
 
@@ -166,7 +166,7 @@ func _add_row(quest: Dictionary, is_active: bool) -> void:
 	button.custom_minimum_size = Vector2(0, 38)
 	button.text = str(quest.get("name", "?"))
 	if not is_active:
-		button.text += "  ✓"
+		button.text += "  v"
 		button.add_theme_color_override(&"font_color", Color(0.6, 0.75, 0.6))
 	button.pressed.connect(_select_quest.bind(quest_id))
 	_list_vbox.add_child(button)
@@ -199,7 +199,7 @@ func _rebuild_detail() -> void:
 	var is_active: bool = str(quest.get("state", "")) == "active"
 	_detail_title.text = str(quest.get("name", "?"))
 
-	# Track / Untrack — only for active quests.
+	# Track / Untrack - only for active quests.
 	_track_button.visible = is_active
 	if is_active:
 		var quest_id: int = int(quest.get("id", 0))
@@ -225,7 +225,7 @@ func _rebuild_detail() -> void:
 	obj_header.add_theme_color_override(&"font_color", Color(1.0, 0.85, 0.5))
 	_detail_body.add_child(obj_header)
 
-	# ANY-mode quests (completion == 1) treat objectives as alternatives — an
+	# ANY-mode quests (completion == 1) treat objectives as alternatives - an
 	# "OR" line between them reads them as a choice, not a checklist.
 	var any_mode: bool = int(quest.get("completion", 0)) == 1
 	var objectives: Array = quest.get("objectives", [])
@@ -241,11 +241,11 @@ func _rebuild_detail() -> void:
 		var required: int = int(objective.get("required", 1))
 		var met: bool = count >= required
 		var objective_label: Label = Label.new()
-		# VISIT rows aren't counted — show a ✓ when done, not "(0/1)".
+		# VISIT rows aren't counted - show a v when done, not "(0/1)".
 		if bool(objective.get("countable", true)):
-			objective_label.text = "• %s (%d/%d)" % [str(objective.get("desc", "")), count, required]
+			objective_label.text = "- %s (%d/%d)" % [str(objective.get("desc", "")), count, required]
 		else:
-			objective_label.text = "• %s%s" % [str(objective.get("desc", "")), "  ✓" if met else ""]
+			objective_label.text = "- %s%s" % [str(objective.get("desc", "")), "  v" if met else ""]
 		objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		if met:
 			objective_label.add_theme_color_override(&"font_color", Color(0.5, 0.9, 0.5))

@@ -37,7 +37,7 @@ func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInsta
 	var admin_id: int = admin.player_id if admin else 0
 
 	# Persist first so the entry exists even if the teleport fails (e.g. jail
-	# map not authored yet) — the player is redirected on next login.
+	# map not authored yet) - the player is redirected on next login.
 	JailList.jail(target.account_name, reason, admin_id, duration_ms)
 
 	var teleported: bool = false
@@ -48,5 +48,5 @@ func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInsta
 			notice += "\nReason: " + reason
 		ws.chat_service.push_system_to_player(server_instance, target.player_id, notice)
 
-	var suffix: String = "" if teleported or not target.online else " (no jail map configured — they'll be sent on next login)"
+	var suffix: String = "" if teleported or not target.online else " (no jail map configured - they'll be sent on next login)"
 	return "Jailed %s for %s.%s" % [target.label(), duration_label, suffix]

@@ -15,7 +15,7 @@ func data_request_handler(
 	# Iterate the JobRegistry instead of the player's skills dict directly,
 	# so the Jobs UI can show ALL trainable professions (even ones the
 	# player has 0 XP in) rather than only the ones they've already gathered
-	# from. Unstarted jobs render as "Lv 1 — 0 xp" with no perk choices.
+	# from. Unstarted jobs render as "Lv 1 - 0 xp" with no perk choices.
 	for skill_name in JobRegistry.JOBS:
 		var jp: JobPerks = JobRegistry.JOBS[skill_name]
 		var entry: Dictionary = resource.skills.get(skill_name, {})
@@ -29,7 +29,7 @@ func data_request_handler(
 			"order": jp.sort_order,
 		}
 
-		# Perk picker payload — generic across all jobs via the JobPerks
+		# Perk picker payload - generic across all jobs via the JobPerks
 		# resource. UI reads info["choices"] for the picker and info["perks"]
 		# for the effective-bonuses lines.
 		if jp != null:

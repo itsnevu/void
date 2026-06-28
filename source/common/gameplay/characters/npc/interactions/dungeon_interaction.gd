@@ -1,7 +1,7 @@
 class_name DungeonInteraction
 extends NPCInteraction
 ## NPC capability: opens the dungeon manager for [member dungeon]. The NPC IS the
-## station — the server resolves it by NODE NAME (no manual id), reads this
+## station - the server resolves it by NODE NAME (no manual id), reads this
 ## interaction's dungeon, and range-checks against the NPC's position. So a
 ## dungeon-keeper NPC (a real character) is the meaningful access point.
 

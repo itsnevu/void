@@ -138,7 +138,7 @@ func _test_base58() -> void:
 
 
 # ---------------------------------------------------------------------------
-# Ed25519 — RFC 8032 Section 7.1 test vectors.
+# Ed25519 - RFC 8032 Section 7.1 test vectors.
 # Each tuple: secret seed (unused), public key, message, signature.
 # ---------------------------------------------------------------------------
 func _test_ed25519() -> void:

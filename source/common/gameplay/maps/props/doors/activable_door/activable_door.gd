@@ -1,7 +1,7 @@
 class_name ActivableDoor
 extends StaticBody2D
 ## A door / gate. OPEN = collision off (pass through); CLOSED = collision on
-## (blocks players). It's a plain node — RoomNode drives it: on the server it
+## (blocks players). It's a plain node - RoomNode drives it: on the server it
 ## decides, and a dungeon.room push tells every client which doors to toggle (see
 ## RoomNode), so no prop baking / ids are needed. Uses the closing/opening anims.
 ##
@@ -21,7 +21,7 @@ func _ready() -> void:
 
 
 ## Open (pass) or close (block). [param animate] false snaps without playing the
-## transition (used on spawn). Collision is toggled deferred — safe to call mid-
+## transition (used on spawn). Collision is toggled deferred - safe to call mid-
 ## physics (a door closing as the fight starts).
 func set_open(is_open: bool, animate: bool = true) -> void:
 	door_collision.set_deferred(&"disabled", is_open)
@@ -31,6 +31,6 @@ func set_open(is_open: bool, animate: bool = true) -> void:
 		door_anim.play(&"open" if is_open else &"closed")
 
 
-## Bare "open" — kept for the ground_button demo.
+## Bare "open" - kept for the ground_button demo.
 func open_door() -> void:
 	set_open(true)

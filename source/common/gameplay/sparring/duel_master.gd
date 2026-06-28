@@ -1,7 +1,7 @@
 class_name DuelMaster
 extends Interactable
 ## Clickable spar STATION. Its teams are SparTeam child nodes, and each team's
-## Marker2D children are its spawn slots — so the station's shape is authored
+## Marker2D children are its spawn slots - so the station's shape is authored
 ## entirely in the editor: two SparTeams with 1 marker each = 1v1; 2+2 = 2v2;
 ## 1+3 = 1v3; three SparTeams = a three-way. (The named "Duel Master" NPC who
 ## introduces the arena is a separate regular NPC; this node is purely the
@@ -31,7 +31,7 @@ func _ready() -> void:
 	if master_id <= 0:
 		push_warning("DuelMaster '%s' has master_id=%d. Set a unique positive id in the inspector or it'll fail every lookup." % [name, master_id])
 	if multiplayer.is_server() and teams().size() < 2:
-		push_warning("DuelMaster '%s' has %d usable team(s) — add SparTeam children with at least one Marker2D each." % [name, teams().size()])
+		push_warning("DuelMaster '%s' has %d usable team(s) - add SparTeam children with at least one Marker2D each." % [name, teams().size()])
 
 
 ## Usable teams, in child order. A SparTeam with no Marker2D children can never

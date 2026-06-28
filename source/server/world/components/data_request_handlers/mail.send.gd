@@ -1,6 +1,6 @@
 extends DataRequestHandler
-## In-game GM composer → send a mail (multiline body, no chat length cap).
-## Server-gated by senior-admin priority — same bar as the `/mail` command, so the
+## In-game GM composer -> send a mail (multiline body, no chat length cap).
+## Server-gated by senior-admin priority - same bar as the `/mail` command, so the
 ## "New mail" button being hidden client-side is convenience, not the security.
 ## Delegates to MailSender (shared with the chat command). Returns
 ## {"ok": bool, "message": String}. See docs/mailbox.md.

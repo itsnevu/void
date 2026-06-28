@@ -4,7 +4,7 @@ extends Resource
 ## player per day, scoped to their level range.
 ##
 ## Kept deliberately simple: KILL or COLLECT, fixed amount, fixed reward. No
-## per-level scaling — if you want a tougher version, author a separate
+## per-level scaling - if you want a tougher version, author a separate
 ## template at a higher min_level. Keeps numbers readable.
 
 enum Kind { KILL, COLLECT }
@@ -20,7 +20,7 @@ enum Kind { KILL, COLLECT }
 @export var item: Item
 @export var required_amount: int = 1
 
-## Eligibility window — a player whose level falls in [min_level, max_level]
+## Eligibility window - a player whose level falls in [min_level, max_level]
 ## can be assigned this. 0 max = no cap.
 @export var min_level: int = 0
 @export var max_level: int = 0

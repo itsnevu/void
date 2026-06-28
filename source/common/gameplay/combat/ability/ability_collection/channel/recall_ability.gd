@@ -1,6 +1,6 @@
 class_name RecallAbility
 extends ChannelAbility
-## The universal Recall: a long channel anyone can start (no weapon, no mastery —
+## The universal Recall: a long channel anyone can start (no weapon, no mastery -
 ## see the recall.start handler + the Recall keybind). Stand still for the full
 ## duration and you're whisked to the town hub; moving cancels it (the shared
 ## channel root) and a hit cancels it (cancel_on_damage), so you can't escape a

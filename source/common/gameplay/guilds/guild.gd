@@ -89,7 +89,7 @@ const DEFAULT_MEMBER_RANK: int = 4
 @export var seasonal_glory: int = 0
 ## Permanent Glory. Never reset.
 @export var eternal_glory: int = 0
-## Cumulative SG ever earned across all seasons — used only to compute EG so the
+## Cumulative SG ever earned across all seasons - used only to compute EG so the
 ## 10:3 conversion is stateless and can't drift after season resets.
 @export var total_sg_ever: int = 0
 ## Rolling count of kills-in-owned-territory contributed by guild members.

@@ -6,7 +6,7 @@ class_name GatewayError
 ## or a Godot Error like ERR_TIMEOUT), short string tokens ("invalid_payload",
 ## "connection_failed", ...), or already-human server strings (the version gate,
 ## server-side validation messages). This collapses all of them to one readable
-## line and — crucially — NEVER returns a raw dictionary dump, so the UI can't
+## line and - crucially - NEVER returns a raw dictionary dump, so the UI can't
 ## show a player `{ "error": 50 }`. Unknown shapes fall back to ERR_GENERIC.
 static func humanize(response: Dictionary) -> String:
 	var code: Variant = response.get("error", null)

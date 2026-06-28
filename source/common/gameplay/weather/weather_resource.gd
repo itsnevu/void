@@ -2,12 +2,12 @@ class_name WeatherResource
 extends Resource
 ## Data-driven ambient weather overlay for a map (drifting leaves, rain, snow, dust...).
 ## Add one (or several) to Map.weather; on entering the map the client's WeatherLayer
-## drives one CPUParticles2D emitter per entry from these knobs. Pure cosmetic + client-side —
+## drives one CPUParticles2D emitter per entry from these knobs. Pure cosmetic + client-side -
 ## new looks are a new .tres, no code. Leave [member texture] null for a procedural
 ## (untextured) particle, which is plenty for rain / snow / dust / soft leaves.
 
 ## Particle sprite. Null = a small procedural square tinted by [member color]. May be a
-## horizontal sprite-sheet (e.g. leaf.png is 6 frames) — set [member h_frames].
+## horizontal sprite-sheet (e.g. leaf.png is 6 frames) - set [member h_frames].
 @export var texture: Texture2D
 ## Horizontal frame count when [member texture] is a sprite-sheet (1 = a plain image).
 ## Each particle is given a random frame for variety (a field of differently-shaped leaves).
@@ -33,5 +33,5 @@ enum EmitMode { TOP_FALL, AREA_DRIFT }
 @export var spread_degrees: float = 30.0
 @export var scale_min: float = 0.4
 @export var scale_max: float = 0.9
-## Max tumble speed (deg/s, applied ±) — gives leaves/snow a lazy spin. 0 = no spin.
+## Max tumble speed (deg/s, applied ±) - gives leaves/snow a lazy spin. 0 = no spin.
 @export var spin_degrees: float = 60.0

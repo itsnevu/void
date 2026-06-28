@@ -1,10 +1,10 @@
 class_name Firefly
 extends Node2D
-## A drifting glow that casts real light — for night forests / dark glades / caves. Place
+## A drifting glow that casts real light - for night forests / dark glades / caves. Place
 ## one or a cluster in a map; each gently wanders around its placed position and softly
 ## pulses, so a group reads as fireflies. Purely cosmetic + client-side: it self-frees on a
 ## headless server. It doesn't need the day/night tint to exist, but it only READS as light
-## against a dark ambient — so it shines in dark maps / at night, and washes out in daylight.
+## against a dark ambient - so it shines in dark maps / at night, and washes out in daylight.
 
 ## How far it drifts from its placed position (px).
 @export var wander_radius: float = 24.0

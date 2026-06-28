@@ -1,5 +1,5 @@
 extends MenuShell
-## Full-screen weapon-mastery skill tree — the "Open tree" target from the Mastery
+## Full-screen weapon-mastery skill tree - the "Open tree" target from the Mastery
 ## hub (Character > Mastery tab). Shows ONE domain (weapon category): its three
 ## branches (Domination / Resolve / Inspiration) as columns of icon tiles, upgrade
 ## chains linked by connectors, with a pinned detail panel for the selected node.
@@ -7,7 +7,7 @@ extends MenuShell
 ## Tree CONTENT comes from MasteryService.trees() (common/ data the client already
 ## holds). Per-player state (level, points, owned nodes, loadout) is fetched via
 ## mastery.get; learn / equip / respec are server-validated (mastery.spend /
-## mastery.loadout / mastery.respec) — this menu just re-fetches and rebuilds.
+## mastery.loadout / mastery.respec) - this menu just re-fetches and rebuilds.
 
 const BRANCHES: Array[StringName] = [&"domination", &"resolve", &"inspiration"]
 ## Input labels per special-slot position (slot 1 = player_special, 2 = _special_2).
@@ -117,7 +117,7 @@ func _rebuild() -> void:
 	if tree != null and not tree.display_name.is_empty():
 		display = tree.display_name
 
-	set_title("%s Mastery%s" % [display, (" · Lv %d" % level) if level > 0 else ""])
+	set_title("%s Mastery%s" % [display, (" - Lv %d" % level) if level > 0 else ""])
 	_points_label.text = ("%d point%s" % [points, "" if points == 1 else "s"]) if points > 0 else ""
 
 	var root_box: VBoxContainer = VBoxContainer.new()
@@ -192,7 +192,7 @@ func _make_branch_panel(branch: StringName, tree: MasteryTreeResource, info: Dic
 
 	# The node area fills the rest of the panel; chain columns sit at the BOTTOM
 	# and grow upward (tier 1 on the bottom row), so a tree reads as built from its
-	# foundation up. No scroll for now — alpha trees are shallow (<= 4 deep).
+	# foundation up. No scroll for now - alpha trees are shallow (<= 4 deep).
 	var area: HBoxContainer = HBoxContainer.new()
 	area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	area.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -234,7 +234,7 @@ func _make_chain_column(group: Array, tree: MasteryTreeResource, info: Dictionar
 	# however deep the chain runs.
 	col.size_flags_vertical = Control.SIZE_SHRINK_END
 	col.add_theme_constant_override(&"separation", 0)
-	# Highest tier first (top) down to tier 1 (bottom) — the tree builds upward.
+	# Highest tier first (top) down to tier 1 (bottom) - the tree builds upward.
 	for i: int in range(group.size() - 1, -1, -1):
 		col.add_child(_make_tile(group[i] as MasteryNode, tree, info, color))
 		if i > 0:
@@ -351,7 +351,7 @@ func _select_node(node_id: String) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Detail panel (pinned) — the selected node's full readout + its action.
+# Detail panel (pinned) - the selected node's full readout + its action.
 # ---------------------------------------------------------------------------
 
 func _make_detail_panel(tree: MasteryTreeResource, info: Dictionary) -> Control:
@@ -384,9 +384,9 @@ func _make_detail_panel(tree: MasteryTreeResource, info: Dictionary) -> Control:
 
 	var name_label: Label = Label.new()
 	if node.ability != null:
-		name_label.text = "%s   ·   Power %d" % [node.node_name, node.tier]
+		name_label.text = "%s   -   Power %d" % [node.node_name, node.tier]
 	else:
-		name_label.text = "%s   ·   Passive" % node.node_name
+		name_label.text = "%s   -   Passive" % node.node_name
 	name_label.add_theme_font_size_override(&"font_size", 16)
 	name_label.add_theme_color_override(&"font_color", Color(1.0, 0.95, 0.78))
 	text_box.add_child(name_label)
@@ -405,7 +405,7 @@ func _make_detail_panel(tree: MasteryTreeResource, info: Dictionary) -> Control:
 		parts.append("%s cooldown" % _fmt_cooldown(node.ability.cooldown))
 		if node.ability.mana_cost > 0:
 			parts.append("%d mana" % node.ability.mana_cost)
-		meta_label.text = "   ·   ".join(parts)
+		meta_label.text = "   -   ".join(parts)
 		meta_label.add_theme_color_override(&"font_color", Color(0.85, 0.78, 0.55))
 	else:
 		meta_label.text = _passive_bonus_text(node)
@@ -519,7 +519,7 @@ func _open_slot_picker(node_id: String) -> void:
 		var occupant: String = "empty"
 		if not occ_id.is_empty():
 			occupant = "%s (Power %d)" % [_node_display_name(occ_id), _node_power(occ_id)]
-		entries.append("Slot %d (%s)  ·  %s" % [i + 1, SLOT_KEYS[i], occupant])
+		entries.append("Slot %d (%s)  -  %s" % [i + 1, SLOT_KEYS[i], occupant])
 	var title: String = "Place %s (Power %d) on which slot?" % [_node_display_name(node_id), _node_power(node_id)]
 	var cap: int = _wielded_capacity()
 	if cap >= 0:
@@ -677,7 +677,7 @@ func _loadout_power_used(picks: Array, tree: MasteryTreeResource) -> int:
 
 
 ## True when the LOCAL player's wielded weapon is this category but can't channel
-## the node's weight — a UI hint only; the server re-checks anyway.
+## the node's weight - a UI hint only; the server re-checks anyway.
 func _too_heavy_for_wielded(node: MasteryNode) -> bool:
 	if ClientState.local_player == null:
 		return false

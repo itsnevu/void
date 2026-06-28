@@ -19,7 +19,7 @@ const KEY_CHAR_ID: String = "c-id"
 const KEY_CLIENT_VERSION: String = "c-v"
 
 
-## Auth/gateway error codes (server → client). Kept here so client and server
+## Auth/gateway error codes (server -> client). Kept here so client and server
 ## agree on the numbers; the client maps them to localized text in GatewayError.
 ## Anything not listed falls back to a generic "please try again" on the client.
 const ERR_GENERIC: int = 1
@@ -51,7 +51,7 @@ static func base_url() -> String:
 	# On web, ONE build serves both local testing and production: if the page is
 	# served from localhost we talk to the local gateway (so you can test the real
 	# Phantom flow on your machine), otherwise the live gateway. This avoids a
-	# separate "local web" export — the page's own origin decides.
+	# separate "local web" export - the page's own origin decides.
 	if OS.has_feature("web"):
 		var host: String = str(JavaScriptBridge.eval("window.location.hostname", true))
 		if host == "localhost" or host == "127.0.0.1" or host.is_empty():

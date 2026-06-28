@@ -2,7 +2,7 @@ class_name PasswordHasher
 
 ## Salted, key-stretched password hashing for account storage. GDScript has no
 ## built-in bcrypt/Argon2, so this is iterated SHA-256 with a per-account random
-## salt — vastly better than plaintext and good enough for alpha. The stored
+## salt - vastly better than plaintext and good enough for alpha. The stored
 ## string is self-describing ("sha256$<iters>$<salt_b64>$<hash_b64>"), so the
 ## iteration count can be raised later without breaking existing hashes.
 

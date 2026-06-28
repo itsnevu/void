@@ -1,13 +1,13 @@
 class_name ChannelInstance
 extends Node
 ## Server-side runtime for ONE active channel (see [ChannelAbility]). Lives as a
-## child of the caster — so it dies with them, DamageOverTime-style — ticks the
+## child of the caster - so it dies with them, DamageOverTime-style - ticks the
 ## ability's effect on a Timer, and pushes channel.start / channel.end so every
 ## nearby client can render (and the caster's client can root + watch for a
 ## move-cancel).
 ##
 ## Ends by: full duration (fires the ability's completion payoff), the caster
-## moving (the client sends a channel.cancel request → [method cancel]), death,
+## moving (the client sends a channel.cancel request -> [method cancel]), death,
 ## mana-out, or a fresh channel replacing it. Server-only; frees itself on end.
 
 var ability: ChannelAbility
@@ -15,7 +15,7 @@ var caster: Character
 
 var _elapsed: float = 0.0
 var _ended: bool = false
-## Caster's combat timer at channel start — if a later tick sees it bumped, a hit
+## Caster's combat timer at channel start - if a later tick sees it bumped, a hit
 ## landed during the channel (cancel_on_damage abilities like recall bail out).
 var _start_combat_until: int = 0
 
@@ -46,11 +46,11 @@ func _on_tick() -> void:
 		cancel()
 		return
 	# Anti-combat (recall): a fresh hit since the channel began bumps the combat
-	# timer past where it started — bail out.
+	# timer past where it started - bail out.
 	if ability.cancel_on_damage and caster.combat_until_ms > _start_combat_until:
 		cancel()
 		return
-	# Optional per-tick mana cost — running dry ends the channel.
+	# Optional per-tick mana cost - running dry ends the channel.
 	if ability.mana_per_tick > 0.0:
 		var mana: float = caster.stats_component.get_stat(Stat.MANA)
 		if mana < ability.mana_per_tick:
@@ -63,7 +63,7 @@ func _on_tick() -> void:
 		_complete()
 
 
-## Reached full duration — fire the payoff. Push channel.end FIRST: the payoff
+## Reached full duration - fire the payoff. Push channel.end FIRST: the payoff
 ## (recall) may teleport the caster out of this instance, after which the
 ## instance-scoped push could no longer reach their client to clear the cast
 ## bar / root.
@@ -96,8 +96,8 @@ func _peer_id() -> int:
 	return 0
 
 
-## Push to every client in the caster's instance. Walk caster → Map → Instance
-## for the instance name (the same trick as Character._broadcast_hit_feedback —
+## Push to every client in the caster's instance. Walk caster -> Map -> Instance
+## for the instance name (the same trick as Character._broadcast_hit_feedback -
 ## common-side code mustn't import the server-only ServerInstance type).
 func _push(topic: StringName, payload: Dictionary) -> void:
 	if WorldServer.curr == null or not is_instance_valid(caster):

@@ -16,14 +16,14 @@ func data_request_handler(
 	if not player:
 		return {}
 	# The hand item's abilities are locked mid-cast (the equip-cast). Refuse so a fast
-	# swap can't act mid-draw. (Whatever's in hand — weapon or potion — fires its own
+	# swap can't act mid-draw. (Whatever's in hand - weapon or potion - fires its own
 	# abilities[0] through this same path once the draw lands.)
 	if player.is_equip_casting():
 		return {}
 
 	var action_index: int = args.get("i", 0)
 	if action_index < 0:
-		return {} # negative indices would wrap weapon ability arrays — reject early
+		return {} # negative indices would wrap weapon ability arrays - reject early
 	var action_direction: Vector2 = args.get("d", Vector2.ZERO)
 	# "r" marks the RELEASE phase of a two-phase (charge) ability.
 	var released: bool = bool(args.get("r", false))

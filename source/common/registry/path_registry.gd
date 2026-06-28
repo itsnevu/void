@@ -19,9 +19,9 @@ static func _static_init() -> void:
 	register_field(":flipped", Wire.Type.BOOL)
 	register_field(":anim", Wire.Type.VARIANT)
 	register_field(":pivot", Wire.Type.F32)
-	# Seated/resting pose — replicated so other players see you sitting.
+	# Seated/resting pose - replicated so other players see you sitting.
 	register_field(":sitting", Wire.Type.BOOL)
-	# Spectator fireball form — replicated so other players see the fireball too.
+	# Spectator fireball form - replicated so other players see the fireball too.
 	register_field(":spectator", Wire.Type.BOOL)
 
 	register_field(":scale", Wire.Type.VEC2_F32)

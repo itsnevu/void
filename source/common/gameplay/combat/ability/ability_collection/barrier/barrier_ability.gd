@@ -1,7 +1,7 @@
 class_name BarrierAbility
 extends AbilityResource
 ## Conjures a temporary [Barrier] (projectile wall) a short distance ahead of
-## the caster, facing the way they aim. Generic — future barriers (ice wall,
+## the caster, facing the way they aim. Generic - future barriers (ice wall,
 ## stone shield, ...) just retune the exports + the Barrier colors.
 ##
 ## Runs on EVERY peer (no is_world_server gate): the server's wall blocks the
@@ -15,7 +15,7 @@ extends AbilityResource
 ## Wall span (perpendicular to aim) and depth (along aim).
 @export var length: float = 64.0
 @export var thickness: float = 10.0
-## Seconds the wall persists. Short by design — "blocks a few volleys", not a
+## Seconds the wall persists. Short by design - "blocks a few volleys", not a
 ## permanent fort.
 @export var duration_s: float = 3.0
 ## Damage the wall absorbs before shattering (overflow punches through). 0 =

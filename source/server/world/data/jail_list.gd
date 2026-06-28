@@ -3,7 +3,7 @@ class_name JailList
 ##
 ## Jail = the player is locked into a dedicated "jail" instance and can't
 ## traverse warpers out. DMs and same-instance chat still work, so they can
-## still talk to friends or to other jailed players sharing the cell — handy
+## still talk to friends or to other jailed players sharing the cell - handy
 ## for low-level infractions where a full ban is overkill.
 ##
 ## Keyed by account_name (the stable handle) so a jailed player can't escape by

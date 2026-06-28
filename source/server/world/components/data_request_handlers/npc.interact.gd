@@ -1,7 +1,7 @@
 extends DataRequestHandler
 ## Fired when a player opens an NPC's interactions (i.e. talks to it). Advances any
 ## VISIT quest objective that targets this giver, so a "talk to NPC X" quest
-## completes on conversation — not only when the player drills into the Quests
+## completes on conversation - not only when the player drills into the Quests
 ## sub-menu. No-op (still ok) for NPCs that aren't quest givers in this map.
 
 

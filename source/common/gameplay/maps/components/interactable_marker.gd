@@ -3,18 +3,18 @@ class_name InteractableMarker
 extends Node2D
 ## Floats a small pixel-art EMOTE above a world-space interactable (NPC, shop
 ## counter, mineable node, warper, ...) so the player can tell at a glance what the
-## spot offers. Purely decorative — instance the scene as a child and set `kind`.
+## spot offers. Purely decorative - instance the scene as a child and set `kind`.
 ##
 ## Runs in @tool mode so changing `kind` previews live in the editor (the idle bob
 ## is skipped there so the marker stays put while you position it).
 ##
-## Emotes are pixel-art PNGs (assets/sprites/gui/emotes) — they render crisply on
+## Emotes are pixel-art PNGs (assets/sprites/gui/emotes) - they render crisply on
 ## web, unlike the emoji we started with, and read better than the big text label
-## they replaced. The kind→emote map below is just data; re-point it freely.
+## they replaced. The kind->emote map below is just data; re-point it freely.
 
 enum Kind {
-	QUEST_AVAILABLE, ## "!" — NPC has an acceptable quest
-	QUEST_TURN_IN,   ## "?" — NPC has a ready turn-in
+	QUEST_AVAILABLE, ## "!" - NPC has an acceptable quest
+	QUEST_TURN_IN,   ## "?" - NPC has a ready turn-in
 	SHOP,            ## buy / sell vendor
 	CRAFT,           ## crafting station (forge / loom / ...)
 	DIALOG,          ## generic talkable NPC
@@ -22,7 +22,7 @@ enum Kind {
 }
 
 const _EMOTE_DIR: String = "res://assets/sprites/gui/emotes/"
-## Kind → emote file. Pure data — swap any of these for another emote freely.
+## Kind -> emote file. Pure data - swap any of these for another emote freely.
 const _EMOTES: Dictionary = {
 	Kind.QUEST_AVAILABLE: "emote_exclamation.png",
 	Kind.QUEST_TURN_IN: "emote_question.png",

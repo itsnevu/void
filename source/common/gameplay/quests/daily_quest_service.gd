@@ -3,12 +3,12 @@ class_name DailyQuestService
 ## static; state lives on PlayerResource (daily_quests + dailies_refresh_at_ms).
 ##
 ## Flow:
-##   - Player clicks the QuestBoard → quest.board.info handler.
-##   - Service checks if dailies_refresh_at_ms <= now → if yes, reroll.
+##   - Player clicks the QuestBoard -> quest.board.info handler.
+##   - Service checks if dailies_refresh_at_ms <= now -> if yes, reroll.
 ##   - Returns 3 daily descriptors with progress + claimable flag.
-##   - Player kills a mob / picks up an item → on_kill / on_collect_changed
+##   - Player kills a mob / picks up an item -> on_kill / on_collect_changed
 ##     bump matching daily counters.
-##   - Player clicks Claim on a complete daily → quest.board.claim → reward.
+##   - Player clicks Claim on a complete daily -> quest.board.claim -> reward.
 
 const POOL_PATH: String = "res://source/common/gameplay/quests/resources/daily_pool.tres"
 const DAILY_COUNT: int = 3

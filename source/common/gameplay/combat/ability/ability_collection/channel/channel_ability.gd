@@ -5,8 +5,8 @@ extends AbilityResource
 ## channel_duration_s], (b) the caster moves (the client sends channel.cancel),
 ## (c) the caster dies, or (d) runs out of mana ([member mana_per_tick] > 0).
 ##
-## The generic machinery — tick Timer, cancel paths, the server→client
-## channel.start / channel.end push — lives in [ChannelInstance]. Subclasses
+## The generic machinery - tick Timer, cancel paths, the server->client
+## channel.start / channel.end push - lives in [ChannelInstance]. Subclasses
 ## override [method channel_tick] (the per-tick effect) and [method
 ## channel_complete] (a one-shot payoff that fires ONLY if the channel runs the
 ## full duration uninterrupted, e.g. a recall teleport).
@@ -19,15 +19,15 @@ extends AbilityResource
 @export var channel_duration_s: float = 6.0
 ## Seconds between effect ticks (also the heal-number / mana-drain cadence).
 @export var tick_interval_s: float = 1.0
-## Effect radius (heal-aura reach, ...) — also sizes the client aura visual.
+## Effect radius (heal-aura reach, ...) - also sizes the client aura visual.
 @export var radius: float = 60.0
 ## Mana drained per tick. 0 = free; > 0 self-limits the channel (running dry
 ## cancels it) and is the cleaner cost for a sustained channel than an upfront lump.
 @export var mana_per_tick: float = 0.0
 ## If true, taking a hit during the channel cancels it (recall's anti-combat rule).
-## The healing aura leaves this false — its vulnerability is the root, not damage.
+## The healing aura leaves this false - its vulnerability is the root, not damage.
 @export var cancel_on_damage: bool = false
-## Client-visual selector sent in channel.start — the client maps it to a look
+## Client-visual selector sent in channel.start - the client maps it to a look
 ## (&"heal_aura" = green ground ring). A new channel adds a new kind + visual.
 @export var visual_kind: StringName = &"heal_aura"
 
@@ -37,7 +37,7 @@ func use_ability(user: Entity, _direction: Vector2) -> void:
 	if not GameMode.is_world_server() or user is not Character:
 		return
 	var caster: Character = user as Character
-	# One channel per caster — clear any previous before starting a new one.
+	# One channel per caster - clear any previous before starting a new one.
 	var existing: ChannelInstance = caster.get_node_or_null(^"ChannelInstance") as ChannelInstance
 	if existing != null:
 		existing.cancel()

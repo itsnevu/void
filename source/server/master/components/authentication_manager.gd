@@ -6,7 +6,7 @@ var account_collection: AccountResourceCollection
 ## Production path (writable). In an exported build res:// is read-only, so
 ## ResourceSaver.save() against res:// silently fails and accounts can't
 ## persist. Mirrors the world-db split: editor reads/writes res://, exports
-## live under user://. NO seed fallback — production starts blank by design,
+## live under user://. NO seed fallback - production starts blank by design,
 ## dev/debug accounts never leak into the live environment.
 var account_collection_path: String:
 	get:
@@ -21,7 +21,7 @@ func _ready() -> void:
 	load_account_collection()
 
 
-# Cryptographically-secure random token (256 bits, hex-encoded → 64 chars). Used
+# Cryptographically-secure random token (256 bits, hex-encoded -> 64 chars). Used
 # for world-handoff auth tokens and guest passwords; both need to be unguessable.
 func generate_random_token() -> String:
 	return Crypto.new().generate_random_bytes(32).hex_encode()
@@ -38,7 +38,7 @@ func create_account(username: String, password: String, is_guest: bool) -> Accou
 	if is_guest:
 		username = "guest%d" % account_id
 		password = generate_random_token()
-	# Store only a salted, key-stretched hash — never the plaintext password.
+	# Store only a salted, key-stretched hash - never the plaintext password.
 	var new_account: AccountResource = AccountResource.new()
 	new_account.init(account_id, username, PasswordHasher.hash_password(password))
 	account_collection.collection[username] = new_account
@@ -82,7 +82,7 @@ func validate_credentials(username: String, password: String) -> AccountResource
 const NONCE_TTL_SECONDS: int = 300
 
 
-## A Solana address is a base58-encoded 32-byte ed25519 public key — 32-44 chars,
+## A Solana address is a base58-encoded 32-byte ed25519 public key - 32-44 chars,
 ## base58 alphabet (no 0 O I l). Cheap sanity gate before we touch the account store.
 static func is_plausible_wallet_address(address: String) -> bool:
 	if address.length() < 32 or address.length() > 44:
@@ -94,14 +94,14 @@ static func is_plausible_wallet_address(address: String) -> bool:
 	return true
 
 
-## The wallet pubkey IS the account identity (stored as `username`, exact case — base58
+## The wallet pubkey IS the account identity (stored as `username`, exact case - base58
 ## is case-sensitive, so never lowercase it). Auto-creates on first sign-in.
 func get_or_create_wallet_account(wallet_address: String) -> AccountResource:
 	if account_collection.collection.has(wallet_address):
 		return account_collection.collection[wallet_address]
 	var account_id: int = account_collection.get_new_account_id()
 	var account: AccountResource = AccountResource.new()
-	account.init(account_id, wallet_address, "")  # no password — wallet-only
+	account.init(account_id, wallet_address, "")  # no password - wallet-only
 	account.wallet_address = wallet_address
 	account_collection.collection[wallet_address] = account
 	save_account_collection()

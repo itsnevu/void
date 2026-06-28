@@ -1,6 +1,6 @@
 class_name RewardService
-## Distributes a mob kill's rewards — XP, loot, weapon-mastery XP, quest + daily
-## progress, basing glory, the PvE leaderboard, and level-milestone unlocks — to
+## Distributes a mob kill's rewards - XP, loot, weapon-mastery XP, quest + daily
+## progress, basing glory, the PvE leaderboard, and level-milestone unlocks - to
 ## EVERY player who meaningfully damaged the mob, not just the last hitter. Lifted
 ## out of HostileNpc so the mob class stays "AI + combat": overworld mobs, dungeon
 ## bosses, and world bosses all reward through here. A mob with no xp_reward AND no
@@ -18,7 +18,7 @@ static func distribute(npc: HostileNpc, contributors: Dictionary, killer: Charac
 	if not GameMode.is_world_server():
 		return
 	if npc.xp_reward <= 0 and (npc.loot == null or npc.loot.is_empty()):
-		return # nothing to give (a shadow mob) — don't even resolve players
+		return # nothing to give (a shadow mob) - don't even resolve players
 	var threshold: float = npc.stats_component.get_stat(Stat.HEALTH_MAX) * MIN_DAMAGE_FRACTION
 	var killer_peer: int = -1
 	if killer is Player and (killer as Player).player_resource != null:
@@ -38,7 +38,7 @@ static func distribute(npc: HostileNpc, contributors: Dictionary, killer: Charac
 
 
 ## The live Player for a peer (null if they logged off / left), via its current
-## instance — same lookup quest scoping uses.
+## instance - same lookup quest scoping uses.
 static func _resolve_player(peer_id: int) -> Player:
 	if WorldServer.curr == null:
 		return null

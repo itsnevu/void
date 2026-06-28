@@ -11,7 +11,7 @@ const ATTRIBUTE_POINTS_PER_LEVEL: int = 3
 const MAX_LEVEL: int = 20
 
 ## Guaranteed power gained EVERY level, independent of how you spend attribute
-## points — so leveling matters even for a player who hoards their points. These
+## points - so leveling matters even for a player who hoards their points. These
 ## are flat per-level grants folded into the live stats at spawn (see
 ## instance_server.setup_new_player / level_bonus_stats). Tuned small so attributes
 ## + gear stay the bigger levers: at level 20 this is +152 HP and +19 AD.
@@ -38,7 +38,7 @@ const BASE_STATS: Dictionary[StringName, float] = {
 	Stat.MANA_MAX: 50.0,
 	Stat.MANA_REGEN: 0.5,
 	# Stamina gates PHYSICAL abilities (melee swings, charge shots). Bigger pool +
-	# faster regen than mana — martial kits spend it often, casters lean on mana.
+	# faster regen than mana - martial kits spend it often, casters lean on mana.
 	Stat.ENERGY_MAX: 100.0,
 	Stat.ENERGY_REGEN: 8.0,
 	Stat.MOVE_SPEED: 90.0,
@@ -97,7 +97,7 @@ const BASE_STATS: Dictionary[StringName, float] = {
 
 ## Per-player block list. When X has Y in here, the server suppresses every
 ## chat message Y produces (DM / world / guild / overhead bubbles) from
-## reaching X's client. Asymmetric — Y never knows. Mirrors how friends is
+## reaching X's client. Asymmetric - Y never knows. Mirrors how friends is
 ## persisted (JSON column on the players row, see world_store_sqlite.gd).
 @export var blocked_ids: PackedInt64Array
 
@@ -118,11 +118,11 @@ const BASE_STATS: Dictionary[StringName, float] = {
 @export var titles_unlocked: PackedStringArray
 ## Currently active title (shown on profile under display_name). Empty = no
 ## title displayed. Auto-set to a newly-granted title only if no title is
-## currently active — so players don't lose their chosen banner.
+## currently active - so players don't lose their chosen banner.
 @export var display_title: String
 ## Up to 3 trophies the player pins to their profile's right-side chip strip.
 ## Each entry must also be in titles_unlocked. Separate from display_title (the
-## one shown under their name) — these are the "achievement flex" picks.
+## one shown under their name) - these are the "achievement flex" picks.
 @export var displayed_trophies: PackedStringArray
 
 ## Daily quest board state: the 3 rolled quests for today and when they expire.
@@ -139,7 +139,7 @@ const BASE_STATS: Dictionary[StringName, float] = {
 @export var dungeon_lockouts: Dictionary = {}
 
 ## Redeem codes this character has already claimed (upper-cased code strings).
-## Per-character by design — see docs/redeem_codes.md. Persisted as
+## Per-character by design - see docs/redeem_codes.md. Persisted as
 ## redeemed_codes_json. Stops re-claiming the same code on this character.
 @export var redeemed_codes: PackedStringArray
 
@@ -155,23 +155,23 @@ var current_peer_id: int
 
 ## Server-side runtime stamp of when the current session began (Time.get_ticks_msec).
 ## Set on auth, consumed at disconnect to bump lb_stats["played_seconds"]. Not
-## persisted — each session starts fresh.
+## persisted - each session starts fresh.
 var session_start_ms: int = 0
 
 ## True while the player is in a sparring match. Bypasses the zone PvP check
-## in projectile/melee damage. Server-side runtime only — not persisted; if a
+## in projectile/melee damage. Server-side runtime only - not persisted; if a
 ## player disconnects mid-match, SparringService ends the match cleanly so
 ## this never lingers across sessions.
 var in_match: bool = false
 
 var stats: Dictionary
 
-## Live timed stat buffs ({stat, amount, expires_ms} — see BuffService). Runtime
+## Live timed stat buffs ({stat, amount, expires_ms} - see BuffService). Runtime
 ## only on purpose: survives instance changes within a session, gone on logout.
 var active_buffs: Array[Dictionary] = []
 
 ## Mastery passive modifiers currently applied to live stats ({stat, value}).
-## Runtime only — rebuilt by MasteryService.refresh on spawn and weapon swaps.
+## Runtime only - rebuilt by MasteryService.refresh on spawn and weapon swaps.
 var applied_mastery_passives: Array[Dictionary] = []
 
 ## Per-node gather cooldowns (node_id -> next-ready time in ms). Runtime only, not persisted.
@@ -211,17 +211,17 @@ func level_bonus_stats() -> Dictionary[StringName, float]:
 	}
 
 
-## Character xp to advance a level: one clean linear-incremental curve — level N
-## costs N × this. It's already super-linear, so each level is harder than the
-## last (19→20 needs ~19× the first level) and the late game gets meaty on its
-## own — no breakpoints or special-casing. Shape the PACING via xp SOURCES (quest
+## Character xp to advance a level: one clean linear-incremental curve - level N
+## costs N x this. It's already super-linear, so each level is harder than the
+## last (19->20 needs ~19x the first level) and the late game gets meaty on its
+## own - no breakpoints or special-casing. Shape the PACING via xp SOURCES (quest
 ## rewards + mob xp), which is the honest, flexible lever. Total to cap (20) with
-## base 70 ≈ 13,300.
+## base 70 ~ 13,300.
 const LEVEL_XP_BASE: int = 70
 
 
 func level_xp_to_next() -> int:
-	# At the cap there's no "next" — return 0 so the HUD can render a MAX bar
+	# At the cap there's no "next" - return 0 so the HUD can render a MAX bar
 	# instead of an unreachable threshold.
 	if level >= MAX_LEVEL:
 		return 0
@@ -276,7 +276,7 @@ func set_quest_ready_notified(quest_id: int, value: bool) -> void:
 ## "at_max" is true once the character is at MAX_LEVEL; "reached_max" is true ONLY
 ## on the call that first crosses it (so the capstone reward fires exactly once).
 func add_experience(amount: int) -> Dictionary:
-	# Already capped: don't pool xp — keep the bar pinned full and report nothing
+	# Already capped: don't pool xp - keep the bar pinned full and report nothing
 	# gained. reached_max stays false (the cap was already passed on an earlier call).
 	if level >= MAX_LEVEL:
 		experience = 0
@@ -348,7 +348,7 @@ func add_skill_xp(skill_name: StringName, amount: int) -> Dictionary:
 
 ## Baseline xp to advance a weapon-mastery level (scales linearly, like skills).
 const MASTERY_XP_BASE: int = 150
-## 1 mastery point per level, so the cap is also the full point budget — tree
+## 1 mastery point per level, so the cap is also the full point budget - tree
 ## content is sized so total node cost == cap (see docs/mastery.md).
 const MASTERY_LEVEL_CAP: int = 10
 
@@ -367,7 +367,7 @@ func mastery_xp_to_next(mastery_level: int) -> int:
 
 ## Adds weapon-mastery xp to a category, applying level-ups (frozen at the
 ## cap). Returns {"category", "level", "xp", "xp_to_next", "leveled_up",
-## "started"} so the kill-reward push can report progress to the client —
+## "started"} so the kill-reward push can report progress to the client -
 ## "started" marks the very first practice (entry creation at level 1), which
 ## deserves its own toast even though no level-UP happened.
 func add_mastery_xp(category: StringName, amount: int) -> Dictionary:

@@ -1,13 +1,13 @@
 class_name GroupService
-## Runtime-only, session-scoped co-op GROUPS — the third allegiance context after
+## Runtime-only, session-scoped co-op GROUPS - the third allegiance context after
 ## guild (open world) and spar teams. A group exists ONLY for a co-op instance (a
 ## dungeon run): formed at the entrance, dissolved on exit, never persisted.
-## Groupmates are allies (CombatHit.are_allied) regardless of guild — the whole
+## Groupmates are allies (CombatHit.are_allied) regardless of guild - the whole
 ## point of cross-guild co-op, and what keeps the open world cleanly guild-only.
 ##
 ## This layer is just membership + the allegiance query + the client tint sync.
 ## Dungeon lifecycle (private instance, modes, scaling, rewards, lockouts) rides
-## ON TOP of it later — see docs/dungeons.md. Server-authoritative state; clients
+## ON TOP of it later - see docs/dungeons.md. Server-authoritative state; clients
 ## mirror only the roster (for health-bar tint) via the group.roster push.
 
 # group_id -> { "members": Array[int] (peer ids), "leader": int }
@@ -24,7 +24,7 @@ static var _pending_invites: Dictionary[int, int] = {}
 
 
 ## THE co-op allegiance check (used by CombatHit.are_allied): true only when both
-## peers sit in the SAME group. Server-side — on a client _peer_to_group is empty,
+## peers sit in the SAME group. Server-side - on a client _peer_to_group is empty,
 ## so this is false there (the client uses the synced roster for tint instead).
 static func are_grouped(peer_a: int, peer_b: int) -> bool:
 	if peer_a <= 0 or peer_b <= 0:
@@ -98,7 +98,7 @@ static func accept(invitee_peer: int) -> int:
 
 
 ## Remove one peer (left the run for good). Dissolves the group when the last
-## member goes. A crash/disconnect that intends to rejoin should NOT call this —
+## member goes. A crash/disconnect that intends to rejoin should NOT call this -
 ## the seat stays so they can re-enter the live instance. Server-only.
 static func leave(peer_id: int) -> void:
 	var group_id: int = _peer_to_group.get(peer_id, 0)
@@ -125,14 +125,14 @@ static func _detach(peer_id: int) -> void:
 	if group_id == 0:
 		return
 	_peer_to_group.erase(peer_id)
-	var members: Array = members_of(group_id) # the stored ref — mutate in place
+	var members: Array = members_of(group_id) # the stored ref - mutate in place
 	var idx: int = members.find(peer_id)
 	if idx != -1:
 		members.remove_at(idx)
 
 
 ## Push every member their groupmate peer list for the ally health-bar tint
-## (client mirror) — per-peer, the same data_push the rest of the game uses.
+## (client mirror) - per-peer, the same data_push the rest of the game uses.
 static func _broadcast_roster(group_id: int) -> void:
 	var members: Array = members_of(group_id)
 	for peer: int in members:
@@ -142,8 +142,8 @@ static func _broadcast_roster(group_id: int) -> void:
 static func _push_roster_to(peer_id: int, members: Array) -> void:
 	if WorldServer.curr == null:
 		return
-	# Skip a peer that's already gone from the network table — a disconnecting
-	# player triggers leave()→here, but they've left get_peers() by the time the
+	# Skip a peer that's already gone from the network table - a disconnecting
+	# player triggers leave()->here, but they've left get_peers() by the time the
 	# peer_disconnected signal fires, so the RPC would throw "unknown peer ID".
 	var mp: MultiplayerAPI = WorldServer.curr.multiplayer
 	if mp == null or not mp.has_multiplayer_peer() or peer_id not in mp.get_peers():

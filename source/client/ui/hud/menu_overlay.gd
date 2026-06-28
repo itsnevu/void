@@ -3,10 +3,10 @@ extends Control
 ## and routed through ClientState signals so it stays decoupled from the HUD script. A dim backdrop
 ## catches click-away taps. Opens/closes with a slide + fade (see open/close).
 ##
-## SCALES by design — a 4-wide tile grid holds many menus where the old vertical text list ran out of
+## SCALES by design - a 4-wide tile grid holds many menus where the old vertical text list ran out of
 ## height, and a ScrollContainer absorbs overflow. To ADD a menu: an entry below (label + the menu
 ## folder under ui/menus/) + its menu scene, and drop a `<label>.png` (lowercased) into
-## assets/sprites/ui/menu_icons/ — it auto-loads as the tile icon (see _make_tile). No PNG = label-only.
+## assets/sprites/ui/menu_icons/ - it auto-loads as the tile icon (see _make_tile). No PNG = label-only.
 
 ## All launcher tiles in ONE ordered list, GROUPED into rows of 4 by category (You / Social / World /
 ## Other) so each grid row reads as one category. Each entry: a label, and the menu folder under
@@ -37,10 +37,10 @@ const MENU_ENTRIES: Array[Dictionary] = [
 	{"label": "Settings",    "menu": "settings"},
 ]
 
-## Tiles per row — 4, Genshin-style. Tiles are sized for TOUCH (mobile).
+## Tiles per row - 4, Genshin-style. Tiles are sized for TOUCH (mobile).
 const GRID_COLUMNS: int = 4
 
-## Icon style folder — flip between the flat and drop-shadow sets (both kept in-project) by changing
+## Icon style folder - flip between the flat and drop-shadow sets (both kept in-project) by changing
 ## this one line: "res://assets/sprites/ui/menu_icons/" (flat) or ".../menu_icons_shadow/" (shadow).
 const ICON_DIR: String = "res://assets/sprites/ui/menu_icons_shadow/"
 
@@ -55,7 +55,7 @@ var _panel: Control
 var _tween: Tween
 # The Mail tile's label, captured at build so open() can badge it with the unread count.
 var _mail_label: Label
-# Semi-transparent tile backgrounds (built once, shared) — they blend with the see-through panel;
+# Semi-transparent tile backgrounds (built once, shared) - they blend with the see-through panel;
 # hover/pressed brighten for feedback.
 var _tile_normal: StyleBoxFlat
 var _tile_hover: StyleBoxFlat
@@ -70,7 +70,7 @@ func _ready() -> void:
 func _build() -> void:
 	_build_tile_styles()
 
-	# Dim backdrop — a tap outside the panel closes it + the game underneath doesn't get the click.
+	# Dim backdrop - a tap outside the panel closes it + the game underneath doesn't get the click.
 	var dim: ColorRect = ColorRect.new()
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	dim.color = Color(0.04, 0.05, 0.08, 0.5)
@@ -119,7 +119,7 @@ func _build() -> void:
 	vbox.add_theme_constant_override(&"separation", 8)
 	margin.add_child(vbox)
 
-	# No title — the icon tiles speak for themselves. Scrollable so the grid never overflows.
+	# No title - the icon tiles speak for themselves. Scrollable so the grid never overflows.
 	var scroll: ScrollContainer = ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -146,7 +146,7 @@ func _build() -> void:
 	close_button.pressed.connect(close)
 	vbox.add_child(close_button)
 
-	# Leave Game — drop the world connection and return to the title screen. Two-tap
+	# Leave Game - drop the world connection and return to the title screen. Two-tap
 	# confirm so a stray click in the menu can't yeet you out of the game.
 	var leave_button: Button = Button.new()
 	leave_button.text = "Leave Game"
@@ -179,7 +179,7 @@ func _tile_box(c: Color) -> StyleBoxFlat:
 
 
 ## One menu tile, Genshin-style: a pixel-art icon up top, a bottom-pinned label. The icon is a direct,
-## mouse-ignored child (NOT in a container) so we can pin its GLOBAL position to whole pixels — THE fix
+## mouse-ignored child (NOT in a container) so we can pin its GLOBAL position to whole pixels - THE fix
 ## for the sub-pixel artifact: container centering / KEEP_CENTERED park the texture on a half-pixel,
 ## which nearest-samples into uneven rows even at 1:1. A dev filler (no "menu" key) toasts "coming soon".
 func _make_tile(entry: Dictionary) -> Button:
@@ -209,10 +209,10 @@ func _make_tile(entry: Dictionary) -> Button:
 	label.offset_bottom = -8.0
 	tile.add_child(label)
 
-	# Icon: NEAREST pixel art at NATIVE size (the codebase's crisp-pixel convention — see
+	# Icon: NEAREST pixel art at NATIVE size (the codebase's crisp-pixel convention - see
 	# wardrobe_menu/territory_flag), centered MANUALLY on WHOLE global pixels. Re-pinned whenever the
 	# tile's rect changes (layout/resize); the open-slide only knocks it off-grid mid-animation, after
-	# which it lands back on whole pixels — crisp. This is what kills the half-pixel sampling at 1:1.
+	# which it lands back on whole pixels - crisp. This is what kills the half-pixel sampling at 1:1.
 	var icon_path: String = str(entry.get("icon", ""))
 	if icon_path.is_empty():
 		icon_path = ICON_DIR + str(entry["label"]).to_lower() + ".png"
@@ -233,7 +233,7 @@ func _make_tile(entry: Dictionary) -> Button:
 
 	if entry.has("menu"):
 		tile.pressed.connect(_on_entry_pressed.bind(str(entry["menu"])))
-	else: # dev-only filler — no real menu behind it
+	else: # dev-only filler - no real menu behind it
 		tile.pressed.connect(func() -> void: Toaster.toast("Coming soon", 1.5))
 	return tile
 
@@ -291,7 +291,7 @@ func close() -> void:
 
 ## Fetch the unread-mail count and badge the Mail tile ("Mail (N)" / "Mail").
 ## Called on each launcher open, so the badge stays fresh without any login/push
-## wiring — opening a mail closes the launcher, and reopening it re-fetches.
+## wiring - opening a mail closes the launcher, and reopening it re-fetches.
 func _refresh_mail_badge() -> void:
 	if _mail_label == null or InstanceClient.current == null:
 		return

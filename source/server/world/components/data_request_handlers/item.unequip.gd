@@ -20,14 +20,14 @@ func data_request_handler(
 	if item_id <= 0:
 		return {"ok": false}
 
-	# Same combat lock as equipping — armor/rings stay put mid-fight, but the
+	# Same combat lock as equipping - armor/rings stay put mid-fight, but the
 	# weapon slot is exempt (weapon swapping is core combat).
 	if player.is_in_combat() and slot != &"weapon":
 		return {"ok": false, "reason": "in_combat"}
 
 	player.equipment_component.unequip(slot)
 	# Return it to the bag only if it was bag-OWNED (gear/weapon). Consumables and
-	# materials are REFERENCED while held — they never left the bag, so re-adding
+	# materials are REFERENCED while held - they never left the bag, so re-adding
 	# would duplicate them.
 	var item: Item = ContentRegistryHub.load_by_id(&"items", item_id)
 	if item is GearItem:

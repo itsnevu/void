@@ -3,7 +3,7 @@ extends MenuShell
 
 enum Mode { BUY, SELL }
 
-const STOCK_INFINITE_TEXT: String = "∞"
+const STOCK_INFINITE_TEXT: String = "inf"
 
 var _shop: ShopResource
 var _shop_id: int
@@ -94,7 +94,7 @@ func _make_mode_tab(text: String) -> Button:
 
 func open(shop_id: int) -> void:
 	_shop_id = shop_id
-	# Shop contents are static client-side data — render from the local ShopResource.
+	# Shop contents are static client-side data - render from the local ShopResource.
 	_shop = ShopResource.load_shop(shop_id)
 	if not _shop:
 		return
@@ -130,7 +130,7 @@ func _set_mode(mode: Mode) -> void:
 func _build_list() -> void:
 	# Guard against an in-flight inventory request firing back after a second
 	# open() has cleared _shop (e.g. when the player clicks a shop whose id
-	# doesn't resolve in the registry — open() bails, but the async fetch from
+	# doesn't resolve in the registry - open() bails, but the async fetch from
 	# the previous shop can still try to rebuild).
 	if _shop == null:
 		return
@@ -167,7 +167,7 @@ func _build_buy_rows() -> void:
 
 
 func _build_sell_rows() -> void:
-	# Specialty vendors (those with declared trades) refuse generic junk —
+	# Specialty vendors (those with declared trades) refuse generic junk -
 	# the only sell-side affordance is the trade rows.
 	if not _shop.allows_selling() or _shop.has_trades():
 		return
@@ -185,7 +185,7 @@ func _build_sell_rows() -> void:
 		_add_row(slot, str(slot.quantity))
 
 
-## Specialty vendor trades — fixed item/amount/payout bundles, listed before
+## Specialty vendor trades - fixed item/amount/payout bundles, listed before
 ## generic sell rows so the player sees them first.
 func _build_trade_rows() -> void:
 	if _shop.accepted_trades.is_empty():
@@ -208,7 +208,7 @@ func _build_trade_rows() -> void:
 		slot.trade_amount = trade.amount
 		slot.trade_payout = trade.payout
 		slot.trade_bundles_available = bundles_available
-		var middle: String = "x%d → %d g" % [trade.amount, trade.payout]
+		var middle: String = "x%d -> %d g" % [trade.amount, trade.payout]
 		_add_row(slot, middle)
 
 
@@ -336,14 +336,14 @@ func _update_price_label() -> void:
 		return
 	var bundles: int = int(quantity_spinbox.value)
 	if _mode == Mode.SELL and _selected_slot.is_trade:
-		detail_price_label.text = "Trade: %d %s → %d golds" % [
+		detail_price_label.text = "Trade: %d %s -> %d golds" % [
 			_selected_slot.trade_amount * bundles,
 			_selected_slot.item.item_name,
 			_selected_slot.trade_payout * bundles,
 		]
 		return
 	var total: int = _selected_slot.price * bundles
-	# Value first, caption last, right-aligned — keeps the caption pinned to the
+	# Value first, caption last, right-aligned - keeps the caption pinned to the
 	# right edge so it doesn't jitter when the number's width changes between
 	# items (the Zelda "30  Price" layout).
 	detail_price_label.text = (
@@ -393,7 +393,7 @@ func _set_golds(value: int) -> void:
 
 ## Authorize opening the shop (gold + contents come from elsewhere).
 func _request_open() -> void:
-	# Target the player's CURRENT instance — without it the server falls back to the
+	# Target the player's CURRENT instance - without it the server falls back to the
 	# default (overworld) instance, where a non-overworld shop isn't registered, so
 	# the auth fails and the menu closes (the "opens for a second then vanishes" bug).
 	var result: Array = await Client.request_data_await(&"shop.open", {"shop_id": _shop_id}, InstanceClient.current.name)

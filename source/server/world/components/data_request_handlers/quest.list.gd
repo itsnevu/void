@@ -25,7 +25,7 @@ func data_request_handler(
 	var giver_id: int = int(args.get("giver", 0))
 	var giver_name: String = ""
 	if giver_id > 0:
-		# Opening the menu at a giver is "visiting" them — advance any matching
+		# Opening the menu at a giver is "visiting" them - advance any matching
 		# VISIT objectives BEFORE building the view so the player sees the
 		# just-advanced count in the same response. Also push quest.update so
 		# the HUD tracker refreshes immediately (same pattern as kill/craft).
@@ -65,13 +65,13 @@ func data_request_handler(
 
 
 func _quest_view(resource: PlayerResource, quest_id: int, quest_ref: QuestResource, inventory: Dictionary) -> Dictionary:
-	# Prefer the direct reference (from the giver) over the registry lookup —
+	# Prefer the direct reference (from the giver) over the registry lookup -
 	# avoids "?" names when the content index is stale.
 	var quest: QuestResource = quest_ref if quest_ref != null else QuestResource.load_quest(quest_id)
 	if quest == null:
 		return {"id": quest_id, "name": "?", "objectives": []}
 
-	# A turned-in quest is locked done — for COLLECT, don't recompute the count from
+	# A turned-in quest is locked done - for COLLECT, don't recompute the count from
 	# live inventory (items were consumed at turn-in), which would otherwise read e.g.
 	# "8/10" after the player spends the leftover stack. Show every objective met.
 	var turned_in: bool = resource.quest_state(quest_id) == &"turned_in"

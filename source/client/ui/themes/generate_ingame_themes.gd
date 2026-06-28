@@ -1,22 +1,22 @@
 @tool
 extends EditorScript
-## In-game theme generator — the "coherent palette → many themes" tool. It recolours
+## In-game theme generator - the "coherent palette -> many themes" tool. It recolours
 ## `theme_horizon.tres`'s ACCENT (the horizon blue) to each palette's accent and writes
 ## `theme_<name>.tres`. Palette NAMES mirror the gateway (gateway_theming.md) so one "Theme" picker can
 ## drive both sides by name. Surface / text / dark fills are shared across palettes (exactly like the
-## gateway palettes, which only vary idle/active), so only the two accent RGBs are swapped — alpha is
+## gateway palettes, which only vary idle/active), so only the two accent RGBs are swapped - alpha is
 ## preserved because we replace just the `r, g, b` triple, not the whole `Color(...)`.
 ##
 ## Workflow (like generate_gateway_themes.gd): edit `theme_horizon.tres` for STRUCTURE (styleboxes,
-## layout, scrollbar/XP), edit PALETTES below for COLOURS, then File ▸ Run to (re)generate the variants.
+## layout, scrollbar/XP), edit PALETTES below for COLOURS, then File > Run to (re)generate the variants.
 
 const MASTER: String = "res://source/client/ui/themes/theme_horizon.tres"
 const OUT_DIR: String = "res://source/client/ui/themes/"
-## theme_horizon's own resource uid — stripped from variants so they don't all collide on it (Godot
+## theme_horizon's own resource uid - stripped from variants so they don't all collide on it (Godot
 ## assigns each a fresh one on import). Update if the master's uid ever changes.
 const MASTER_UID: String = ' uid="uid://ckrgqln54yumd"'
 
-## theme_horizon's accent RGB triples (the horizon blue) — must match the master exactly.
+## theme_horizon's accent RGB triples (the horizon blue) - must match the master exactly.
 const FROM_ACTIVE: String = "0.58, 0.82, 0.98"
 const FROM_IDLE: String = "0.42, 0.6, 0.78"
 
@@ -44,4 +44,4 @@ func _run() -> void:
 		file.close()
 		print("Generated ", path)
 	EditorInterface.get_resource_filesystem().scan()
-	print("Done — regenerated ", PALETTES.size(), " in-game theme variants from theme_horizon.")
+	print("Done - regenerated ", PALETTES.size(), " in-game theme variants from theme_horizon.")

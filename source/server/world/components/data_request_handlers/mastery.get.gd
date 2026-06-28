@@ -1,6 +1,6 @@
 extends DataRequestHandler
 ## Ships the player's weapon-mastery state for the Mastery tab. Node
-## definitions are NOT shipped — trees are common/ content the client already
+## definitions are NOT shipped - trees are common/ content the client already
 ## has (MasteryService.trees()); only per-player state crosses the wire.
 
 
@@ -16,7 +16,7 @@ func data_request_handler(
 	var resource: PlayerResource = player.player_resource
 	var out: Dictionary = {}
 	# Iterate the tree registry (not the player's masteries) so every category
-	# that HAS a tree shows up, even at zero practice — mirrors skills.get.
+	# that HAS a tree shows up, even at zero practice - mirrors skills.get.
 	for category: StringName in MasteryService.trees():
 		var tree: MasteryTreeResource = MasteryService.trees()[category]
 		# No entry = never killed with this weapon: level 0, nothing spendable.

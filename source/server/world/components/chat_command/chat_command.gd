@@ -17,7 +17,7 @@ func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInsta
 
 
 ## Parse a duration token like "30s", "10m", "2h", "1d" into milliseconds.
-## Returns 0 if the input is empty or has no valid unit suffix — callers use
+## Returns 0 if the input is empty or has no valid unit suffix - callers use
 ## that as the "no duration / treat as reason instead" sentinel. Bare numbers
 ## (no suffix) return 0 on purpose so "/mute 1042 spam" can't be misread as a
 ## duration when the reason starts with digits.

@@ -1,10 +1,10 @@
 class_name PickArc
 extends Area2D
 ## Pickaxe / sickle swing hitbox. Hybrid:
-## - bodies (players, NPCs, territory flags) → small "tool as weapon" damage via
+## - bodies (players, NPCs, territory flags) -> small "tool as weapon" damage via
 ##   CombatHit, using the SAME deterministic shape query as MeleeArc so a swing
 ##   lands on still targets (a flag) that enter-events miss.
-## - areas (MineableNode) → register_gather_hit (the actual harvest).
+## - areas (MineableNode) -> register_gather_hit (the actual harvest).
 ##
 ## Server-only damage / extraction; clients spawn the same scene for visual
 ## feedback but the gates keep effects server-side.
@@ -12,11 +12,11 @@ extends Area2D
 
 @export var lifetime: float = 0.2
 
-## Damage dealt to Character bodies + flags. Kept low — a tool is a weak weapon.
+## Damage dealt to Character bodies + flags. Kept low - a tool is a weak weapon.
 var character_damage: float = 2.0
 ## Extraction damage per swing to MineableNodes (wooden = 1, iron = 2, ...).
 var extraction_damage: int = 1
-## Which tool this swing represents (&"pickaxe", &"sickle", ...) — checked against
+## Which tool this swing represents (&"pickaxe", &"sickle", ...) - checked against
 ## a MineableNode's required_tool.
 var tool_type: StringName = &"pickaxe"
 var source: Character

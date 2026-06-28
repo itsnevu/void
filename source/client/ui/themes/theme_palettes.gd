@@ -1,8 +1,8 @@
 class_name ThemePalettes
-## Single source of truth for the UI palettes — the slug list + each palette's styling theme, login
+## Single source of truth for the UI palettes - the slug list + each palette's styling theme, login
 ## backdrop, and accent. The gateway (gateway.gd) and the in-game UI (ui.gd) both pull their styling
 ## Theme from here, and the Settings picker (setting_palette.gd) lists from here. Add a palette: add a
-## row below + run generate_ingame_themes.gd (File ▸ Run) to bake its theme_<slug>.tres.
+## row below + run generate_ingame_themes.gd (File > Run) to bake its theme_<slug>.tres.
 
 const THEME_DIR: String = "res://source/client/ui/themes/"
 const DEFAULT: StringName = &"horizon"
@@ -17,7 +17,7 @@ const PALETTES: Dictionary = {
 }
 
 
-## Palette slugs, sorted — the canonical set for the Settings picker + the gateway.
+## Palette slugs, sorted - the canonical set for the Settings picker + the gateway.
 static func list() -> Array[StringName]:
 	var out: Array[StringName] = []
 	for slug: StringName in PALETTES:

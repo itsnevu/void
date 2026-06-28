@@ -2,7 +2,7 @@ class_name AuthRateLimiter
 
 ## Per-IP sliding-window throttle for the gateway's auth endpoints (login, guest,
 ## account creation). Keeps brute-force and signup-spam off the master. In-memory
-## and process-local — fine for a single gateway; a multi-gateway deployment would
+## and process-local - fine for a single gateway; a multi-gateway deployment would
 ## move this to shared state. State survives across calls (static), so unique IPs
 ## accumulate keys; negligible for alpha, prune later if needed.
 

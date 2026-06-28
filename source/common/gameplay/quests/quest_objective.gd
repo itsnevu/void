@@ -39,7 +39,7 @@ func describe() -> String:
 		Type.COLLECT:
 			# "Bring", not "Collect": COLLECT items are consumed and handed to the
 			# giver on turn-in (see QuestService.apply_turn_in), so it's a delivery,
-			# not a gather. (Daily COLLECT is NOT consumed — it keeps "Collect".)
+			# not a gather. (Daily COLLECT is NOT consumed - it keeps "Collect".)
 			return "Bring %s" % (str(item.item_name) if item else "?")
 		Type.CRAFT:
 			return "Craft %s" % (str(item.item_name) if item else "?")

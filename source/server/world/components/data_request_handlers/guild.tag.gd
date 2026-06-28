@@ -2,10 +2,10 @@ extends DataRequestHandler
 ## Toggles the player's active guild "tag". Args: { guild_name }. Tagging into a
 ## guild (or untagging) only works in a safe zone, with a cooldown, to stop
 ## tag-swapping to dodge friendly-fire / glory consequences. The tag drives
-## guild chat, basing affiliation, and (later) friendly fire — all of which key
+## guild chat, basing affiliation, and (later) friendly fire - all of which key
 ## off active_guild_id, so just setting it here activates them.
 
-## Cooldown between tag changes (per player, in-memory — resets on restart).
+## Cooldown between tag changes (per player, in-memory - resets on restart).
 const TAG_COOLDOWN_MS: int = 30000
 
 static var _last_tag_ms: Dictionary[int, int] = {}
@@ -44,7 +44,7 @@ func data_request_handler(peer_id: int, instance: ServerInstance, args: Dictiona
 		return {"error": 1, "ok": false, "message": "Wait %ds before changing your tag again." % secs}
 
 	# Tag cap: how many members may be online & tagged at once (Member Capacity
-	# upgrade raises it). Only gates tagging IN — untagging is always allowed.
+	# upgrade raises it). Only gates tagging IN - untagging is always allowed.
 	var was_active: bool = player.active_guild_id == guild_id
 	if not was_active:
 		var cap: int = GuildUpgrades.tag_cap(guild)

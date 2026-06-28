@@ -1,11 +1,11 @@
 class_name BoltShootAbility
 extends AbilityResource
-## Generic "fire a magic bolt" ability — the caster counterpart of MeleeSwingAbility.
+## Generic "fire a magic bolt" ability - the caster counterpart of MeleeSwingAbility.
 ## Spawns a projectile whose damage scales off the wielder's AP (Ability Power),
 ## the magic mirror of AD: base AP is 0, so the weapon itself grants AP via a
 ## StatModifier (and the Intelligence attribute feeds it once magic unlocks).
 ##
-## Cooldown-gated (no mana cost yet — the mana pool is still a placeholder; wire a
+## Cooldown-gated (no mana cost yet - the mana pool is still a placeholder; wire a
 ## cost here when that system ships). Spawns on every peer like arrows: the server
 ## bolt deals damage (CombatHit), client bolts are the visual.
 
@@ -27,7 +27,7 @@ extends AbilityResource
 @export var piercing: bool = false
 @export var pierce_count: int = 0
 
-## Bolt tint — the ONE visual knob, so new bolt flavors are pure data (the
+## Bolt tint - the ONE visual knob, so new bolt flavors are pure data (the
 ## bolt scenes' sprites are white on purpose). Default = the classic arcane
 ## purple; heal sets green, ember sets red.
 @export var bolt_modulate: Color = Color(0.75, 0.55, 1.0)

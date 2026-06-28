@@ -1,6 +1,6 @@
 extends ChatCommand
-## /help          → list every command the caller may run.
-## /help <name>   → show that command's usage (and aliases), if they can run it.
+## /help          -> list every command the caller may run.
+## /help <name>   -> show that command's usage (and aliases), if they can run it.
 
 
 func _init() -> void:
@@ -14,7 +14,7 @@ func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInsta
 	var player: PlayerResource = server_instance.world_server.connected_players.get(peer_id)
 	var commands: Dictionary = server_instance.global_chat_commands
 
-	# /help <command> — usage for one command (only if the caller may run it, so
+	# /help <command> - usage for one command (only if the caller may run it, so
 	# /help can't be used to enumerate staff commands).
 	if args.size() >= 2:
 		var query: String = args[1].to_lower().trim_prefix("/")
@@ -26,7 +26,7 @@ func execute(args: PackedStringArray, peer_id: int, server_instance: ServerInsta
 			usage += "\nAliases: " + ", ".join(command.command_alias)
 		return usage
 
-	# /help — list every command the caller may run, sorted by name.
+	# /help - list every command the caller may run, sorted by name.
 	var names: Array = commands.keys()
 	names.sort()
 	var lines: PackedStringArray = []

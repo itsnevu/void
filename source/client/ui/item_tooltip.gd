@@ -20,8 +20,8 @@ const STAT_ROLE: Dictionary = {
 	&"health_max": &"defense", &"armor": &"defense", &"mr": &"defense",
 	&"mana_max": &"utility", &"mana_regen": &"utility", &"move_speed": &"utility",
 }
-const WEAPON_COLOR: String = "e0c070"  ## amber — weapon type + power line
-const LEVEL_COLOR: String = "d98080"   ## red — level gate
+const WEAPON_COLOR: String = "e0c070"  ## amber - weapon type + power line
+const LEVEL_COLOR: String = "d98080"   ## red - level gate
 const HEAL_COLOR: String = "82c785"
 const MANA_COLOR: String = "6fb0e0"
 const MUTED_COLOR: String = "9aa0aa"   ## charges and the like

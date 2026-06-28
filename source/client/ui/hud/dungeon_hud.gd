@@ -1,6 +1,6 @@
 class_name DungeonHud
 extends PanelContainer
-## Top-center dungeon-run HUD: a live MM:SS run clock and — on HARD runs — the shared revive count.
+## Top-center dungeon-run HUD: a live MM:SS run clock and - on HARD runs - the shared revive count.
 ## Driven entirely by &"dungeon.hud" pushes from DungeonService: {active, elapsed_s, has_pool,
 ## revives}. The clock ticks LOCALLY (the server sends the elapsed baseline on entry and re-syncs it
 ## on each revive change), so there's no per-second network spam. Hidden whenever no run is active.
@@ -53,7 +53,7 @@ func _update_clock() -> void:
 	if total == _last_shown_sec:
 		return
 	_last_shown_sec = total
-	# float division + floori for the minutes — avoids the int/int "integer division" warning.
+	# float division + floori for the minutes - avoids the int/int "integer division" warning.
 	_timer_label.text = "%02d:%02d" % [floori(total / 60.0), total % 60]
 
 

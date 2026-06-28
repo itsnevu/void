@@ -6,7 +6,7 @@ extends Resource
 ## then run the TinyMMO plugin's Generate with content_name "shops" pointing at
 ## that folder. The plugin assigns each shop a registry id/slug (baked into
 ## metadata) and builds shops_index.tres, so shops resolve through
-## ContentRegistryHub like items and maps — sent over the network as a small id.
+## ContentRegistryHub like items and maps - sent over the network as a small id.
 
 ## Which trades this shop offers the player (controls which tabs the shop UI shows).
 enum Trades {
@@ -52,7 +52,7 @@ func has_trades() -> bool:
 
 
 ## { "price": int, "currency_id": int } for one item, or {} if not sold here.
-## currency_id resolves entry → shop → gold (first non-null wins).
+## currency_id resolves entry -> shop -> gold (first non-null wins).
 func entry_for(item_id: int) -> Dictionary:
 	for entry: ShopEntry in entries:
 		if entry and entry.item and int(entry.item.get_meta(&"id", 0)) == item_id:

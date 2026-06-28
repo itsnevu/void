@@ -1,5 +1,5 @@
 extends DataRequestHandler
-## Adds [param id] to the caller's block list. Idempotent — adding an already
+## Adds [param id] to the caller's block list. Idempotent - adding an already
 ## blocked player is a no-op. Also drops the target from the friend list so
 ## state stays clean (you can't be friends with someone you've blocked).
 
@@ -33,7 +33,7 @@ func data_request_handler(
 		ids.append(target_id)
 	from_player.blocked_ids = ids
 
-	# Auto-unfriend on block — keeps the social graph consistent and avoids
+	# Auto-unfriend on block - keeps the social graph consistent and avoids
 	# the "blocked friend" weirdness in the UI.
 	var friends: PackedInt64Array = from_player.friends.duplicate()
 	var idx: int = friends.find(target_id)

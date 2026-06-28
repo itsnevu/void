@@ -6,15 +6,15 @@ extends EditorScript
 ## arrays. Eliminates the hand-maintained content drift on the Jobs UI's
 ## Sources / Recipes tabs.
 ##
-## **Run it:** open this file in the script editor, then [b]File → Run[/b]
+## **Run it:** open this file in the script editor, then [b]File -> Run[/b]
 ## (Ctrl+Shift+X). The summary is printed to the Output panel.
 ##
 ## What it scans:
-##   • [code]mineable_nodes/[/code] — each MineableNodeResource's
+##   - [code]mineable_nodes/[/code] - each MineableNodeResource's
 ##     [code]job_xp[/code] dict says which jobs the node feeds; its
 ##     [code]ore[/code] item + [code]required_level[/code] are appended to
 ##     each of those jobs' source list.
-##   • [code]crafting/resources/[/code] — each CraftingStationResource's
+##   - [code]crafting/resources/[/code] - each CraftingStationResource's
 ##     [code]profession[/code] field is the target job; every recipe's
 ##     [code]output_item[/code] + [code]required_level[/code] is appended
 ##     to that job's recipe list.
@@ -31,7 +31,7 @@ const STATIONS_DIR: String = "res://source/common/gameplay/crafting/resources/"
 func _run() -> void:
 	print("[bake_source_slugs] start")
 
-	# job_slug → { Item → required_level (min so far) }
+	# job_slug -> { Item -> required_level (min so far) }
 	var sources_by_job: Dictionary[StringName, Dictionary] = {}
 	var recipes_by_job: Dictionary[StringName, Dictionary] = {}
 
@@ -44,7 +44,7 @@ func _run() -> void:
 
 
 # ---------------------------------------------------------------------------
-# Scan: mineable nodes → which jobs get fed which ores (with level gates)
+# Scan: mineable nodes -> which jobs get fed which ores (with level gates)
 # ---------------------------------------------------------------------------
 
 func _scan_mineable_nodes(out: Dictionary[StringName, Dictionary]) -> void:
@@ -54,11 +54,11 @@ func _scan_mineable_nodes(out: Dictionary[StringName, Dictionary]) -> void:
 			continue
 		var node_res: MineableNodeResource = res
 		if node_res.ore == null:
-			push_warning("MineableNodeResource %s has no ore — skipping." % path)
+			push_warning("MineableNodeResource %s has no ore - skipping." % path)
 			continue
 		for job: StringName in node_res.job_xp:
 			_record_min(out, job, node_res.ore, node_res.required_level)
-		print("  source: %s (lv %d) → %s" % [
+		print("  source: %s (lv %d) -> %s" % [
 			node_res.ore.resource_path.get_file(),
 			node_res.required_level,
 			str(node_res.job_xp.keys())
@@ -66,7 +66,7 @@ func _scan_mineable_nodes(out: Dictionary[StringName, Dictionary]) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Scan: crafting stations → which job gets which recipe outputs
+# Scan: crafting stations -> which job gets which recipe outputs
 # ---------------------------------------------------------------------------
 
 func _scan_crafting_stations(out: Dictionary[StringName, Dictionary]) -> void:
@@ -77,7 +77,7 @@ func _scan_crafting_stations(out: Dictionary[StringName, Dictionary]) -> void:
 		var station: CraftingStationResource = res
 		var job: StringName = station.profession
 		if job == &"":
-			push_warning("CraftingStationResource %s has no profession — skipping." % path)
+			push_warning("CraftingStationResource %s has no profession - skipping." % path)
 			continue
 		var added: Array[String] = []
 		for recipe: CraftingRecipe in station.recipes:
@@ -125,7 +125,7 @@ func _apply_to_job_perks(
 # Helpers
 # ---------------------------------------------------------------------------
 
-## Record (item, level) — keeping the MIN level seen so far if the item
+## Record (item, level) - keeping the MIN level seen so far if the item
 ## was already recorded for this job. That way a content authoring mistake
 ## of two veins for the same ore at different levels doesn't randomly pick.
 func _record_min(
@@ -144,7 +144,7 @@ func _record_min(
 
 
 ## Flatten a {Item: level} bucket into parallel arrays, sorted by required
-## level ascending then item name. Stable output → stable git diffs.
+## level ascending then item name. Stable output -> stable git diffs.
 func _flatten_sorted(
 	bucket: Dictionary,
 	out_items: Array[Item],
@@ -162,7 +162,7 @@ func _flatten_sorted(
 		out_levels.append(p[1])
 
 
-## Lists every `.tres` directly inside [param dir] (non-recursive — current
+## Lists every `.tres` directly inside [param dir] (non-recursive - current
 ## content folders are flat). Returns absolute res:// paths.
 func _list_tres(dir: String) -> PackedStringArray:
 	var out: PackedStringArray = PackedStringArray()

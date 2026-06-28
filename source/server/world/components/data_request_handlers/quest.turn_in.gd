@@ -38,7 +38,7 @@ func data_request_handler(
 	if not QuestService.is_complete(resource, quest_id, resource.inventory):
 		return {"ok": false, "reason": "incomplete"}
 
-	# All validated — delegate the actual reward + push pipeline to the shared
+	# All validated - delegate the actual reward + push pipeline to the shared
 	# QuestService method (same one auto_complete quests use).
 	QuestService.apply_turn_in(resource, quest, peer_id, instance)
 

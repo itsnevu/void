@@ -1,7 +1,7 @@
 extends ChatCommand
 ## Block an account from sending any chat (channels or DMs). Persists via MuteList
 ## (user://server_mutes.cfg), keyed by account so it survives a restart AND a
-## character switch. Works on offline targets too — applied as soon as they
+## character switch. Works on offline targets too - applied as soon as they
 ## reconnect.
 
 

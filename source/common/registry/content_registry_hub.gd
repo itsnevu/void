@@ -6,7 +6,7 @@ static var _versions: Dictionary[StringName, int]
 
 
 static func _static_init() -> void:
-	# Master + gateway are data-only servers — they don't render anything, so
+	# Master + gateway are data-only servers - they don't render anything, so
 	# loading the sprite/skin registries is pure waste. GameMode reads the
 	# --mode= cmdline arg first so this works in a unified server binary too.
 	if GameMode.is_master_server() or GameMode.is_gateway_server():

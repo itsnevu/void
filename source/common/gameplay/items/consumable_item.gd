@@ -50,7 +50,7 @@ func can_use(character: Character) -> bool:
 		return true
 	if mana_amount > 0 and character.stats_component.get_stat(Stat.MANA) < character.stats_component.get_stat(Stat.MANA_MAX):
 		return true
-	# Buff potions always drinkable — re-drinking refreshes the duration.
+	# Buff potions always drinkable - re-drinking refreshes the duration.
 	if buff_stat != &"" and buff_amount != 0.0 and buff_duration_s > 0.0:
 		return true
 	return false
@@ -79,7 +79,7 @@ func on_use(character: Character) -> void:
 
 
 ## A potion is just "an item that carries a DRINK action". The generic hand mount
-## (Item.mount_in_hand) does the rig + the sprite; here we only build the drink — fresh
+## (Item.mount_in_hand) does the rig + the sprite; here we only build the drink - fresh
 ## per mount (so it owns its own cooldown state), tuned from this item (the shared
 ## cooldown + the sip-root). It rides the SPECIAL (Q) slot, not left-click, so stray
 ## clicks can't waste it. Any other item holds the same way: a weapon brings its own
@@ -94,7 +94,7 @@ func equip(character: Character) -> void:
 	consume.icon = item_icon # the ability-bar tile shows the potion itself
 	consume.cooldown = float(shared_cooldown_ms) / 1000.0
 	consume.root_s = float(use_freeze_ms) / 1000.0
-	# Category-shared, character-persistent cooldown — the SAME mechanism weapon abilities
+	# Category-shared, character-persistent cooldown - the SAME mechanism weapon abilities
 	# use (Character.ability_cooldowns), keyed by cooldown_category instead of the ability
 	# path. So every potion in a category shares ONE cooldown that survives unequip+re-equip
 	# (no reset exploit) and blocks across types (no heal->mana chug). _stamp_cooldown banks

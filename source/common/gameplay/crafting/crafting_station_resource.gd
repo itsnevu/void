@@ -7,7 +7,7 @@ extends Resource
 ## travels over the network as a small id.
 
 @export var station_name: String = "Workbench"
-## Which profession this station trains/uses — a skills key, e.g. &"smithing", &"cooking".
+## Which profession this station trains/uses - a skills key, e.g. &"smithing", &"cooking".
 @export var profession: StringName = &"smithing"
 @export var recipes: Array[CraftingRecipe]
 

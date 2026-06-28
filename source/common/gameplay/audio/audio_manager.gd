@@ -32,7 +32,7 @@ func _ready() -> void:
 	assert(is_instance_valid(sfx_player), "No valid sfx player.")
 
 	# Multi-instance testing: silence the extra editor clients so sounds don't stack
-	# (set per-instance args in Debug ▸ Customize Run Instances). --mute = everything;
+	# (set per-instance args in Debug > Customize Run Instances). --mute = everything;
 	# --no-sfx = UI + spatial SFX only (music kept). Matches the --id arg convention.
 	var args: Dictionary = CmdlineUtils.get_parsed_args()
 	if args.has("mute"):

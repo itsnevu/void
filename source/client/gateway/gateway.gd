@@ -8,7 +8,7 @@ var account_name: String
 var session_id: String
 var local_id: String
 
-# True once the boot handshake confirms the gateway is reachable — drives the
+# True once the boot handshake confirms the gateway is reachable - drives the
 # Connected / Offline half of the ConnectionInfo status line.
 var _server_online: bool = false
 
@@ -26,22 +26,22 @@ var _world_poll_active: bool = false
 # so pointer users never get a stray focus ring or a popped virtual keyboard.
 var _focus_nav: bool = false
 # Device-aware focus ring (the theme's Button focus style is intentionally empty,
-# which hides focus from mouse users — we draw our own only in _focus_nav mode).
+# which hides focus from mouse users - we draw our own only in _focus_nav mode).
 var _focus_highlight: Panel
-# Boot intro ("the menu assembles") — a one-shot Tween, editor-disabled + skippable.
+# Boot intro ("the menu assembles") - a one-shot Tween, editor-disabled + skippable.
 var _intro_tween: Tween
-# Boot "Connecting..." — a centered, pulsing label (no panel), code-built like
+# Boot "Connecting..." - a centered, pulsing label (no panel), code-built like
 # Toaster/Transition. Shown during the handshake, dropped on reveal.
 var _connecting_label: Label
 var _connecting_pulse: Tween
-# Elements the current intro is fading in — for the skip-snap.
+# Elements the current intro is fading in - for the skip-snap.
 var _intro_elements: Array[CanvasItem] = []
 # The subtle backdrop zoom is a one-time boot flourish, not a per-transition tic.
 var _booted: bool = false
 
 # --- Gateway palettes -------------------------------------------------------
 # Palettes live in ThemePalettes (the shared registry: slug list + styling theme + login backdrop +
-# accent). We pick one (saved pref / default / random) and assign its styling Theme to `theme` —
+# accent). We pick one (saved pref / default / random) and assign its styling Theme to `theme` -
 # inheritance styles the whole subtree. The per-node looks (panel / button / divider variations) are set
 # in gateway.tscn, not here. Palette preference lives in the shared client settings under [gateway].
 const _SETTINGS_SECTION: StringName = &"gateway"
@@ -50,7 +50,7 @@ const _SETTING_RANDOMIZE: StringName = &"randomize"
 var current_theme: StringName = ThemePalettes.DEFAULT
 
 # Community / support links opened by the global "More" menu. Empty = not provided
-# yet → that button is disabled rather than opening a dead link.
+# yet -> that button is disabled rather than opening a dead link.
 const LINK_WEBSITE: String = "https://mythreach.gg"
 const LINK_DISCORD: String = "https://discord.gg/QE5JwpFzgK"
 
@@ -72,7 +72,7 @@ const SFX_REVEAL: String = "res://assets/audio/sfx/ui/ui_reveal.wav"
 const MUSIC_GATEWAY: String = "res://assets/audio/music/angevin.ogg"
 
 # Release-stage tag shown after the build number in the ConnectionInfo line
-# ("Connected · Mythreach 0.2.0 - Alpha"). The version itself comes live from
+# ("Connected - Mythreach 0.2.0 - Alpha"). The version itself comes live from
 # project.godot via GatewayAPI.game_version(), so it never drifts from the build.
 const BUILD_STAGE: String = "Alpha"
 
@@ -83,9 +83,9 @@ const BUILD_STAGE: String = "Alpha"
 @onready var _more_logout: Button = %LogoutButton
 
 
-# Character-creation skin picker — Prev/Next cycle through the whole roster (the big centre
+# Character-creation skin picker - Prev/Next cycle through the whole roster (the big centre
 # preview shows the current one). Sourced from PlayerSkins (every `sprites` entry), so new
-# art appears here automatically — no list to maintain. Populated in prepare_character_creation_menu.
+# art appears here automatically - no list to maintain. Populated in prepare_character_creation_menu.
 var _skin_ids: Array[int] = []
 var _skin_index: int = 0
 var _skin_preview: AnimatedSprite2D
@@ -101,7 +101,7 @@ var _skin_name_label: Label
 
 
 func _ready() -> void:
-	# During boot, show only a centered "Connecting..." over the backdrop — the menu and
+	# During boot, show only a centered "Connecting..." over the backdrop - the menu and
 	# the corner chrome (More / ConnectionInfo) stay hidden until the handshake passes,
 	# so nothing flashes before we know the gateway's reachable + our build matches.
 	main_panel.hide()
@@ -114,7 +114,7 @@ func _ready() -> void:
 	prepare_character_creation_menu()
 
 	# Wire the world-list refresh button (disabled in the scene until there's a
-	# live endpoint to hit — now there is: GatewayAPI.worlds()).
+	# live endpoint to hit - now there is: GatewayAPI.worlds()).
 	var update_button: Button = $WorldSelection/VBoxContainer/Button
 	update_button.disabled = false
 	update_button.pressed.connect(_on_world_update_button_pressed)
@@ -130,7 +130,7 @@ func _ready() -> void:
 	_add_spectate_button()
 	_add_whitepaper_button()
 	# Live-apply a palette picked in the Settings menu (the gateway's own $Settings
-	# overlay shows the same dropdown) — no relaunch needed.
+	# overlay shows the same dropdown) - no relaunch needed.
 	ClientState.settings.setting_changed.connect(_on_settings_changed)
 
 	local_id = CmdlineUtils.get_parsed_args().get("id", "")
@@ -170,9 +170,9 @@ func _boot_handshake() -> bool:
 		if (error is int or error is float) and int(error) == GatewayAPI.ERR_OUTDATED_VERSION:
 			_block_outdated(str(response.get("msg", "")))
 			return false
-		# Gateway / master unreachable → message + Retry; the press loops us around.
+		# Gateway / master unreachable -> message + Retry; the press loops us around.
 		await popup_panel.confirm_message(tr("ERR_CANT_REACH"), &"CANT_REACH_TITLE", &"RETRY")
-	return false  # unreachable — the loop only exits via the returns above
+	return false  # unreachable - the loop only exits via the returns above
 
 
 func _request_handshake() -> Dictionary:
@@ -183,7 +183,7 @@ func _request_handshake() -> Dictionary:
 	)
 
 
-## Centered "Connecting..." over the backdrop during boot — a plain pulsing label (no
+## Centered "Connecting..." over the backdrop during boot - a plain pulsing label (no
 ## panel), up from the first frame so the player sees we're connecting immediately.
 func _show_connecting() -> void:
 	if _connecting_label == null:
@@ -237,7 +237,7 @@ func _play_hover() -> void:
 
 
 ## Start the looping main theme from the gateway (the menu owns the boot music, not
-## the networking root). Muted in the editor so it doesn't replay every iteration —
+## the networking root). Muted in the editor so it doesn't replay every iteration -
 ## exports hear it; for multi-client testing silence extras with --mute / --no-sfx.
 func _start_gateway_music() -> void:
 	if not (is_instance_valid(Client) and Client.audio_manager):
@@ -245,7 +245,7 @@ func _start_gateway_music() -> void:
 	Client.audio_manager.play_music.call_deferred(MUSIC_GATEWAY, 0.0, 0.0, 5.0)
 
 
-## Hover on keyboard/gamepad focus, but only while actually driving by focus — a
+## Hover on keyboard/gamepad focus, but only while actually driving by focus - a
 ## mouse click also grabs focus, and we don't want that to double the click cue.
 func _on_focus_hover() -> void:
 	if _focus_nav:
@@ -255,7 +255,7 @@ func _on_focus_hover() -> void:
 ## Give every button a soft click on press (Back gets the distinct "back" cue) and
 ## a quiet hover. Runtime-built cards wire themselves in their factories
 ## (add_world_card / the character-card loop), since those buttons don't exist yet
-## at boot. Idempotent — safe to call repeatedly on the same button.
+## at boot. Idempotent - safe to call repeatedly on the same button.
 func _wire_button_sounds() -> void:
 	for node: Node in find_children("*", "Button", true, false):
 		_wire_button_audio(node as Button, node == back_button)
@@ -289,7 +289,7 @@ func _reveal_main_menu() -> void:
 	$MainPanel.show()
 	$MainPanel/VBoxContainer/VBoxContainer/LoginButton.grab_focus()
 	# show() + _play_intro() run in the same frame, so the welcome elements never
-	# render at full alpha first — the staggered fade-in IS the reveal.
+	# render at full alpha first - the staggered fade-in IS the reveal.
 	_play_intro(_screen_elements(main_panel))
 
 
@@ -297,8 +297,8 @@ func _reveal_main_menu() -> void:
 ## back the corner chrome (More / ConnectionInfo) that stayed hidden during connect.
 func _end_boot() -> void:
 	_hide_connecting()
-	# The ••• More menu + the bottom-left status line stay hidden on the clean title
-	# screen — the More menu is shown once you're past login (see handle_success_login).
+	# The --- More menu + the bottom-left status line stay hidden on the clean title
+	# screen - the More menu is shown once you're past login (see handle_success_login).
 
 
 func handle_success_login(d: Dictionary) -> void:
@@ -321,7 +321,7 @@ func handle_success_login(d: Dictionary) -> void:
 	populate_worlds(worlds)
 
 	_end_boot()
-	(%MoreButton as Button).show()  # past login → expose the More menu (settings / logout)
+	(%MoreButton as Button).show()  # past login -> expose the More menu (settings / logout)
 	fill_connection_info(account_name, account_id)
 	if is_last_world_online:
 		$AlreadyConnectedPanel/ContinueButton.text = tr("CONTINUE_WORLD_ACC") % [last_world_name, account_name]
@@ -368,7 +368,7 @@ func do_request(
 
 
 func _show(next: Control, can_back: bool = true) -> void:
-	_hide_connecting()  # a real screen is appearing → connecting is done
+	_hide_connecting()  # a real screen is appearing -> connecting is done
 	if menu_stack.size():
 		menu_stack.back().hide()
 	if not can_back:
@@ -387,7 +387,7 @@ func _show(next: Control, can_back: bool = true) -> void:
 
 ## Cosmetic "assembles into place" reveal for ANY screen: a staggered fade-in of the
 ## given elements (+ a one-time backdrop zoom on the first boot reveal). Cut short by
-## any input. Never gates interactivity — pure decoration over already-shown nodes.
+## any input. Never gates interactivity - pure decoration over already-shown nodes.
 func _play_intro(elements: Array[CanvasItem]) -> void:
 	_finish_intro()  # snap any in-flight intro to done first (fast navigation)
 	_intro_elements = elements
@@ -409,7 +409,7 @@ func _play_intro(elements: Array[CanvasItem]) -> void:
 		delay += 0.08
 
 
-## Generic: the visual elements to stagger-fade for a screen — its title, divider,
+## Generic: the visual elements to stagger-fade for a screen - its title, divider,
 ## and buttons / cards. Uses the panel's content column (its first VBoxContainer if
 ## it has one, else the panel itself) and flattens one level of button/card rows so
 ## they stagger individually. Replaces the old per-screen hardcoded lists, so every
@@ -422,7 +422,7 @@ func _screen_elements(panel: Control) -> Array[CanvasItem]:
 			break
 	var elements: Array[CanvasItem] = []
 	for child: Node in column.get_children():
-		if child is BoxContainer:  # a row/column of buttons or cards → stagger its items
+		if child is BoxContainer:  # a row/column of buttons or cards -> stagger its items
 			for item: Node in child.get_children():
 				if item is CanvasItem and (item as CanvasItem).visible:
 					elements.append(item as CanvasItem)
@@ -444,13 +444,13 @@ func _finish_intro() -> void:
 
 # _input (not _unhandled_input): when a control has focus the GUI consumes
 # navigation events, so they'd never reach _unhandled_input. We only observe the
-# device here — we don't swallow navigation.
+# device here - we don't swallow navigation.
 func _input(event: InputEvent) -> void:
 	# Any press cuts the cosmetic intro short (without consuming the event).
 	if _intro_tween and _intro_tween.is_valid() and event.is_pressed():
 		_finish_intro()
 
-	# Keyboard or gamepad → focus-nav mode; mouse/touch → pointer mode. Guarded on
+	# Keyboard or gamepad -> focus-nav mode; mouse/touch -> pointer mode. Guarded on
 	# transitions so this stays cheap despite per-frame mouse-motion / stick events.
 	if (event is InputEventKey and (event as InputEventKey).pressed) \
 			or event is InputEventJoypadButton \
@@ -465,13 +465,13 @@ func _input(event: InputEvent) -> void:
 			_focus_highlight.hide()
 			set_process(false)
 
-	# B / Escape steps back, mirroring the on-screen Back button — but not while a
+	# B / Escape steps back, mirroring the on-screen Back button - but not while a
 	# popup is up (it owns the screen).
 	if event.is_action_pressed(&"ui_cancel") and back_button.visible and not popup_panel.visible:
 		_on_back_button_pressed()
 		get_viewport().set_input_as_handled()
 
-	# Debug: cycle the gateway palette (gold → horizon → forest → fireforge).
+	# Debug: cycle the gateway palette (gold -> horizon -> forest -> fireforge).
 	if event is InputEventKey and (event as InputEventKey).pressed \
 			and ((event as InputEventKey).keycode == KEY_F3 \
 			or (event as InputEventKey).physical_keycode == KEY_F3):
@@ -497,7 +497,7 @@ func _focus_first_in(node: Node) -> bool:
 # --- Wallet sign-in (Solana / Phantom) ------------------------------------
 # Mythreach is wallet-only. On WEB we drive the Phantom browser extension via
 # JavaScriptBridge (connect + signMessage). On DESKTOP (no in-process wallet) we
-# use a persisted local "dev wallet" so the game stays testable locally — the
+# use a persisted local "dev wallet" so the game stays testable locally - the
 # master skips signature verification only when it runs from the editor.
 
 ## The human-readable line the player signs. The server-issued nonce is appended so
@@ -561,7 +561,7 @@ func _on_login_button_pressed() -> void:
 		login_button.disabled = false
 
 
-## Run the full challenge → sign → verify handshake for a pubkey. Returns true on a
+## Run the full challenge -> sign -> verify handshake for a pubkey. Returns true on a
 ## successful login (worlds populated, selection shown). `silent` suppresses error popups
 ## (used by auto-login). On success calls handle_success_login(), reusing the old path.
 func _do_wallet_login(pubkey: String, silent: bool, dev_sign: bool = false) -> bool:
@@ -581,7 +581,7 @@ func _do_wallet_login(pubkey: String, silent: bool, dev_sign: bool = false) -> b
 		return false
 
 	# 2. Sign the nonce-bound message with the wallet. Spectators sign with the local
-	# dev key (no Phantom popup) even on web — they don't need a real wallet to watch.
+	# dev key (no Phantom popup) even on web - they don't need a real wallet to watch.
 	var message: String = WALLET_MESSAGE_PREFIX + nonce
 	var signature: String
 	if dev_sign:
@@ -662,7 +662,7 @@ func _poll_wallet_status() -> String:
 	return "timeout"
 
 
-## A stable local "dev wallet" address for desktop testing — 32 random bytes, base58,
+## A stable local "dev wallet" address for desktop testing - 32 random bytes, base58,
 ## persisted per local id so the same dev account is reused across launches.
 func _dev_wallet_pubkey() -> String:
 	var path: String = "user://%swallet.dat" % local_id
@@ -776,7 +776,7 @@ func _on_world_selected(world_id: int) -> void:
 		# Clear prior card content (portrait + label from a previously-shown world).
 		for content: Node in button.get_children():
 			content.queue_free()
-		# Connections are bound callables, so is_connected(unbound) never matched —
+		# Connections are bound callables, so is_connected(unbound) never matched -
 		# clear every prior connection so re-entering doesn't stack duplicates.
 		for conn: Dictionary in button.pressed.get_connections():
 			button.pressed.disconnect(conn["callable"])
@@ -786,7 +786,7 @@ func _on_world_selected(world_id: int) -> void:
 		if slot_index < character_ids.size():
 			var cid: String = str(character_ids[slot_index])
 			var entry: Dictionary = d.get(cid, {})
-			if entry.has_all(["name", "level"]):  # "class" dropped — no classes anymore
+			if entry.has_all(["name", "level"]):  # "class" dropped - no classes anymore
 				_fill_character_card(button, entry)
 				button.pressed.connect(_on_character_selected.bind(world_id, cid.to_int()))
 				continue
@@ -804,7 +804,7 @@ func _on_character_selected(world_id: int, character_id: int) -> void:
 
 	$CharacterSelection.hide()
 	$BackButton.hide()
-	_show_connecting()  # plain label, not a panel — the Transition cover takes over
+	_show_connecting()  # plain label, not a panel - the Transition cover takes over
 
 	var d: Dictionary = await do_request(
 		HTTPClient.Method.METHOD_POST,
@@ -882,7 +882,7 @@ func _on_create_character_button_pressed() -> void:
 		$CharacterCreation.show()
 		return
 
-	_show_connecting()  # plain label, not a panel — the Transition cover takes over
+	_show_connecting()  # plain label, not a panel - the Transition cover takes over
 	var d: Dictionary = await do_request(
 		HTTPClient.Method.METHOD_POST,
 		GatewayAPI.world_create_char(),
@@ -978,7 +978,7 @@ func populate_worlds(world_info: Dictionary) -> void:
 	for world_id: String in world_info:
 		add_world_card(world_info.get(world_id, {}).get("info", {}), world_id.to_int())
 
-	# A fresh list just arrived — lock Update briefly so it can't be spammed (the
+	# A fresh list just arrived - lock Update briefly so it can't be spammed (the
 	# boot-time list counts too, since this runs on every populate).
 	_start_update_cooldown()
 
@@ -987,7 +987,7 @@ func _on_world_update_button_pressed() -> void:
 	await refresh_worlds()
 
 
-## Re-fetch the live world list from the gateway without re-logging-in. Cheap —
+## Re-fetch the live world list from the gateway without re-logging-in. Cheap -
 ## the gateway serves it from its cached roster (GatewayAPI.worlds()).
 func refresh_worlds() -> void:
 	var update_button: Button = $WorldSelection/VBoxContainer/Button
@@ -998,9 +998,9 @@ func refresh_worlds() -> void:
 		{}
 	)
 	if d.has("error"):
-		update_button.disabled = false  # request failed — allow an immediate retry
+		update_button.disabled = false  # request failed - allow an immediate retry
 		return
-	populate_worlds(d.get("w", {}))  # success → populate starts the cooldown
+	populate_worlds(d.get("w", {}))  # success -> populate starts the cooldown
 
 
 ## Lock the Update button for 5s after a refresh so it can't be hammered.
@@ -1047,30 +1047,30 @@ func fill_connection_info(_account_name: String, _account_id: int) -> void:
 	_refresh_connection_info()
 
 
-## The bottom-left status line, two rows: "<Connected/Offline> · <account / not logged
+## The bottom-left status line, two rows: "<Connected/Offline> - <account / not logged
 ## in>" then "Mythreach <version> <stage>". Built in one place so the build version is
-## ALWAYS shown — logged in or not. Version is live from project.godot (never drifts
+## ALWAYS shown - logged in or not. Version is live from project.godot (never drifts
 ## from the handshake gate); the account-ID (old dev-only debug) is intentionally gone.
 func _refresh_connection_info() -> void:
 	var status: String = tr("STATUS_ONLINE") if _server_online else tr("STATUS_OFFLINE")
 	var who: String = _short_wallet(account_name) if not account_name.is_empty() else tr("NOT_LOGGED_IN")
 	var game: String = str(ProjectSettings.get_setting("application/config/name", "Mythreach"))
-	$ConnectionInfo.text = "%s · %s\n%s %s %s" % [
+	$ConnectionInfo.text = "%s - %s\n%s %s %s" % [
 		status, who, game, GatewayAPI.game_version(), BUILD_STAGE
 	]
 
 
 ## Swap the text title for the brand logo (animated video frames if available, else
 ## the static PNG) on the login screen. The art has an opaque black background, so we
-## (a) deepen the backdrop and (b) put a soft RADIAL BLACK HALO directly behind it —
+## (a) deepen the backdrop and (b) put a soft RADIAL BLACK HALO directly behind it -
 ## the square's hard edge dissolves into black instead of showing a visible cut.
 func _install_login_logo() -> void:
 	var frames: Array[Texture2D] = _load_logo_frames()
 	var static_tex: Texture2D = load(LOGO_PATH) as Texture2D if ResourceLoader.exists(LOGO_PATH) else null
 	if frames.is_empty() and static_tex == null:
-		return  # nothing to show — keep the text title
+		return  # nothing to show - keep the text title
 
-	# The logo is the title now — hide the text title + its divider.
+	# The logo is the title now - hide the text title + its divider.
 	($MainPanel/VBoxContainer/Label as Control).hide()
 	($MainPanel/VBoxContainer/HSeparator as Control).hide()
 
@@ -1080,7 +1080,7 @@ func _install_login_logo() -> void:
 	hero.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	# A seamless CIRCLE of black behind the logo only (centered, overflowing the
-	# hero box — Controls don't clip): solid black across the logo's square, fading
+	# hero box - Controls don't clip): solid black across the logo's square, fading
 	# to fully transparent so the background stays visible everywhere else. The
 	# logo's opaque-black art sits entirely inside the solid core, so no square cut.
 	var halo: TextureRect = TextureRect.new()
@@ -1115,7 +1115,7 @@ func _install_login_logo() -> void:
 		timer.timeout.connect(_advance_logo_frame)
 		add_child(timer)
 
-	# Darken the backdrop SPRITE directly (modulate is foolproof — no layering/overlay
+	# Darken the backdrop SPRITE directly (modulate is foolproof - no layering/overlay
 	# z-order surprises): the map dims to a moody ~35% brightness so the logo's radial
 	# halo melts into it seamlessly, while the map stays faintly visible.
 	$Background.modulate = Color(0.35, 0.35, 0.4, 1.0)
@@ -1146,7 +1146,7 @@ func _load_logo_frames() -> Array[Texture2D]:
 	return out
 
 
-## A radial gradient: solid black core fading to transparent at the edge — the soft
+## A radial gradient: solid black core fading to transparent at the edge - the soft
 ## black backing that hides the logo art's square cut.
 func _make_radial_black() -> Texture2D:
 	var grad: Gradient = Gradient.new()
@@ -1164,7 +1164,7 @@ func _make_radial_black() -> Texture2D:
 	return tex
 
 
-## Add a "Spectate" button under Connect Wallet — drop into the world as a
+## Add a "Spectate" button under Connect Wallet - drop into the world as a
 ## non-combatant fireball (local dev identity, no real wallet needed: just watch).
 func _add_spectate_button() -> void:
 	var column: VBoxContainer = $MainPanel/VBoxContainer/VBoxContainer
@@ -1191,7 +1191,7 @@ func _on_spectate_pressed() -> void:
 		return
 	main_panel.hide()
 	_show_connecting()
-	# dev_sign = true → no Phantom popup; spectators just watch.
+	# dev_sign = true -> no Phantom popup; spectators just watch.
 	if not await _do_wallet_login(pubkey, false, true) or not await _auto_enter_world():
 		ClientState.spectator = false
 		_hide_connecting()
@@ -1199,7 +1199,7 @@ func _on_spectate_pressed() -> void:
 		if btn: btn.disabled = false
 
 
-## A small "Whitepaper" button under Spectate — opens the in-app whitepaper panel.
+## A small "Whitepaper" button under Spectate - opens the in-app whitepaper panel.
 func _add_whitepaper_button() -> void:
 	var column: VBoxContainer = $MainPanel/VBoxContainer/VBoxContainer
 	var btn: Button = Button.new()
@@ -1310,7 +1310,7 @@ func add_world_card(world_info: Dictionary, world_id: int) -> Button:
 	button.custom_minimum_size = Vector2(150.0, 250.0)
 	button.pressed.connect(_on_world_selected.bind(world_id))
 	_wire_button_audio(button)
-	# Styled by the gateway theme's default Button (inherited) — no per-card call.
+	# Styled by the gateway theme's default Button (inherited) - no per-card call.
 
 	var text_label: RichTextLabel = RichTextLabel.new()
 	text_label.bbcode_enabled = true
@@ -1337,7 +1337,7 @@ func add_world_card(world_info: Dictionary, world_id: int) -> Button:
 
 func _on_continue_button_pressed() -> void:
 	$AlreadyConnectedPanel.hide()
-	_show_connecting()  # plain label, not a panel — the Transition cover takes over
+	_show_connecting()  # plain label, not a panel - the Transition cover takes over
 	var d: Dictionary = await do_request(
 		HTTPClient.Method.METHOD_POST,
 		GatewayAPI.world_enter(),
@@ -1382,7 +1382,7 @@ func _wire_more_menu() -> void:
 			$Settings.visible = true
 	)
 
-	# Community links → browser (disabled when no URL is set, see _wire_link).
+	# Community links -> browser (disabled when no URL is set, see _wire_link).
 	_wire_link(%DiscordButton as Button, LINK_DISCORD)
 	_wire_link(%WebsiteButton as Button, LINK_WEBSITE)
 
@@ -1399,7 +1399,7 @@ func _wire_more_menu() -> void:
 
 
 ## Open/close the global More menu (flyout + modal backdrop). On open it refreshes
-## the context-sensitive entries — Logout only makes sense with an active session.
+## the context-sensitive entries - Logout only makes sense with an active session.
 func _set_more_open(open: bool) -> void:
 	if open:
 		_more_logout.visible = not session_id.is_empty()
@@ -1407,7 +1407,7 @@ func _set_more_open(open: bool) -> void:
 	_more_backdrop.visible = open
 
 
-## Wire a flyout link button to open `url` in the browser. Empty url → disable the
+## Wire a flyout link button to open `url` in the browser. Empty url -> disable the
 ## button (reads as "not available yet" instead of a dead click).
 func _wire_link(button: Button, url: String) -> void:
 	if url.is_empty():
@@ -1422,12 +1422,12 @@ func _logout() -> void:
 	var file_path: String = "user://%ssession.dat" % local_id
 	if FileAccess.file_exists(file_path):
 		DirAccess.remove_absolute(file_path)
-	session_id = ""  # clears the active session → More's Logout hides again
+	session_id = ""  # clears the active session -> More's Logout hides again
 	account_name = ""  # back to "not logged in" in the status line
 	_refresh_connection_info()
 	_set_more_open(false)
 	# Logout can be triggered from any screen (world/character select, character
-	# creation, ...), so hide them all — not just the resume panel — before returning
+	# creation, ...), so hide them all - not just the resume panel - before returning
 	# to the main menu, or the old screen stays visible and clickable on top.
 	for panel: Control in [
 		login_panel, $CreateAccountPanel, $WorldSelection,
@@ -1437,7 +1437,7 @@ func _logout() -> void:
 	menu_stack.clear()
 	menu_stack.append(main_panel)
 	main_panel.show()
-	(%MoreButton as Button).hide()  # back on the clean title — hide the More menu again
+	(%MoreButton as Button).hide()  # back on the clean title - hide the More menu again
 	back_button.hide()
 	if _focus_nav:
 		_focus_first_in(main_panel)
@@ -1485,7 +1485,7 @@ func _refresh_focus_highlight() -> void:
 
 ## Glue the ring to the focused control every frame. Polling (rather than reacting
 ## once to gui_focus_changed) avoids reading a control's rect before its container
-## has laid it out on a panel transition — which left the ring mispositioned until
+## has laid it out on a panel transition - which left the ring mispositioned until
 ## the next input event.
 func _process(_delta: float) -> void:
 	if _focus_highlight == null:
@@ -1502,7 +1502,7 @@ func _process(_delta: float) -> void:
 
 
 # --- Gateway theming -------------------------------------------------------
-# Palettes come from ThemePalettes (slug → styling theme + login backdrop + accent). Assigning the
+# Palettes come from ThemePalettes (slug -> styling theme + login backdrop + accent). Assigning the
 # styling Theme to `theme` styles the whole subtree by inheritance; per-node looks (panel / button /
 # divider variations) are tagged in gateway.tscn. Swapping palette = reassign `theme` + backdrop + ring.
 
@@ -1555,7 +1555,7 @@ func _on_settings_changed(section: StringName, property: StringName, value: Vari
 		_apply_gateway_theme(StringName(value))
 
 
-## Cycle palette — a debug / for-fun key only. Deliberately does NOT persist: the
+## Cycle palette - a debug / for-fun key only. Deliberately does NOT persist: the
 ## saved preference is owned by the Settings menu. The real palette choice for
 ## players is the [gateway] setting (default: randomize a new one each launch).
 func _cycle_theme() -> void:
@@ -1569,7 +1569,7 @@ func _cycle_theme() -> void:
 # --- Password fields ------------------------------------------------------
 
 ## Mask the password fields (they shipped unmasked) and give each panel a
-## "Show password" toggle — important on mobile, where typing a password blind
+## "Show password" toggle - important on mobile, where typing a password blind
 ## on a touch keyboard is a known drop-off point.
 func _setup_password_fields() -> void:
 	var login_pw: LineEdit = $LoginPanel/VBoxContainer/VBoxContainer/VBoxContainer2/LineEdit
@@ -1597,8 +1597,8 @@ func _add_password_toggle(into: Node, fields: Array[LineEdit]) -> void:
 	into.add_child(toggle)
 
 
-## A throwaway display name (character names aren't unique — Discord-style), for
-## the "Random" dice next to the name field. Letters only, 2–3 syllables, so it
+## A throwaway display name (character names aren't unique - Discord-style), for
+## the "Random" dice next to the name field. Letters only, 2-3 syllables, so it
 ## always passes username validation.
 func _random_character_name() -> String:
 	var syllables: PackedStringArray = [
@@ -1689,7 +1689,7 @@ func _cycle_skin(delta: int) -> void:
 	_apply_skin(wrapi(_skin_index + delta, 0, _skin_ids.size()))
 
 
-## Apply a skin by index — set selected_skin_id, update the preview + name label.
+## Apply a skin by index - set selected_skin_id, update the preview + name label.
 func _apply_skin(index: int) -> void:
 	if index < 0 or index >= _skin_ids.size():
 		return
@@ -1709,10 +1709,10 @@ func _apply_skin(index: int) -> void:
 # Ideally we must not save credentials locally even if crypted,
 # saving a temporary token given by the server is the way. 
 func try_auto_login() -> bool:
-	# Default: show the login screen first (logo + Connect Wallet) — the branded
+	# Default: show the login screen first (logo + Connect Wallet) - the branded
 	# "press start" moment, on web AND desktop.
 	# Opt-in: pass `--auto` (desktop only) to silently sign in with the local dev
-	# wallet — used by the editor's "Run Multiple Instances" and the multiplayer
+	# wallet - used by the editor's "Run Multiple Instances" and the multiplayer
 	# smoke test so extra clients join hands-free. Never on web (Phantom needs a
 	# real click) and never without the flag.
 	if OS.has_feature("web") or not CmdlineUtils.get_parsed_args().has("auto"):
@@ -1729,7 +1729,7 @@ func try_auto_login() -> bool:
 
 ## Test helper (--auto only): jump straight into the first online world with the
 ## first character (auto-creating one if the account has none). Mirrors the manual
-## world-select → character-select → enter flow. Returns false (→ show menu) on any snag.
+## world-select -> character-select -> enter flow. Returns false (-> show menu) on any snag.
 func _auto_enter_world() -> bool:
 	var worlds_resp: Dictionary = await do_request(HTTPClient.Method.METHOD_POST, GatewayAPI.worlds(), {})
 	var worlds: Dictionary = worlds_resp.get("w", {})

@@ -145,7 +145,7 @@ func _send_container_deltas_one_shot() -> void:
 		var ops_named: Array = out.get("ops_named", [])
 		if spawns.is_empty() and pairs.is_empty() and despawns.is_empty() and ops_named.is_empty():
 			continue
-		# Client apply order: spawns → ops_named → pairs → despawns
+		# Client apply order: spawns -> ops_named -> pairs -> despawns
 		cont_blocks.append(WireCodec.encode_container_block_named(cid, spawns, pairs, despawns, ops_named))
 
 	if cont_blocks.is_empty():
@@ -244,7 +244,7 @@ func _send_map_updates_if_needed_to_all() -> void:
 		on_bootstrap.rpc_id(peer_id, payload)
 
 
-# Owner correction (server → owner only)
+# Owner correction (server -> owner only)
 func send_correction_to_owner(eid: int, pairs: Array) -> void:
 	var owner_peer_id: int = eid  # Replace by real ownership map later.
 	if not peers.has(owner_peer_id):
@@ -269,7 +269,7 @@ func on_state_delta(_bytes: PackedByteArray) -> void:
 
 @rpc("any_peer", "reliable")
 func on_client_delta(bytes: PackedByteArray) -> void:
-	# Receive client-proposed deltas (owner-pushed) — keep strict.
+	# Receive client-proposed deltas (owner-pushed) - keep strict.
 	var sender: int = multiplayer.get_remote_sender_id()
 	var blocks: Array = WireCodec.decode_delta(bytes)
 	if blocks.is_empty():
@@ -317,6 +317,11 @@ var _client_owned_fids: Dictionary[int, bool] = {
 	PathRegistry.id_of(":anim"): true,
 	PathRegistry.id_of(":flipped"): true,
 	PathRegistry.id_of(":pivot"): true,
+	# Client-driven cosmetic states the player pushes from local_player.gd
+	# (process_synchronization). Without these the server drops the field, so
+	# OTHER players never see you sit / spectate even though you do locally.
+	PathRegistry.id_of(":sitting"): true,
+	PathRegistry.id_of(":spectator"): true,
 }
 
 func _is_client_owned(fid: int) -> bool:
@@ -393,7 +398,7 @@ func _aoi_entities_for(peer_id: int) -> Array:
 		AOIMode.NONE:
 			return entities.keys()
 		AOIMode.GRID:
-			# Use the owner’s entity as the camera pivot or use a real camera ?
+			# Use the owner's entity as the camera pivot or use a real camera ?
 			var pivot_eid: int = peer_id
 			# If the peer owns multiple eids
 			# or later we can store a "view_eid per peer" ?
