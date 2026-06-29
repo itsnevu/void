@@ -6,6 +6,9 @@ extends MenuShell
 const HELP_TEXT: String = """[b]The short version[/b]
 A hard, sandbox MMORPG. No forced path and no hand-holding. Explore, fight, build a guild, take territory. Finding your own footing is the point.
 
+[b]Controls[/b]
+Move with W A S D. Attack with Left-click (aim with the mouse). Cast abilities with Q and E. Quick-use items with keys 1, 2, 3. Talk / interact with F, dodge with Space, sit with C. Open the menu from the ... button (top-right), and chat with Enter. On phone: the left stick moves, the right stick aims and attacks.
+
 [b]Where to start[/b]
 Talk to NPCs. The Hall Keeper near your starting cell has a first quest. NPCs offering quests are the main thread to pull when you want a direction.
 

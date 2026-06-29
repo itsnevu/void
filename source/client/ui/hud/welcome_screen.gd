@@ -7,9 +7,19 @@ extends Control
 
 const WELCOME_TEXT: String = """This is a hard, sandbox MMORPG. You are free to do whatever you want, and you will find most of your footing on your own. That is by design.
 
-If you want somewhere to start: step out of this cell and talk to the Hall Keeper. They can give you your first quest.
+[b]How to play[/b]
+Move: W A S D
+Attack: Left-click (aim with your mouse)
+Abilities: Q and E
+Quick items: keys 1, 2, 3
+Talk / interact: F      Dodge: Space      Sit: C
+Open the menu: the ... button (top-right). Chat: Enter.
+On phone: left stick moves, right stick aims and attacks.
 
-You can reopen this kind of guidance any time from the Help menu. Good luck."""
+[b]Where to start[/b]
+Step out of this cell and talk to the Hall Keeper - they give your first quest.
+
+You can reopen this any time from the Help menu. Good luck."""
 
 
 func _ready() -> void:

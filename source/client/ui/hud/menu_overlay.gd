@@ -31,7 +31,7 @@ const MENU_ENTRIES: Array[Dictionary] = [
 	{"label": "Bestiary"},
 	{"label": "House"},
 	# Other + Settings
-	{"label": "Shop"},
+	{"label": "Shop",        "menu": "shops"},
 	{"label": "Help",        "menu": "help"},
 	{"label": "Redeem",      "menu": "redeem"},
 	{"label": "Settings",    "menu": "settings"},

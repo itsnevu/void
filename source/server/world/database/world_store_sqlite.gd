@@ -120,13 +120,12 @@ func create_player_character(account_name: String, character_data: Dictionary) -
 	# The chosen creation skin is owned from the start, so it's equippable in the wardrobe.
 	player.owned_skins = PackedInt64Array([player.skin_id])
 
-	# Starting kit: ONE potion + gold, no weapon - a fresh character's first
-	# decision is choosing a weapon at the starter shop (sword / bow / wand /
-	# hammer, 6-8g), which seeds build identity and teaches the economy. 25g
-	# covers a weapon + a potion or a cheap armor piece.
+	# Starting kit: ONE potion, no weapon, NO gold - a fresh character earns their
+	# first coins from quests (the Hall Keeper's first quest) and from selling
+	# looted materials to a vendor, then buys a weapon at a shop. A hard, earn-it
+	# start by design - gold is a real currency you work for, not a handout.
 	player.inventory = {}
 	Inventory.add_item(player.inventory, 1, 1) # health_potion
-	Inventory.add_item(player.inventory, Economy.gold_id(), 25)
 	# Starting attribute points so a new character has something to spend.
 	player.available_attributes_points = PlayerResource.ATTRIBUTE_POINTS_PER_LEVEL
 	# Everyone who plays the alpha carries the badge for it.
