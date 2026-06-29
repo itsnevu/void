@@ -1,6 +1,7 @@
 extends DataRequestHandler
-## Removes [param id] from the caller's friend list. No-op (still "ok") if the
-## target wasn't a friend, so the client can call it idempotently.
+## Removes [param id] from the caller's friend list AND removes the caller from the
+## target's list (friendship is symmetric). Also clears any leftover pending
+## requests both ways. Idempotent: still "ok" if they weren't friends.
 
 
 func data_request_handler(
@@ -9,6 +10,7 @@ func data_request_handler(
 	args: Dictionary
 ) -> Dictionary:
 	var world_server: WorldServer = instance.world_server
+	var store: WorldStoreSqlite = world_server.database.store
 
 	var from_player: PlayerResource = world_server.connected_players.get(peer_id)
 	if from_player == null:
@@ -18,13 +20,12 @@ func data_request_handler(
 	if target_id <= 0:
 		return {"error": 1, "ok": false, "msg": "Invalid player."}
 
-	var friends: PackedInt64Array = from_player.friends.duplicate()
-	var idx: int = friends.find(target_id)
-	if idx < 0:
+	# Drop any pending requests between the two regardless of friend state.
+	store.remove_friend_request(from_player.player_id, target_id)
+	store.remove_friend_request(target_id, from_player.player_id)
+
+	if not from_player.friends.has(target_id):
 		return {"error": 0, "ok": true, "msg": "Not a friend."}
 
-	friends.remove_at(idx)
-	from_player.friends = friends
-	world_server.database.save_player(from_player)
-
+	FriendService.unfriend(world_server, from_player, target_id)
 	return {"error": 0, "ok": true, "msg": "Removed friend."}

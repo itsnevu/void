@@ -12,6 +12,9 @@ func data_request_handler(
 	if not player:
 		return {"ok": false}
 
+	if not RateLimiter.check(peer_id, &"trade.offer", 20, 2_000):
+		return {"ok": false, "reason": "rate"}
+
 	var table: TradeTable = instance.instance_map.get_trade_table(int(args.get("table", 0)))
 	if table == null or not table.seat_players.has(player):
 		return {"ok": false}

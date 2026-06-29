@@ -1,4 +1,7 @@
 extends DataRequestHandler
+## Accept a pending friend request. [param player_id] is the REQUESTER. We require
+## a real pending request from them (you can't accept one that was never sent),
+## then make the friendship mutual on BOTH sides and clear the request.
 
 
 func data_request_handler(
@@ -13,23 +16,24 @@ func data_request_handler(
 	if from_player == null:
 		return {"error": 1, "ok": false, "name": "Unknown"}
 
-	var target_id: int = int(args.get("player_id", 0))
-	if target_id <= 0:
+	var requester_id: int = int(args.get("player_id", 0))
+	if requester_id <= 0 or requester_id == from_player.player_id:
 		return {"error": 1, "ok": false, "msg": "Invalid player."}
 
-	if target_id == from_player.player_id:
-		return {"error": 1, "ok": false, "msg": "Can't add yourself."}
+	if from_player.friends.has(requester_id):
+		# Already friends - just clean up any stale request and succeed.
+		store.remove_friend_request(requester_id, from_player.player_id)
+		return {"error": 0, "ok": true, "msg": "Already friend."}
 
-	var row: Dictionary = store.get_player_profile_row(target_id)
-	if row.is_empty():
-		return {"error": 1, "ok": false, "name": "Unknown"}
+	# Must be a genuine pending request addressed to us.
+	if not store.has_friend_request(requester_id, from_player.player_id):
+		return {"error": 1, "ok": false, "msg": "No pending request."}
 
-	if from_player.friends.has(target_id):
-		return {"error": 1, "ok": false, "msg": "Already friend."}
+	FriendService.make_friends(world_server, from_player, requester_id)
+	store.remove_friend_request(requester_id, from_player.player_id)
+	store.remove_friend_request(from_player.player_id, requester_id)
 
-	from_player.friends.append(target_id)
+	# Let the requester know so their list refreshes live.
+	FriendService.notify(world_server, requester_id, "friend.accepted", from_player)
 
-	# Persist now (safe + predictable)
-	world_server.database.save_player(from_player)
-
-	return {"error": 0, "ok": true, "msg": "Added friend."}
+	return {"error": 0, "ok": true, "msg": "Friend added."}

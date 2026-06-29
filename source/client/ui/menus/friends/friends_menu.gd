@@ -77,23 +77,79 @@ func _on_visibility_changed() -> void:
 
 func _refresh() -> void:
 	_set_status("")
-	Client.request_data(&"friend.list", fill_friend_list)
+	# Two-step: incoming requests render first (top), then the friends list is
+	# appended below. Chained so the order is deterministic (no clear-race).
+	Client.request_data(&"friend.requests", _fill_requests)
 
 
-func fill_friend_list(payload: Dictionary) -> void:
+## Renders the "Friend requests" section (Accept / Decline), then kicks off the
+## friends-list fetch which appends below without clearing.
+func _fill_requests(payload: Dictionary) -> void:
 	_clear_list()
+	var incoming: Dictionary = payload.get("incoming", {})
+	if not incoming.is_empty():
+		_section_header("Friend requests")
+		for requester_id: Variant in incoming:
+			var entry: Dictionary = incoming[requester_id]
+			_add_request_row(int(requester_id), str(entry.get("name", "Unknown")), bool(entry.get("online", false)))
+		_section_header("Friends")
+	Client.request_data(&"friend.list", _append_friends)
 
-	if payload.is_empty():
-		_empty_hint("No friends yet. Search above to find players.")
-		return
 
-	for friend_id: int in payload:
-		var friend_payload: Dictionary = payload.get(friend_id, {})
-		var friend_name: String = friend_payload.get("name", "Unknown")
-		var is_online: bool = friend_payload.get("online", false)
+func _append_friends(payload: Dictionary) -> void:
+	var has_friends: bool = false
+	for friend_id: Variant in payload:
+		var friend_payload: Variant = payload.get(friend_id, {})
+		if not (friend_payload is Dictionary):
+			continue  # skip any error/ok scalar keys
+		has_friends = true
+		var friend_name: String = (friend_payload as Dictionary).get("name", "Unknown")
+		var is_online: bool = (friend_payload as Dictionary).get("online", false)
 		_add_row(int(friend_id), friend_name, "", is_online)
 
-	DragScroll.enable(_scroll) # touch/mouse drag-to-scroll the friends list
+	if not has_friends and _list.get_child_count() == 0:
+		_empty_hint("No friends yet. Search above to find players.")
+
+	DragScroll.enable(_scroll) # touch/mouse drag-to-scroll the list
+
+
+## A pending incoming request row: name + Accept / Decline buttons.
+func _add_request_row(player_id: int, display_name: String, is_online: bool) -> void:
+	if player_id <= 0:
+		return
+	var row: HBoxContainer = HBoxContainer.new()
+	row.custom_minimum_size = Vector2(0, 44)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override(&"separation", 6)
+
+	var name_btn: Button = Button.new()
+	name_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	name_btn.text = "%s    %s" % [display_name, "- Online" if is_online else "Offline"]
+	name_btn.pressed.connect(_on_friend_button_pressed.bind(player_id))
+	row.add_child(name_btn)
+
+	var accept_btn: Button = Button.new()
+	accept_btn.text = "Accept"
+	accept_btn.add_theme_color_override(&"font_color", Color(0.55, 0.9, 0.55))
+	accept_btn.pressed.connect(func() -> void:
+		Client.request_data(&"friend.accept", func(_r: Variant) -> void: _refresh(), {"player_id": player_id}))
+	row.add_child(accept_btn)
+
+	var decline_btn: Button = Button.new()
+	decline_btn.text = "Decline"
+	decline_btn.pressed.connect(func() -> void:
+		Client.request_data(&"friend.decline", func(_r: Variant) -> void: _refresh(), {"player_id": player_id}))
+	row.add_child(decline_btn)
+
+	_list.add_child(row)
+
+
+func _section_header(text: String) -> void:
+	var header: Label = Label.new()
+	header.text = text
+	header.modulate.a = 0.6
+	_list.add_child(header)
 
 
 # ---------------------------------------------------------------------------

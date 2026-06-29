@@ -6,8 +6,23 @@
 script = ExtResource("1_gemjq")
 content_name = &"items"
 version = 1781372914
-next_id = 84
+next_id = 87
 entries = Array[Dictionary]([{
+&"hash": "redeem_sword_iron_84",
+&"id": 84,
+&"path": "res://source/common/gameplay/items/weapons/sword/sword_iron.item.tres",
+&"slug": &"sword_iron.item"
+}, {
+&"hash": "redeem_sword_arcane_85",
+&"id": 85,
+&"path": "res://source/common/gameplay/items/weapons/sword/sword_arcane.item.tres",
+&"slug": &"sword_arcane.item"
+}, {
+&"hash": "redeem_axe_void_86",
+&"id": 86,
+&"path": "res://source/common/gameplay/items/weapons/sword/axe_void.item.tres",
+&"slug": &"axe_void.item"
+}, {
 &"hash": "39482c65b2b821790313c848a2b006b977b0441bdd76ad1d84205629097c994e",
 &"id": 74,
 &"path": "res://source/common/gameplay/items/consumables/focus_tonic.tres",

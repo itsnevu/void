@@ -17,6 +17,8 @@
 
 # Project-local volatile data
 data/local/
+# Per-run server logs written by run.sh / run-web.sh / run-2clients.sh
+.run-logs/
 /source/server/master/account_collection.tres
 
 # godot-sqlite: ignore unused platform binaries

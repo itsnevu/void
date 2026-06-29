@@ -30,6 +30,9 @@ static func ensure_schema(db: SQLite) -> void:
 	if version < 7:
 		_migration_v7(db)
 		_set_schema_version(db, 7)
+	if version < 8:
+		_migration_v8(db)
+		_set_schema_version(db, 8)
 
 
 static func _migration_v1(db: SQLite) -> void:
@@ -183,6 +186,19 @@ static func _migration_v7(db: SQLite) -> void:
 		"deleted_at_ms": {"data_type": "int", "not_null": false}
 	})
 	db.query("CREATE UNIQUE INDEX IF NOT EXISTS idx_mail_state_pk ON mail_state(player_id, mail_id);")
+
+
+## Pending friend requests. A row (from_id -> to_id) means from_id asked to befriend
+## to_id and is awaiting accept/decline. Friendship itself stays in players.friends_json
+## (now written to BOTH sides on accept). New table - no players-table migration.
+static func _migration_v8(db: SQLite) -> void:
+	_create_table_if_missing(db, "friend_requests", {
+		"from_id": {"data_type": "int", "not_null": true},
+		"to_id": {"data_type": "int", "not_null": true},
+		"created_ms": {"data_type": "int", "not_null": true}
+	})
+	db.query("CREATE UNIQUE INDEX IF NOT EXISTS idx_friend_requests_pk ON friend_requests(from_id, to_id);")
+	db.query("CREATE INDEX IF NOT EXISTS idx_friend_requests_to ON friend_requests(to_id);")
 
 
 static func _column_exists(db: SQLite, table: String, column: String) -> bool:

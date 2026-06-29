@@ -5,6 +5,14 @@ extends Area2D
 ## broadcasts its full state to the whole instance, so seats AND offers are visible
 ## in-world to everyone nearby (no separate spectator system needed).
 ##
+## ANTI-DUPE via ESCROW: the moment a player ACCEPTS, their offered items+gold are
+## removed from their inventory and held in `seat_escrow`. Un-accepting, changing the
+## offer, leaving, walking away, or DISCONNECTING refunds the escrow to the owner.
+## Completion just hands each side's escrow to the other. So an offered item can never
+## be in two places at once: it's either in the owner's bag, in escrow, or delivered -
+## never duplicated by a mid-trade save/disconnect, and never swapped after the offer
+## changed (changing the offer refunds + un-accepts).
+##
 ## Setup: Area2D + CollisionShape2D over the table, a unique table_id, direct child of
 ## the Map (like the merchant / crafting station).
 
@@ -18,13 +26,20 @@ extends Area2D
 const COUNTDOWN_MS: int = 12000
 ## Max distinct items one player can put in an offer (keeps trades simple).
 const MAX_OFFER_ITEMS: int = 6
+## Server-only group so disconnect cleanup can sweep every table without a registry.
+const SERVER_GROUP: StringName = &"trade_tables"
 
 ## Server only. Per seat (index 0 = A, 1 = B):
 var seat_players: Array = [null, null]               # Player ref or null
 var seat_offers: Array = []                          # {"items": {item_id:int -> amount:int}, "gold": int}
 var seat_accepted: Array[bool] = [false, false]
+## Goods actually pulled out of the player's inventory on accept (the escrow). Same
+## shape as an offer. Refunded on cancel/disconnect, delivered on completion.
+var seat_escrow: Array = []
 ## When (ticks_msec) the swap fires once both have accepted (0 = no countdown running).
 var countdown_until: int = 0
+## Re-entrancy guard so the swap can never double-execute.
+var _completing: bool = false
 
 var _seat_labels: Array[Label] = []
 var _countdown_label: Label
@@ -33,6 +48,8 @@ var _countdown_label: Label
 func _ready() -> void:
 	if multiplayer.is_server():
 		seat_offers = [_empty_offer(), _empty_offer()]
+		seat_escrow = [_empty_offer(), _empty_offer()]
+		add_to_group(SERVER_GROUP)
 		input_pickable = false
 		set_physics_process(true) # auto-leave + countdown
 		return
@@ -52,12 +69,15 @@ static func _empty_offer() -> Dictionary:
 func _physics_process(_delta: float) -> void:
 	var changed: bool = false
 
-	# Auto-remove players who walked away or disconnected.
+	# Auto-remove players who walked away, disconnected, or whose node went away.
 	for i: int in seat_players.size():
 		var occupant = seat_players[i]
 		if occupant == null:
 			continue
-		if not is_instance_valid(occupant) or occupant.global_position.distance_to(global_position) > seat_range:
+		var gone: bool = not is_instance_valid(occupant) \
+			or int(occupant.player_resource.current_peer_id) <= 0 \
+			or occupant.global_position.distance_to(global_position) > seat_range
+		if gone:
 			_clear_seat(i)
 			changed = true
 
@@ -73,13 +93,18 @@ func _physics_process(_delta: float) -> void:
 
 
 func _clear_seat(index: int) -> void:
+	_refund_escrow(index)            # give back what THIS seat escrowed (player still set)
 	seat_players[index] = null
 	seat_offers[index] = _empty_offer()
-	_reset_accepts()
+	_reset_accepts()                 # refunds the OTHER seat + clears accepts/countdown
 
 
-## Any change to seats/offers invalidates both accepts and cancels a pending swap.
+## Any change to seats/offers invalidates both accepts, refunds both escrows, and
+## cancels a pending swap. Escrow refund is what makes "change offer after accept"
+## safe - the accepted goods go back before anything can be swapped.
 func _reset_accepts() -> void:
+	_refund_escrow(0)
+	_refund_escrow(1)
 	seat_accepted = [false, false]
 	countdown_until = 0
 
@@ -92,30 +117,137 @@ func server_remove_player(player: Player) -> bool:
 	return true
 
 
+## Disconnect path: the world server has the PlayerResource (not the Player node), so
+## match by resource. Refund happens into resource.inventory, which the caller then
+## persists - so a disconnect during a trade returns the escrowed goods cleanly.
+func server_remove_player_by_resource(resource: PlayerResource) -> bool:
+	for i: int in seat_players.size():
+		var p = seat_players[i]
+		if is_instance_valid(p) and p.player_resource != null \
+				and p.player_resource.player_id == resource.player_id:
+			# Refund THIS seat's escrow straight into the resource being persisted,
+			# then free the seat. _reset_accepts() refunds the OTHER seat to its
+			# (still-online) player.
+			_grant_to_inventory(seat_escrow[i], resource.inventory)
+			seat_escrow[i] = _empty_offer()
+			seat_players[i] = null
+			seat_offers[i] = _empty_offer()
+			_reset_accepts()
+			return true
+	return false
+
+
 func server_set_offer(player: Player, items: Dictionary, gold: int) -> void:
 	var seat: int = seat_players.find(player)
 	if seat == -1:
 		return
 	seat_offers[seat] = {"items": items, "gold": gold}
-	_reset_accepts() # changing an offer un-confirms both sides
+	_reset_accepts() # changing an offer un-confirms both sides (and refunds escrow)
 
 
 func server_set_accepted(player: Player, accepted: bool) -> void:
 	var seat: int = seat_players.find(player)
 	if seat == -1:
 		return
-	seat_accepted[seat] = accepted
+	if accepted == seat_accepted[seat]:
+		return # idempotent: re-pressing accept can't re-escrow or re-arm the countdown
+	if accepted:
+		# Escrow the offer NOW (atomic removal from inventory). If they can't afford
+		# it anymore, leave them un-accepted.
+		if not _escrow_seat(seat):
+			return
+		seat_accepted[seat] = true
+	else:
+		_refund_escrow(seat)
+		seat_accepted[seat] = false
+
 	if seat_accepted[0] and seat_accepted[1]:
 		countdown_until = Time.get_ticks_msec() + COUNTDOWN_MS
 	else:
 		countdown_until = 0
 
 
+## Move a seat's offered gold+items out of the player's inventory into escrow.
+## All-or-nothing: validates affordability first, honours every remove return value,
+## and rolls back (refunds) if any removal unexpectedly fails. Returns success.
+func _escrow_seat(seat: int) -> bool:
+	var player = seat_players[seat]
+	if not is_instance_valid(player):
+		return false
+	var offer: Dictionary = seat_offers[seat]
+	var inv: Dictionary = player.player_resource.inventory
+	if not _can_afford(inv, offer):
+		return false
+
+	var esc: Dictionary = _empty_offer()
+	var gold: int = int(offer.get("gold", 0))
+	if gold > 0:
+		if not Inventory.remove_amount_by_id(inv, Economy.gold_id(), gold):
+			_grant(esc, player) # nothing escrowed yet; safe no-op
+			return false
+		esc["gold"] = gold
+	var items: Dictionary = offer.get("items", {})
+	for item_id in items:
+		var amount: int = int(items[item_id])
+		if not Inventory.remove_amount_by_id(inv, int(item_id), amount):
+			_grant(esc, player) # roll back whatever we already pulled
+			return false
+		esc["items"][int(item_id)] = amount
+	seat_escrow[seat] = esc
+	return true
+
+
+## Refund a seat's escrow back to its own player and clear it. Idempotent.
+func _refund_escrow(index: int) -> void:
+	if index < 0 or index >= seat_escrow.size():
+		return
+	_grant(seat_escrow[index], seat_players[index])
+	seat_escrow[index] = _empty_offer()
+
+
+## Hand a seat's escrow to a (different) recipient and clear it - used on completion.
+func _deliver_escrow(from_seat: int, to_player) -> void:
+	_grant(seat_escrow[from_seat], to_player)
+	seat_escrow[from_seat] = _empty_offer()
+
+
+## Add an escrow's gold + items into [param player]'s inventory (no-op if invalid).
+func _grant(escrow: Dictionary, player) -> void:
+	if not is_instance_valid(player):
+		return
+	_grant_to_inventory(escrow, player.player_resource.inventory)
+
+
+## Add an escrow's gold + items straight into an inventory dict. Used on disconnect,
+## where we must refund into the exact PlayerResource the world server is about to
+## persist (not whatever the seat node happens to reference).
+func _grant_to_inventory(escrow: Dictionary, inventory: Dictionary) -> void:
+	var gold: int = int(escrow.get("gold", 0))
+	if gold > 0:
+		Inventory.add_item(inventory, Economy.gold_id(), gold)
+	var items: Dictionary = escrow.get("items", {})
+	for item_id in items:
+		for _i: int in int(items[item_id]):
+			Inventory.add_item(inventory, int(item_id), 1)
+
+
 func _complete_trade() -> void:
 	countdown_until = 0
+	if _completing:
+		return
+	_completing = true
+
 	var a = seat_players[0]
 	var b = seat_players[1]
-	var ok: bool = is_instance_valid(a) and is_instance_valid(b) and _try_swap(a, b)
+	var ok: bool = is_instance_valid(a) and is_instance_valid(b)
+	if ok:
+		# Goods are already escrowed; just hand each side's escrow to the other.
+		_deliver_escrow(0, b)
+		_deliver_escrow(1, a)
+	else:
+		# A participant vanished mid-countdown - refund both, swap nothing.
+		_refund_escrow(0)
+		_refund_escrow(1)
 
 	# Clear the table either way; players stay seated and can trade again.
 	seat_offers = [_empty_offer(), _empty_offer()]
@@ -127,16 +259,7 @@ func _complete_trade() -> void:
 			if peer_id > 0:
 				WorldServer.curr.data_push.rpc_id(peer_id, &"trade.result", {"ok": ok})
 
-
-## Validates both offers against current inventories, then swaps atomically.
-func _try_swap(a: Player, b: Player) -> bool:
-	var inv_a: Dictionary = a.player_resource.inventory
-	var inv_b: Dictionary = b.player_resource.inventory
-	if not _can_afford(inv_a, seat_offers[0]) or not _can_afford(inv_b, seat_offers[1]):
-		return false
-	_give(inv_a, inv_b, seat_offers[0])
-	_give(inv_b, inv_a, seat_offers[1])
-	return true
+	_completing = false
 
 
 func _can_afford(inventory: Dictionary, offer: Dictionary) -> bool:
@@ -147,19 +270,6 @@ func _can_afford(inventory: Dictionary, offer: Dictionary) -> bool:
 		if Inventory.count(inventory, int(item_id)) < int(items[item_id]):
 			return false
 	return true
-
-
-func _give(from_inventory: Dictionary, to_inventory: Dictionary, offer: Dictionary) -> void:
-	var gold: int = int(offer.get("gold", 0))
-	if gold > 0:
-		Inventory.remove_amount_by_id(from_inventory, Economy.gold_id(), gold)
-		Inventory.add_item(to_inventory, Economy.gold_id(), gold)
-	var items: Dictionary = offer.get("items", {})
-	for item_id in items:
-		var amount: int = int(items[item_id])
-		Inventory.remove_amount_by_id(from_inventory, int(item_id), amount)
-		for i: int in amount:
-			Inventory.add_item(to_inventory, int(item_id), 1)
 
 
 func _server_instance() -> Node:

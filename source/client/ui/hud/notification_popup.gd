@@ -26,6 +26,12 @@ func pop_notification(topic: StringName, payload: Dictionary) -> void:
 
 
 func _on_cancel_button_pressed() -> void:
+	# "Refuse" must actually drop the pending request server-side, not just close.
+	if current_notification_topic == &"friend.request":
+		Client.request_data(
+			&"friend.decline", Callable(),
+			{"player_id": current_notification_payload.get("player_id", 0)}
+		)
 	hide()
 
 

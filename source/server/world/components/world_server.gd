@@ -110,6 +110,13 @@ func _on_peer_disconnected(peer_id: int) -> void:
 		if session_seconds > 0:
 			player.lb_stats["played_seconds"] = int(player.lb_stats.get("played_seconds", 0)) + session_seconds
 
+	# Trade: refund any escrowed goods + free the seat BEFORE persisting, so a
+	# disconnect mid-trade returns the items to the inventory we're about to save
+	# (instead of duplicating or losing them). A player sits at one table at most.
+	for table: Node in get_tree().get_nodes_in_group(TradeTable.SERVER_GROUP):
+		if (table as TradeTable).server_remove_player_by_resource(player):
+			break
+
 	database.save_player(player)
 
 	player_id_to_peer_id.erase(player.player_id)
@@ -187,6 +194,18 @@ func recall_player(player: Player) -> void:
 	if player == null or player.player_resource == null:
 		return
 	instance_manager.recall_player(int(player.player_resource.current_peer_id))
+
+
+## Returns a PlayerResource safe to mutate + save_player() for [param player_id]:
+## the LIVE connected copy when the player is online (so their running session
+## reflects the change immediately), else a fresh copy loaded from the DB when
+## offline. Returns null if the player id is unknown. Used by social features
+## (friends) that must write to BOTH sides of a relationship.
+func get_player_for_write(player_id: int) -> PlayerResource:
+	var peer: int = int(player_id_to_peer_id.get(player_id, 0))
+	if peer > 0:
+		return connected_players.get(peer)
+	return database.store.get_player(player_id)
 
 
 @rpc("any_peer", "call_remote", "reliable", 1)

@@ -156,6 +156,65 @@ func get_account_characters(account_name: String) -> Dictionary:
 	return out
 
 
+#region Friend requests
+## Record a pending request from_id -> to_id (idempotent via the unique index).
+func add_friend_request(from_id: int, to_id: int, now_ms: int) -> void:
+	db.query_with_bindings(
+		"INSERT OR IGNORE INTO friend_requests(from_id, to_id, created_ms) VALUES(?, ?, ?);",
+		[from_id, to_id, now_ms]
+	)
+
+
+func has_friend_request(from_id: int, to_id: int) -> bool:
+	db.query_with_bindings(
+		"SELECT 1 FROM friend_requests WHERE from_id=? AND to_id=? LIMIT 1;",
+		[from_id, to_id]
+	)
+	return not db.query_result.is_empty()
+
+
+func remove_friend_request(from_id: int, to_id: int) -> void:
+	db.query_with_bindings(
+		"DELETE FROM friend_requests WHERE from_id=? AND to_id=?;",
+		[from_id, to_id]
+	)
+
+
+## player_ids who have a pending request addressed TO this player (incoming).
+func list_incoming_requests(to_id: int) -> PackedInt64Array:
+	db.query_with_bindings(
+		"SELECT from_id FROM friend_requests WHERE to_id=? ORDER BY created_ms;",
+		[to_id]
+	)
+	var out: PackedInt64Array = []
+	for row: Dictionary in db.query_result:
+		out.append(int(row.get("from_id", 0)))
+	return out
+
+
+## player_ids this player has sent a request TO (outgoing, for "Requested" UI).
+func list_outgoing_requests(from_id: int) -> PackedInt64Array:
+	db.query_with_bindings(
+		"SELECT to_id FROM friend_requests WHERE from_id=? ORDER BY created_ms;",
+		[from_id]
+	)
+	var out: PackedInt64Array = []
+	for row: Dictionary in db.query_result:
+		out.append(int(row.get("to_id", 0)))
+	return out
+
+
+## Lightweight read of a player's block list straight from the row (works for
+## OFFLINE players, where the in-memory BlockList cache has nothing).
+func get_blocked_ids(player_id: int) -> PackedInt64Array:
+	db.query_with_bindings("SELECT blocked_ids_json FROM players WHERE player_id=?;", [player_id])
+	if db.query_result.is_empty():
+		return PackedInt64Array()
+	var v: Variant = JSON.parse_string(str(db.query_result[0].get("blocked_ids_json", "[]")))
+	return PackedInt64Array(v if v is Array else [])
+#endregion
+
+
 ## Returns the persisted ownership of a flag, or {} if no row exists (flag never
 ## captured - treat as unowned, full HP, no grace period).
 func get_flag_state(flag_id: int) -> Dictionary:

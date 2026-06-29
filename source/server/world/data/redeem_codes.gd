@@ -30,6 +30,25 @@ static var _cache: Dictionary = {}
 ## Body intentional - see class docstring (stripped from client exports).
 static func _table() -> Dictionary:
 	return {
+		# --- Redeem-only weapons (one code each; per-character claim, see header) ---
+		"IRONEDGE": {
+			"note": "Redeem weapon - Iron Edge (sword).",
+			"grants": [
+				{"type": "item", "id": 84, "amount": 1},  # Iron Edge
+			],
+		},
+		"ARCANEBLADE": {
+			"note": "Redeem weapon - Arcane Blade (sword).",
+			"grants": [
+				{"type": "item", "id": 85, "amount": 1},  # Arcane Blade
+			],
+		},
+		"VOIDCLEAVER": {
+			"note": "Redeem weapon - Void Cleaver (axe).",
+			"grants": [
+				{"type": "item", "id": 86, "amount": 1},  # Void Cleaver
+			],
+		},
 		"EMBERFOUNDER": {
 			"note": "Alpha-tester thank-you. Universal, no expiry.",
 			"grants": [
