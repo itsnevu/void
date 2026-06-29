@@ -4,6 +4,7 @@ extends Entity
 
 
 signal display_name_changed(new_name: String)
+signal level_changed(new_level: int)
 
 enum Animations {
 	IDLE,
@@ -18,6 +19,14 @@ var skin_id: int:
 
 var display_name: String = "Unknown":
 	set = _set_display_name
+
+## Character level, replicated via :level so OTHER players see it on the over-head
+## nameplate. Server sets it at spawn (and on level-up); clients mirror + show it.
+var level: int = 1:
+	set = _set_level
+
+## Over-head "Lv N" badge (players only, built in code). Null on the server / NPCs.
+var _level_label: Label
 
 var anim: Animations = Animations.IDLE:
 	set = _set_anim
@@ -95,6 +104,8 @@ func _ready() -> void:
 	_on_stat_changed(Stat.HEALTH_MAX, stats_component.get_stat(Stat.HEALTH_MAX))
 	stats_component.stats.stat_changed.connect(_on_stat_changed)
 	set_health_bar_fill(BAR_COLOR_HOSTILE) # default; subclasses recolor by team
+	if self is Player:
+		_create_level_label() # over-head "Lv N", players only (not NPCs)
 
 
 ## Client: paint the over-head HP bar fill a solid color. Always SET (never
@@ -424,3 +435,37 @@ func _set_display_name(new_name: String) -> void:
 	display_name = new_name
 	if not multiplayer.is_server():
 		display_name_changed.emit(new_name)
+
+
+func _set_level(value: int) -> void:
+	level = value
+	if multiplayer.is_server():
+		return
+	level_changed.emit(value)
+	_update_level_label()
+
+
+## Over-head "Lv N" badge to the LEFT of the HP bar. Built in code so no per-
+## character scene edit is needed; [method _set_level] keeps its text in sync.
+func _create_level_label() -> void:
+	if _level_label != null:
+		return
+	_level_label = Label.new()
+	_level_label.name = "LevelLabel"
+	_level_label.position = Vector2(-52, -45)
+	_level_label.custom_minimum_size = Vector2(34, 12)
+	_level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_level_label.add_theme_font_size_override(&"font_size", 9)
+	_level_label.add_theme_color_override(&"font_color", Color(1.0, 0.92, 0.55))
+	_level_label.add_theme_constant_override(&"outline_size", 4)
+	_level_label.add_theme_color_override(&"font_outline_color", Color(0, 0, 0, 0.9))
+	_level_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_level_label.z_index = 5
+	add_child(_level_label)
+	_update_level_label()
+
+
+func _update_level_label() -> void:
+	if _level_label != null:
+		_level_label.text = "Lv %d" % level

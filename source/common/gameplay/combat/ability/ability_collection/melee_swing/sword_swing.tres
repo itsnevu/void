@@ -8,5 +8,6 @@ script = ExtResource("1_swing")
 swing_animation = &"weapon/sword.swing"
 name = "Sword Swing"
 cooldown = 0.6
+slash_sound = "res://assets/audio/sfx/slashbiasa.wav"
 metadata/slug = &"sword_swing"
 metadata/id = 7

@@ -24,6 +24,11 @@ var wallet_amount: Label
 ## "Hotkey" button in the detail strip (created next to ActionButton at
 ## runtime) - assigns the selected bag item to a HUD quick slot.
 var hotkey_button: Button
+## "Trash" button (destroys the selected bag slot), the slot it acts on, and a
+## two-tap arm flag so one stray click can't delete an item.
+var trash_button: Button
+var _selected_slot_uid: int
+var _trash_armed: bool
 ## Crisp pixel preview mounted onto %DetailIcon (used as a sizing host; its own texture stays null).
 var _detail_pixel: TextureRect
 @onready var equipment_slots: GridContainer = %EquipmentSlots
@@ -64,6 +69,20 @@ func _ready() -> void:
 	hotkey_button.disabled = true
 	hotkey_button.pressed.connect(_on_hotkey_button_pressed)
 	action_button.add_sibling(hotkey_button)
+
+	trash_button = Button.new()
+	trash_button.text = "Trash"
+	trash_button.custom_minimum_size = action_button.custom_minimum_size
+	trash_button.size_flags_vertical = action_button.size_flags_vertical
+	var trash_style: StyleBoxFlat = StyleBoxFlat.new()
+	trash_style.bg_color = Color(0.42, 0.16, 0.16, 0.95)
+	trash_style.set_corner_radius_all(6)
+	trash_button.add_theme_stylebox_override(&"normal", trash_style)
+	trash_button.disabled = true
+	trash_button.pressed.connect(_on_trash_button_pressed)
+	hotkey_button.add_sibling(trash_button)
+
+	_build_quick_slot_strip()
 
 	_connect_equipment_signal()
 	ClientState.local_player_ready.connect(func(_lp: LocalPlayer): _connect_equipment_signal())
@@ -139,7 +158,10 @@ func _passes_category(item: Item) -> bool:
 
 
 func _add_bag_button(_slot_uid: int, item_id: int, item: Item, quantity: int) -> void:
-	var button: Button = Button.new()
+	# BagItemButton (not a plain Button) so the cell can be DRAGGED onto a HUD
+	# quick slot; clicking still selects it for the detail strip exactly as before.
+	var button: BagItemButton = BagItemButton.new()
+	button.item = item
 	button.custom_minimum_size = Vector2(64, 64)
 	button.clip_contents = true
 	PixelIcon.mount(button, item.item_icon)
@@ -149,14 +171,18 @@ func _add_bag_button(_slot_uid: int, item_id: int, item: Item, quantity: int) ->
 		qty.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
 		qty.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		button.add_child(qty)
-	button.pressed.connect(_on_bag_item_pressed.bind(item_id, item))
+	button.pressed.connect(_on_bag_item_pressed.bind(_slot_uid, item_id, item))
 	inventory_grid.add_child(button)
 
 
-func _on_bag_item_pressed(item_id: int, item: Item) -> void:
+func _on_bag_item_pressed(slot_uid: int, item_id: int, item: Item) -> void:
 	_selected_gear_slot = &""
 	_selected_item = item
 	_selected_item_id = item_id
+	_selected_slot_uid = slot_uid
+	# Any bag item can be trashed (currency is filtered out of the grid entirely).
+	trash_button.disabled = false
+	_reset_trash_arm()
 	PixelIcon.set_art(_detail_pixel, item.item_icon)
 	detail_name.text = str(item.item_name)
 	detail_description.bbcode_enabled = true
@@ -198,6 +224,9 @@ func _on_gear_slot_pressed(slot_button: GearSlotButton) -> void:
 	action_button.text = "Unequip"
 	action_button.disabled = false
 	hotkey_button.disabled = true # bag items only - equipped gear isn't in the bag
+	trash_button.disabled = true # unequip before trashing (equip is id-based)
+	_selected_slot_uid = 0
+	_reset_trash_arm()
 
 
 func _clear_detail() -> void:
@@ -208,8 +237,62 @@ func _clear_detail() -> void:
 	detail_name.text = "Select an item"
 	detail_description.text = ""
 	action_button.disabled = true
+	_selected_slot_uid = 0
 	if hotkey_button != null:
 		hotkey_button.disabled = true
+	if trash_button != null:
+		trash_button.disabled = true
+		_reset_trash_arm()
+
+
+## Three drop targets for the HUD quick slots (keys 1/2/3), parked at the right
+## of the detail strip: DRAG a bag cell onto one to bind it (the Hotkey button
+## is the click/touch equivalent). They share ClientState.quick_slots, so the
+## HUD bar and these mirrors always agree.
+func _build_quick_slot_strip() -> void:
+	var strip: HBoxContainer = HBoxContainer.new()
+	strip.add_theme_constant_override(&"separation", 4)
+	strip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var label: Label = Label.new()
+	label.text = "Quick"
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_color_override(&"font_color", Color(0.75, 0.78, 0.85))
+	strip.add_child(label)
+	for i: int in 3:
+		var slot: QuickSlotDrop = QuickSlotDrop.new()
+		strip.add_child(slot)
+		slot.setup(i)
+	hotkey_button.add_sibling(strip)
+
+
+## Reset the Trash button to its idle label/state (un-arm the two-tap confirm).
+func _reset_trash_arm() -> void:
+	_trash_armed = false
+	if trash_button != null:
+		trash_button.text = "Trash"
+
+
+## Two-tap: first tap arms ("Sure?"), second tap destroys the selected bag slot
+## via the server. Refuses while nothing's selected; the server re-checks.
+func _on_trash_button_pressed() -> void:
+	if _selected_item == null or _selected_slot_uid <= 0:
+		return
+	if not _trash_armed:
+		_trash_armed = true
+		trash_button.text = "Sure?"
+		return
+	_reset_trash_arm()
+	var slot_uid: int = _selected_slot_uid
+	var result: Array = await Client.request_data_await(&"inventory.trash", {"slot_uid": slot_uid}, InstanceClient.current.name)
+	var payload: Dictionary = result[0] if result[1] == OK and result[0] is Dictionary else {}
+	if not bool(payload.get("ok", false)):
+		match str(payload.get("reason", "")):
+			"equipped": Toaster.toast("Unequip it before trashing.")
+			"currency": Toaster.toast("Can't trash currency.")
+			_: Toaster.toast("Couldn't trash that.")
+		return
+	_clear_detail()
+	fill_inventory()
 
 
 ## Opens the shared slot picker for the selected bag item. Picking the slot

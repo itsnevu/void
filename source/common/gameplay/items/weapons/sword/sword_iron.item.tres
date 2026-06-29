@@ -1,22 +1,33 @@
 [gd_resource type="Resource" script_class="WeaponItem" format=3]
 
+[ext_resource type="Script" uid="uid://cvggwjkht4km4" path="res://source/common/gameplay/combat/attributes/stat_modifier.gd" id="0_mod"]
 [ext_resource type="PackedScene" uid="uid://cq4pqfg3tnqxh" path="res://source/common/gameplay/items/weapons/sword/sword.tscn" id="1_scene"]
 [ext_resource type="Texture2D" uid="uid://cymqos53hckpf" path="res://assets/sprites/items/weapons/sword/sword_basic.png" id="2_tex"]
 [ext_resource type="Script" uid="uid://5hk0gl5ng64h" path="res://source/common/gameplay/items/weapon_item.gd" id="3_item"]
 [ext_resource type="Resource" uid="uid://qav4p12rsbn3" path="res://source/common/gameplay/items/item_slot/slots/weapon.tres" id="4_slot"]
 
+[sub_resource type="Resource" id="Mod_ad_iron"]
+script = ExtResource("0_mod")
+stat_name = "ad"
+value = 8.0
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_iron"]
 atlas = ExtResource("2_tex")
-region = Rect2(0, 0, 48, 56)
+region = Rect2(0, 0, 64, 72)
 
 [resource]
 script = ExtResource("3_item")
 category = &"sword"
 right_hand_scene = ExtResource("1_scene")
 slot = ExtResource("4_slot")
+base_modifiers = Array[ExtResource("0_mod")]([SubResource("Mod_ad_iron")])
+sprite_scale = 0.5
+flip_sprite = true
+arc_radius_override = 28.0
+reach_override = 2.0
 item_name = &"Iron Edge"
 item_icon = SubResource("AtlasTexture_iron")
-description = "A keen, well-balanced blade. A redeem-only reward for the worthy."
+description = "A keen, well-balanced blade. Earn the gold, claim the edge."
 can_trade = true
 can_sell = true
 stack_limit = 1

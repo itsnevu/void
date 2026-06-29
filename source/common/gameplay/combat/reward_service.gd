@@ -94,6 +94,8 @@ static func _reward(player: Player, npc: HostileNpc) -> void:
 	LeaderboardService.record_pve_kill(player)
 
 	if int(progress.get("levels_gained", 0)) > 0:
+		# Push the new level to every client's over-head nameplate (see Character.level).
+		player.state_synchronizer.set_by_path(^":level", resource.level)
 		var inst: Node = WorldServer.curr.instance_manager.find_instance_for_peer(peer_id) if peer_id > 0 else null
 		LevelMilestoneService.on_levels_gained(resource, level_before, int(progress.get("level", 1)), inst)
 

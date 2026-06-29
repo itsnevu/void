@@ -36,6 +36,19 @@ extends AbilityResource
 ## reusing the same arc scene - pair it with a matching [member impact_reach].
 @export var arc_radius: float = 0.0
 
+@export_group("Slash VFX")
+## Tint of the slash crescent thrown on swing. Default steel-white for plain
+## weapons; WeaponItem.fancy_slash pushes a violet here for special weapons.
+@export var slash_color: Color = Color(0.92, 0.96, 1.0)
+## Size multiplier for the crescent (a greatweapon reads bigger than a dagger).
+@export var slash_scale: float = 1.0
+## Brighter additive double-stroke for special weapons (arcane blade, void axe).
+@export var slash_fancy: bool = false
+## Optional swing/whoosh sound (res:// path), played client-side on swing. Empty
+## = silent. NOTE: no whoosh asset ships yet - drop one in assets/audio/sfx and
+## set this (per weapon via WeaponItem, or here for the shared default).
+@export var slash_sound: String = ""
+
 
 func use_ability(user: Entity, direction: Vector2) -> void:
 	# Animation runs on every peer (client AND server) so the swing reads
@@ -43,6 +56,11 @@ func use_ability(user: Entity, direction: Vector2) -> void:
 	# on the headless server, so we can call it unconditionally.
 	if user is Character:
 		(user as Character).play_action_animation(swing_animation)
+
+	# Slash flourish + optional sound: client-only, timed with the swing anim.
+	# (Telegraphed heavy swings skip it - their CastTelegraph IS the wind-up read.)
+	if GameMode.is_client() and cast_time_s <= 0.0 and user is Character:
+		_spawn_slash(user, direction)
 
 	# Telegraphed heavy swing: show the danger zone on clients while the wind-up
 	# plays, and DELAY the damage so it lands with the visual (targets can step
@@ -90,6 +108,25 @@ func _fire_arc(user: Entity, direction: Vector2) -> void:
 	arc.global_position = user.global_position + dir_norm * spawn_offset
 	arc.rotation = dir_norm.angle()
 	user.get_parent().add_child(arc)
+
+
+## Client-only slash crescent (and optional whoosh) thrown along the swing.
+## Spawned in the world like the hitbox so it sits in front of the wielder.
+func _spawn_slash(user: Entity, direction: Vector2) -> void:
+	if user == null or user.get_parent() == null:
+		return
+	var dir_norm: Vector2 = direction.normalized() if direction != Vector2.ZERO else Vector2.RIGHT
+	var slash: SlashEffect = SlashEffect.new()
+	user.get_parent().add_child(slash)
+	# Spawn at the HAND, not the character origin (which sits at the feet in this
+	# top-down view) - otherwise the arc draws on the ground under the character.
+	var origin: Vector2 = user.global_position
+	if user is Character and (user as Character).right_hand_spot != null:
+		origin = (user as Character).right_hand_spot.global_position
+	slash.global_position = origin + dir_norm * (spawn_offset + 4.0)
+	slash.setup(dir_norm, slash_color, slash_scale, slash_fancy)
+	if not slash_sound.is_empty() and is_instance_valid(Client) and Client.audio_manager != null:
+		Client.audio_manager.play_sfx(slash_sound, user.global_position)
 
 
 ## Client-visual danger marker shown during a telegraphed swing's wind-up, at

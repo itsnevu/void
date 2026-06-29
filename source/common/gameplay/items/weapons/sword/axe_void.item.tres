@@ -9,11 +9,11 @@
 [sub_resource type="Resource" id="Mod_ad_void"]
 script = ExtResource("0_mod")
 stat_name = "ad"
-value = 20.0
+value = 14.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_void"]
 atlas = ExtResource("2_tex")
-region = Rect2(0, 0, 34, 56)
+region = Rect2(0, 0, 50, 72)
 
 [resource]
 script = ExtResource("3_item")
@@ -22,6 +22,15 @@ capacity = 3
 right_hand_scene = ExtResource("1_scene")
 slot = ExtResource("4_slot")
 base_modifiers = Array[ExtResource("0_mod")]([SubResource("Mod_ad_void")])
+sprite_scale = 0.6
+flip_sprite = true
+attack_cooldown_override = 1.0
+ad_ratio_override = 1.4
+arc_radius_override = 32.0
+reach_override = 4.0
+slash_sound_override = "res://assets/audio/sfx/axe.wav"
+fancy_slash = true
+slash_color = Color(0.5, 0.2, 0.72, 1)
 item_name = &"Void Cleaver"
 item_icon = SubResource("AtlasTexture_void")
 description = "A massive void-forged axe crowned with a purple gem. Redeem-only."

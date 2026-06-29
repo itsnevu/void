@@ -159,5 +159,6 @@ func _humanize(reason: String) -> String:
 		"already": return "You've already redeemed this code on this character."
 		"expired": return "This code has expired."
 		"rate_limited": return "Too many tries - wait a moment and try again."
+		"spectator": return "You can't redeem while spectating. Rejoin first."
 		"misconfigured": return "This code isn't set up correctly. Please report it."
 		_: return "Couldn't redeem that code."

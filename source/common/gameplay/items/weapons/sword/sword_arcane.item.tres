@@ -13,7 +13,7 @@ value = 15.0
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_arcane"]
 atlas = ExtResource("2_tex")
-region = Rect2(0, 0, 22, 56)
+region = Rect2(0, 0, 38, 72)
 
 [resource]
 script = ExtResource("3_item")
@@ -22,6 +22,13 @@ capacity = 3
 right_hand_scene = ExtResource("1_scene")
 slot = ExtResource("4_slot")
 base_modifiers = Array[ExtResource("0_mod")]([SubResource("Mod_ad_arcane")])
+sprite_scale = 0.75
+attack_cooldown_override = 0.7
+ad_ratio_override = 1.1
+arc_radius_override = 32.0
+reach_override = 4.0
+fancy_slash = true
+slash_color = Color(0.62, 0.45, 1, 1)
 item_name = &"Arcane Blade"
 item_icon = SubResource("AtlasTexture_arcane")
 description = "A runed greatblade wreathed in violet arcane fire. Redeem-only."

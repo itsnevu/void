@@ -16,6 +16,11 @@ var menus: Dictionary[StringName, Control]
 @onready var death_screen: ColorRect = $DeathScreen
 @onready var death_label: Label = $DeathScreen/Label
 
+## Live gold readout on the RIGHT of the xp bar (level sits on the left). Gold is
+## just the inventory count of the currency item, refetched on the moments it can
+## change (spawn, kill loot, gather, opening a menu) - see _refresh_gold.
+var _gold_label: Label
+
 ## UI-sound: button text that gets the softer "back" cue instead of the click.
 const BACK_BUTTON_LABELS: Array[String] = ["Close", "Back", "Cancel"]
 ## Menu open fade-in duration. Kept short + subtle on purpose (a soft arrival, not a flourish).
@@ -41,8 +46,17 @@ func _ready() -> void:
 	Client.subscribe(&"player.died", _on_player_died)
 	ClientState.local_player_ready.connect(func(_lp: LocalPlayer):
 		_refresh_progression()
+		_refresh_gold()
 		_maybe_show_welcome())
 	_refresh_progression()
+
+	# Live gold readout. Refetch on the moments gold can change: gathering ore,
+	# and opening a menu (covers shop buy/sell + trade on close-then-reopen). Kill
+	# loot is handled in _apply_progression (combat.reward carries the loot).
+	_build_gold_display()
+	ClientState.gather_succeeded.connect(func(_result: Dictionary): _refresh_gold())
+	ClientState.open_menu_requested.connect(func(_m: StringName): _refresh_gold())
+	_refresh_gold()
 
 	# Sparring countdown - big centered text fired each second by the server.
 	Client.subscribe(&"sparring.countdown", _on_sparring_countdown)
@@ -61,6 +75,55 @@ func _refresh_progression() -> void:
 	if InstanceClient.current == null:
 		return
 	Client.request_data(&"progression.get", _apply_progression, {}, InstanceClient.current.name)
+
+
+## Gold readout (icon + amount) pinned to the RIGHT end of the xp bar, mirroring
+## the "Lv N" label on the left. Built in code so no scene edit is needed.
+func _build_gold_display() -> void:
+	if _gold_label != null or experience_bar == null:
+		return
+	var box: HBoxContainer = HBoxContainer.new()
+	box.name = "GoldDisplay"
+	box.add_theme_constant_override(&"separation", 3)
+	box.anchor_left = 1.0
+	box.anchor_right = 1.0
+	box.anchor_top = 0.5
+	box.anchor_bottom = 0.5
+	box.offset_left = 8.0
+	box.offset_top = -10.0
+	box.offset_right = 64.0
+	box.offset_bottom = 10.0
+	box.grow_horizontal = 1
+	box.grow_vertical = 2
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var icon: TextureRect = TextureRect.new()
+	icon.custom_minimum_size = Vector2(13, 13)
+	icon.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var gold_item: Item = ContentRegistryHub.load_by_id(&"items", Economy.gold_id())
+	if gold_item != null:
+		icon.texture = gold_item.item_icon
+	box.add_child(icon)
+	_gold_label = Label.new()
+	_gold_label.text = "0"
+	_gold_label.add_theme_color_override(&"font_color", Color(1.0, 0.85, 0.45))
+	_gold_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_gold_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(_gold_label)
+	experience_bar.add_child(box)
+
+
+## Refetch the wallet (gold = inventory count of the currency item) and repaint.
+func _refresh_gold() -> void:
+	if InstanceClient.current == null:
+		return
+	Client.request_data(&"inventory.get", _on_gold_inventory, {}, InstanceClient.current.name)
+
+
+func _on_gold_inventory(inventory: Dictionary) -> void:
+	if _gold_label != null:
+		_gold_label.text = str(Inventory.count(inventory, Economy.gold_id()))
 
 
 ## First-run welcome modal, shown once via a client settings flag (so per install, not per character).
@@ -116,6 +179,10 @@ const MAX_LEVEL: int = 20
 
 ## Updates the xp bar + level label from progression.get or a combat.reward push.
 func _apply_progression(data: Dictionary) -> void:
+	# A combat.reward push carries kill loot (which may include gold) - refresh the
+	# wallet. progression.get refetches have no "loot" key, so they skip this.
+	if data.has("loot"):
+		_refresh_gold()
 	var level: int = int(data.get("level", -1))
 	var xp_to_next: int = int(data.get("xp_to_next", -1))
 	# At the cap the server sends xp_to_next == 0 - show MAX instead of a fake

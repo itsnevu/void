@@ -34,7 +34,7 @@ var _base_ability_count: int = 1
 ## sprite always matches the icon by construction. PLACEMENT (offset, centered,
 ## flip) stays from the weapon-TYPE scene; [param extra_offset] nudges a skin
 ## whose art sits differently (a taller blade). Client-only - pure visual.
-func apply_skin(icon: Texture2D, extra_offset: Vector2 = Vector2.ZERO) -> void:
+func apply_skin(icon: Texture2D, extra_offset: Vector2 = Vector2.ZERO, scale_mult: float = 1.0, flip: bool = false) -> void:
 	if not GameMode.is_client() or weapon_sprite == null or icon is not AtlasTexture:
 		return
 	var atlas: AtlasTexture = icon as AtlasTexture
@@ -42,6 +42,14 @@ func apply_skin(icon: Texture2D, extra_offset: Vector2 = Vector2.ZERO) -> void:
 	weapon_sprite.region_enabled = true
 	weapon_sprite.region_rect = atlas.region
 	weapon_sprite.position += extra_offset
+	# Big skin art (a 48-wide sword sheet vs the 16-wide art the type scene is
+	# drawn for) shrinks here so it doesn't dwarf the character.
+	if not is_equal_approx(scale_mult, 1.0):
+		weapon_sprite.scale *= scale_mult
+	# Skins drawn the opposite handedness from the type scene flip back so the
+	# blade points forward, not across the body.
+	if flip:
+		weapon_sprite.flip_h = not weapon_sprite.flip_h
 
 
 ## Drive the in-hand WeaponSprite from [param icon] - the held item's own icon (a

@@ -49,6 +49,12 @@ static func _table() -> Dictionary:
 				{"type": "item", "id": 86, "amount": 1},  # Void Cleaver
 			],
 		},
+		"SHADOWDAGGER": {
+			"note": "Redeem weapon - Shadow Dagger (fast, light).",
+			"grants": [
+				{"type": "item", "id": 87, "amount": 1},  # Shadow Dagger
+			],
+		},
 		"EMBERFOUNDER": {
 			"note": "Alpha-tester thank-you. Universal, no expiry.",
 			"grants": [

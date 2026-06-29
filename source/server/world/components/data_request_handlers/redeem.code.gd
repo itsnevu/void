@@ -5,7 +5,7 @@ extends DataRequestHandler
 ## by design - see docs/redeem_codes.md.
 ##
 ## Returns {"ok": true, "rewards": [{"type", "name", "amount"}, ...]}
-##      or {"ok": false, "reason": "unknown|expired|already|misconfigured|rate_limited|no_player"}.
+##      or {"ok": false, "reason": "unknown|expired|already|misconfigured|rate_limited|no_player|spectator"}.
 
 ## Anti-brute-force: a handful of tries per minute is ample for a human typing a code.
 const MAX_ATTEMPTS: int = 5
@@ -23,6 +23,11 @@ func data_request_handler(
 	var player: Player = instance.players_by_peer_id.get(peer_id, null)
 	if player == null or player.player_resource == null:
 		return {"ok": false, "reason": "no_player"}
+	# Spectators are out-of-body (the fireball form) - block redeeming so a code
+	# can't be claimed while spectating; they can redeem once they rejoin as
+	# themselves. Server-authoritative: never trust the client to self-gate.
+	if player.spectator:
+		return {"ok": false, "reason": "spectator"}
 	var pr: PlayerResource = player.player_resource
 
 	var code: String = str(args.get("code", "")).strip_edges().to_upper()
