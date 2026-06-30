@@ -55,7 +55,7 @@ const LINK_WEBSITE: String = "https://mythreach.gg"
 const LINK_DISCORD: String = "https://discord.gg/QE5JwpFzgK"
 ## Social: the "X" (Twitter) button on the title screen opens this. Placeholder for
 ## now - swap in the real Mythreach handle URL when it's live. Empty -> button hidden.
-const LINK_X: String = "https://x.com/mythreach"
+const LINK_X: String = "https://x.com/playmythreach"
 
 ## Brand logo on the main login screen (replaces the text title). Static PNG fallback
 ## + an optional animated version played from extracted video frames (logo_frames/).
