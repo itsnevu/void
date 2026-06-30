@@ -44,6 +44,11 @@ func _ready() -> void:
 	)
 	router.register_route(
 		HTTPClient.Method.METHOD_POST,
+		&"/v1/stats",
+		handle_stats
+	)
+	router.register_route(
+		HTTPClient.Method.METHOD_POST,
 		&"/v1/handshake",
 		handle_handshake
 	)
@@ -252,6 +257,21 @@ func handle_worlds(_payload: Dictionary) -> Dictionary:
 	return {"w": _public_worlds(gateway_manager_client.worlds_info)}
 
 
+## Pre-auth landing-page stats for the title screen: total players online (summed
+## across the cached world roster) + new accounts this month (pushed live from the
+## master) + this build's version. No auth, no master round-trip - served straight
+## from the gateway's cached state, like /v1/worlds.
+func handle_stats(_payload: Dictionary) -> Dictionary:
+	var online: int = 0
+	for world_id: Variant in gateway_manager_client.worlds_info:
+		online += int(gateway_manager_client.worlds_info[world_id].get("population", 0))
+	return {
+		"online": online,
+		"monthly": int(gateway_manager_client.global_stats.get("monthly_joins", 0)),
+		"version": GatewayAPI.game_version(),
+	}
+
+
 ## Whitelist only what a world card needs. The cached roster also carries each
 ## world's address, port and full heartbeat snapshot (player rosters, chat tail,
 ## server logs) - never ship those to a game client.
@@ -264,7 +284,8 @@ func _public_worlds(raw: Dictionary) -> Dictionary:
 				"name": info.get("name", ""),
 				"motd": info.get("motd", ""),
 				"pvp": info.get("pvp", false),
-			}
+			},
+			"population": int(raw[world_id].get("population", 0)),
 		}
 	return out
 

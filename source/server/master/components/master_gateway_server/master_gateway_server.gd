@@ -12,6 +12,9 @@ func _ready() -> void:
 		CmdlineUtils.get_parsed_args().get("config", "res://data/config/master_config.cfg")
 	)
 	create(Role.SERVER, configuration.bind_address, configuration.port)
+	# Whenever a new account registers, push the refreshed "joined this month" count
+	# to every connected gateway so the title-screen stat stays live.
+	authentication_manager.account_created.connect(broadcast_global_stats)
 
 
 func _connect_multiplayer_api_signals(api: SceneMultiplayer) -> void:
@@ -22,6 +25,9 @@ func _connect_multiplayer_api_signals(api: SceneMultiplayer) -> void:
 func _on_peer_connected(peer_id: int) -> void:
 	print("Gateway: %d is connected to GatewayManager." % peer_id)
 	update_worlds_info.rpc_id(peer_id, world_manager.get_public_worlds())
+	# Seed the freshly-connected gateway with the current global stats (it has none
+	# until we push - otherwise the title screen reads 0 joins until the next change).
+	update_global_stats.rpc_id(peer_id, _global_stats())
 
 
 func _on_peer_disconnected(peer_id: int) -> void:
@@ -85,6 +91,26 @@ func gateway_response(request_id: int, response: Dictionary) -> void:
 @rpc("authority")
 func update_worlds_info(_worlds_info: Dictionary) -> void:
 	pass
+
+
+## Server-wide stats pushed to gateways (served pre-auth at /v1/stats). Client side
+## (GatewayManagerClient) implements the real handler; this stub just registers the
+## RPC so the broadcast is accepted.
+@rpc("authority")
+func update_global_stats(_stats: Dictionary) -> void:
+	pass
+
+
+## The live global stats payload. Currently just the monthly-join count; add more
+## server-wide numbers here and they flow to the gateway /v1/stats response for free.
+func _global_stats() -> Dictionary:
+	return {"monthly_joins": authentication_manager.count_accounts_joined_this_month()}
+
+
+## Push the current global stats to every connected gateway. Called on account
+## creation (via the account_created signal) and on each new gateway connection.
+func broadcast_global_stats() -> void:
+	update_global_stats.rpc(_global_stats())
 
 
 ## Wallet sign-in step 1: hand the client a fresh nonce to sign with their wallet.

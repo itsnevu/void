@@ -2,6 +2,11 @@ class_name AuthenticationManager
 extends Node
 
 
+## Emitted when a brand-new account is registered (NOT on a returning login). The
+## master listens for this to re-broadcast the live "new players this month" count to
+## the gateways, so the title-screen stat updates the moment someone joins.
+signal account_created
+
 var account_collection: AccountResourceCollection
 ## Production path (writable). In an exported build res:// is read-only, so
 ## ResourceSaver.save() against res:// silently fails and accounts can't
@@ -41,10 +46,12 @@ func create_account(username: String, password: String, is_guest: bool) -> Accou
 	# Store only a salted, key-stretched hash - never the plaintext password.
 	var new_account: AccountResource = AccountResource.new()
 	new_account.init(account_id, username, PasswordHasher.hash_password(password))
+	new_account.created_at_unix = int(Time.get_unix_time_from_system())
 	account_collection.collection[username] = new_account
 	# Save on disk should only occur at specific times.
 	# Temporary work around for debug purpose.
 	save_account_collection()
+	account_created.emit()
 	return new_account
 
 
@@ -103,9 +110,27 @@ func get_or_create_wallet_account(wallet_address: String) -> AccountResource:
 	var account: AccountResource = AccountResource.new()
 	account.init(account_id, wallet_address, "")  # no password - wallet-only
 	account.wallet_address = wallet_address
+	account.created_at_unix = int(Time.get_unix_time_from_system())
 	account_collection.collection[wallet_address] = account
 	save_account_collection()
+	account_created.emit()
 	return account
+
+
+## How many accounts registered since the 1st of the current calendar month (UTC).
+## Drives the title screen's "new players this month" stat. Accounts predating the
+## created_at_unix field (value 0) are skipped, so the count is honest, not inflated.
+func count_accounts_joined_this_month() -> int:
+	var now: Dictionary = Time.get_datetime_dict_from_system(true)
+	var month_start: int = int(Time.get_unix_time_from_datetime_dict({
+		"year": now.year, "month": now.month, "day": 1,
+		"hour": 0, "minute": 0, "second": 0,
+	}))
+	var count: int = 0
+	for account: AccountResource in account_collection.collection.values():
+		if account != null and account.created_at_unix >= month_start:
+			count += 1
+	return count
 
 
 ## Step 1: mint a fresh single-use nonce for the client to sign with their wallet.

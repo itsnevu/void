@@ -100,6 +100,12 @@ static func worlds() -> String:
 	return get_endpoint("/v1/worlds")
 
 
+## Pre-auth landing-page stats (players online, new players this month, version).
+## Served from the gateway's cached state - safe to poll from the title screen.
+static func stats() -> String:
+	return get_endpoint("/v1/stats")
+
+
 ## Lightweight boot healthcheck (no auth): is the gateway reachable + master up, and
 ## does this build match the server's? Called before the gateway shows any menu.
 static func handshake() -> String:

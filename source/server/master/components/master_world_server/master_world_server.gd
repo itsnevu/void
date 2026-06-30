@@ -56,13 +56,19 @@ func fetch_server_info(info: Dictionary) -> void:
 func get_public_worlds() -> Dictionary:
 	var out: Dictionary = {}
 	for world_id: int in connected_worlds:
-		var info: Dictionary = connected_worlds[world_id].get("info", {})
+		var entry: Dictionary = connected_worlds[world_id]
+		var info: Dictionary = entry.get("info", {})
+		# Live player count: prefer the freshest heartbeat figure, fall back to the
+		# count reported at connect time. A sibling of "info" (never inside it) so the
+		# client's world-card reader, which only touches .info.*, stays untouched.
+		var population: int = int(entry.get("heartbeat", {}).get("population", entry.get("population", 0)))
 		out[world_id] = {
 			"info": {
 				"name": info.get("name", ""),
 				"motd": info.get("motd", ""),
 				"pvp": info.get("pvp", false),
-			}
+			},
+			"population": population,
 		}
 	return out
 
@@ -89,6 +95,10 @@ func heartbeat(snapshot: Dictionary) -> void:
 		return
 	connected_worlds[world_peer_id]["heartbeat"] = snapshot
 	connected_worlds[world_peer_id]["last_heartbeat_at"] = int(Time.get_unix_time_from_system())
+	# Re-push the roster so each gateway's cached population (served at /v1/worlds and
+	# summed for /v1/stats "players online") tracks players joining/leaving live, not
+	# just world connect/disconnect. Payload is small and this is ~once per 10s/world.
+	gateway_manager.update_worlds_info.rpc(get_public_worlds())
 
 
 # --- Dashboard-driven outbound RPCs (master -> world) ---

@@ -10,6 +10,10 @@ extends Resource
 ## Solana wallet address (base58) that owns this account. For wallet accounts this
 ## equals `username` (the identity key); empty for legacy username/password accounts.
 @export var wallet_address: String
+## Unix time (UTC seconds) this account first registered. Stamped once at creation and
+## never changed - drives the title screen's "new players this month" counter. 0 for
+## accounts created before this field existed (they simply don't count toward any month).
+@export var created_at_unix: int = 0
 
 # peer_id = O if not connected
 var peer_id: int = 0

@@ -15,6 +15,20 @@ WEB_DIR="$PROJECT_DIR/exports/web"
 PORT="${PORT:-8000}"
 mkdir -p "$LOG_DIR" "$WEB_DIR"
 
+# --- Preflight: kill any stale stack BEFORE starting a new one ----------------
+# Without this, running this script on top of an already-running stack (e.g. from
+# run-local.sh, or a previous run-web.sh) leaves TWO world-servers alive. The
+# master then registers BOTH, and World Selection shows duplicate identical
+# worlds. So always start from a clean slate: kill every godot mode process and
+# free :$PORT (an orphaned python http.server from a prior run holds it).
+echo ">> killing any existing godot mode processes + stale web host on :$PORT..."
+pkill -9 -f "Godot.*mode=" 2>/dev/null || true
+lsof -nP -iTCP:"$PORT" -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 2>/dev/null || true
+for _ in 1 2 3 4 5 6; do
+  pgrep -f "MacOS/Godot.*mode=" >/dev/null 2>&1 || break
+  sleep 1
+done
+
 # --- Preflight: web export templates must be installed -----------------------
 TEMPLATES_DIR="$HOME/Library/Application Support/Godot/export_templates/4.7.stable"
 if [ ! -f "$TEMPLATES_DIR/web_nothreads_debug.zip" ] && [ ! -f "$TEMPLATES_DIR/web_debug.zip" ]; then

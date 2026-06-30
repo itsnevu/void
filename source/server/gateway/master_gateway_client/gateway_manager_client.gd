@@ -8,6 +8,10 @@ signal response_received(request_id: int, response: Dictionary)
 
 var worlds_info: Dictionary
 
+## Server-wide stats pushed from the master (e.g. monthly joins). Served pre-auth by
+## the HTTP server's /v1/stats so the title screen can show live numbers.
+var global_stats: Dictionary = {}
+
 ## True only while the WebSocket up to the master is established. The HTTP server
 ## checks this before forwarding a request - at cold start (multi-instance launch)
 ## the HTTP listener is up before this link is, and firing an RPC at an absent
@@ -64,3 +68,8 @@ func gateway_response(request_id: int, response: Dictionary) -> void:
 @rpc("authority")
 func update_worlds_info(_worlds_info: Dictionary) -> void:
 	worlds_info = _worlds_info
+
+
+@rpc("authority")
+func update_global_stats(_stats: Dictionary) -> void:
+	global_stats = _stats

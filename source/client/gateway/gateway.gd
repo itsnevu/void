@@ -53,6 +53,9 @@ var current_theme: StringName = ThemePalettes.DEFAULT
 # yet -> that button is disabled rather than opening a dead link.
 const LINK_WEBSITE: String = "https://mythreach.gg"
 const LINK_DISCORD: String = "https://discord.gg/QE5JwpFzgK"
+## Social: the "X" (Twitter) button on the title screen opens this. Placeholder for
+## now - swap in the real Mythreach handle URL when it's live. Empty -> button hidden.
+const LINK_X: String = "https://x.com/mythreach"
 
 ## Brand logo on the main login screen (replaces the text title). Static PNG fallback
 ## + an optional animated version played from extracted video frames (logo_frames/).
@@ -61,6 +64,19 @@ const LOGO_FRAMES_DIR: String = "res://assets/sprites/gui/branding/logo_frames/"
 var _logo_rect: TextureRect
 var _logo_frames: Array[Texture2D] = []
 var _logo_frame_index: int = 0
+
+# --- Title-screen footer (version + live stats + social) -------------------
+# A code-built bottom strip shown only on the clean title screen (its visibility
+# tracks the MainPanel). Left: live "players online" + "new this month" chips fed
+# by GatewayAPI.stats(); right: the X/social button + the build version. Stats poll
+# on their OWN HTTPRequest so they never collide with the shared one the auth flow
+# uses (do_request bails while that node is busy).
+var _title_footer: Control
+var _stat_online_label: Label
+var _stat_online_dot: Panel
+var _stat_month_label: Label
+var _stats_http: HTTPRequest
+const _STATS_POLL_SECONDS: float = 20.0
 
 # Soft, organic foley placeholders, routed through the shared AudioManager's
 # polyphonic UI player (Sound bus, volume-bound to settings). Swap the files in
@@ -129,6 +145,7 @@ func _ready() -> void:
 	_install_login_logo()
 	_add_spectate_button()
 	_add_whitepaper_button()
+	_build_title_footer()
 	# Live-apply a palette picked in the Settings menu (the gateway's own $Settings
 	# overlay shows the same dropdown) - no relaunch needed.
 	ClientState.settings.setting_changed.connect(_on_settings_changed)
@@ -1210,6 +1227,206 @@ func _add_whitepaper_button() -> void:
 	btn.pressed.connect(_show_whitepaper)
 	_wire_button_audio(btn)
 	column.add_child(btn)
+
+
+# --- Title-screen footer (version + live stats + social) -------------------
+
+## Build the bottom strip: live "players online" + "new this month" chips on the
+## left, the X/social button + build version on the right. It lives on the Gateway
+## root (not in MainPanel) so it sits flush to the screen bottom, and its visibility
+## tracks MainPanel - it's a title-screen-only flourish.
+func _build_title_footer() -> void:
+	# Dedicated request node so polling stats never trips the shared $HTTPRequest the
+	# auth flow uses (do_request returns "request_error" while that one is mid-call).
+	_stats_http = HTTPRequest.new()
+	_stats_http.timeout = 7.0
+	add_child(_stats_http)
+
+	var footer: Control = Control.new()
+	footer.name = "TitleFooter"
+	footer.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	footer.offset_top = -58.0
+	footer.offset_bottom = 0.0
+	footer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	footer.z_index = 5
+	_title_footer = footer
+
+	var margin: MarginContainer = MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_theme_constant_override(&"margin_left", 26)
+	margin.add_theme_constant_override(&"margin_right", 26)
+	margin.add_theme_constant_override(&"margin_bottom", 16)
+	footer.add_child(margin)
+
+	var row: HBoxContainer = HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	margin.add_child(row)
+
+	# Left: the two live-stat chips.
+	var stats_row: HBoxContainer = HBoxContainer.new()
+	stats_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stats_row.add_theme_constant_override(&"separation", 10)
+	stats_row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(stats_row)
+
+	# "Players online" chip: a status dot + count.
+	var online_box: HBoxContainer = HBoxContainer.new()
+	online_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	online_box.add_theme_constant_override(&"separation", 8)
+	online_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	_stat_online_dot = Panel.new()
+	_stat_online_dot.custom_minimum_size = Vector2(10.0, 10.0)
+	_stat_online_dot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_stat_online_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var dot_style: StyleBoxFlat = StyleBoxFlat.new()
+	dot_style.bg_color = Color(0.5, 0.5, 0.55)  # gray until the first count lands
+	dot_style.set_corner_radius_all(5)
+	_stat_online_dot.add_theme_stylebox_override(&"panel", dot_style)
+	online_box.add_child(_stat_online_dot)
+	_stat_online_label = _make_footer_label("0 Online", 14, Color(0.92, 0.89, 0.82))
+	online_box.add_child(_stat_online_label)
+	stats_row.add_child(_make_stat_chip(online_box))
+
+	# "New this month" chip.
+	_stat_month_label = _make_footer_label("+0 this month", 14, Color(0.92, 0.89, 0.82))
+	stats_row.add_child(_make_stat_chip(_stat_month_label))
+
+	# Middle spacer pushes social + version to the right edge.
+	var spacer: Control = Control.new()
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+
+	# Right: the X/social button then the build version.
+	var right: HBoxContainer = HBoxContainer.new()
+	right.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	right.add_theme_constant_override(&"separation", 14)
+	right.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_child(right)
+
+	if not LINK_X.is_empty():
+		var x_button: Button = Button.new()
+		x_button.name = "XButton"
+		x_button.text = "X"
+		x_button.tooltip_text = "Follow us on X"
+		x_button.custom_minimum_size = Vector2(44.0, 40.0)
+		x_button.theme_type_variation = &"FrameButton"
+		x_button.add_theme_font_size_override(&"font_size", 18)
+		x_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		x_button.pressed.connect(func() -> void: OS.shell_open(LINK_X))
+		_wire_button_audio(x_button)
+		right.add_child(x_button)
+
+	var version: Label = _make_footer_label(
+		"v%s - %s" % [GatewayAPI.game_version(), BUILD_STAGE], 13, Color(0.85, 0.83, 0.78)
+	)
+	version.modulate.a = 0.6
+	version.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	right.add_child(version)
+
+	add_child(footer)
+
+	# Visibility follows the title screen: shown with MainPanel, hidden once the
+	# player moves on (login / world select / spectate). Refresh on every reveal.
+	footer.visible = main_panel.visible
+	main_panel.visibility_changed.connect(_on_main_panel_visibility_changed)
+
+	# Poll the live stats on the footer's own cadence (only while it's on screen).
+	var poll: Timer = Timer.new()
+	poll.wait_time = _STATS_POLL_SECONDS
+	poll.autostart = true
+	poll.timeout.connect(func() -> void:
+		if is_instance_valid(_title_footer) and _title_footer.visible:
+			_fetch_stats())
+	footer.add_child(poll)
+
+
+## A plain footer Label: themed font family (inherited), given size + color. Text
+## stays ASCII - the Cinzel/Atkinson faces have no glyphs for bullets/dashes/emoji.
+func _make_footer_label(text: String, size: int, color: Color) -> Label:
+	var label: Label = Label.new()
+	label.text = text
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override(&"font_size", size)
+	label.add_theme_color_override(&"font_color", color)
+	return label
+
+
+## Wrap content in a subtle rounded "chip" (dark translucent fill, thin accent
+## border) matching the title screen's panel styling.
+func _make_stat_chip(content: Control) -> PanelContainer:
+	var chip: PanelContainer = PanelContainer.new()
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.55)
+	style.set_corner_radius_all(8)
+	style.set_border_width_all(1)
+	var accent: Color = ThemePalettes.accent(current_theme)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.45)
+	style.content_margin_left = 12.0
+	style.content_margin_right = 12.0
+	style.content_margin_top = 6.0
+	style.content_margin_bottom = 6.0
+	chip.add_theme_stylebox_override(&"panel", style)
+	chip.add_child(content)
+	return chip
+
+
+## Keep the footer glued to the title screen and refresh stats each time it appears.
+func _on_main_panel_visibility_changed() -> void:
+	if not is_instance_valid(_title_footer):
+		return
+	_title_footer.visible = main_panel.visible
+	if main_panel.visible:
+		_title_footer.modulate.a = 0.0
+		create_tween().tween_property(_title_footer, "modulate:a", 1.0, 0.5)
+		_fetch_stats()
+
+
+## Poll GatewayAPI.stats() on the dedicated request node and apply the numbers. On
+## any error we keep the last-known values rather than flicker to zero.
+func _fetch_stats() -> void:
+	if _stats_http == null or not is_inside_tree():
+		return
+	var data: Dictionary = await _request_stats()
+	if not data.has("error"):
+		_apply_stats(data)
+
+
+func _request_stats() -> Dictionary:
+	# ERR_BUSY if a prior poll is still in flight - treat as a soft skip.
+	var error: Error = _stats_http.request(
+		GatewayAPI.stats(),
+		PackedStringArray(["Content-Type: application/json"]),
+		HTTPClient.Method.METHOD_POST,
+		"{}"
+	)
+	if error != OK:
+		return {"error": "request_error"}
+	var args: Array = await _stats_http.request_completed
+	if int(args[0]) != OK:
+		return {"error": "connection_failed"}
+	var parsed: Variant = JSON.parse_string((args[3] as PackedByteArray).get_string_from_ascii())
+	if parsed is Dictionary:
+		return parsed
+	return {"error": "bad_response"}
+
+
+func _apply_stats(data: Dictionary) -> void:
+	var online: int = int(data.get("online", 0))
+	var monthly: int = int(data.get("monthly", 0))
+	if is_instance_valid(_stat_online_label):
+		_stat_online_label.text = "%d Online" % online
+	if is_instance_valid(_stat_online_dot):
+		var sb: StyleBoxFlat = _stat_online_dot.get_theme_stylebox(&"panel") as StyleBoxFlat
+		if sb:
+			sb.bg_color = Color(0.45, 0.85, 0.5) if online > 0 else Color(0.5, 0.5, 0.55)
+	if is_instance_valid(_stat_month_label):
+		_stat_month_label.text = "+%d this month" % monthly
 
 
 var _whitepaper_overlay: Control

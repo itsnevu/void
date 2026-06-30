@@ -6,8 +6,9 @@ extends Control
 ## frees itself on dismiss. Edit NOTICE_TEXT + DOWNLOAD_URL below to retune the copy / target.
 
 
-## Where "Get the full version" sends the player. Opened in a new browser tab on web via
-## OS.shell_open. TODO: point this at your itch.io download page if you'd rather link there.
+## Where "Get the full version" will send the player once the downloadable build ships.
+## CURRENTLY UNUSED: the button toasts "Coming soon" instead of opening this (see _ready).
+## To re-enable, restore the OS.shell_open(DOWNLOAD_URL) call in the download button handler.
 const DOWNLOAD_URL: String = "https://mythreach.gg"
 
 const NOTICE_TEXT: String = """You're playing the browser version, which runs lighter for compatibility. Some effects like weather are turned off and the performance is capped.
@@ -71,6 +72,8 @@ func _ready() -> void:
 	download.text = "Get the full version"
 	download.custom_minimum_size = Vector2(0, 40)
 	download.pressed.connect(func() -> void:
-		OS.shell_open(DOWNLOAD_URL)
+		# Downloadable build isn't published yet: toast "Coming soon" instead of
+		# opening DOWNLOAD_URL. Re-enable the OS.shell_open line below when it ships.
+		Toaster.toast("Coming soon", 2.0)
 		queue_free())
 	buttons.add_child(download)
