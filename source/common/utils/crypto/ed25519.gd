@@ -105,6 +105,85 @@ static func verify(message: PackedByteArray, signature: PackedByteArray, public_
 	return _point_equal(sb, rhs)
 
 
+## Derive the 32-byte compressed public key from a 32-byte private seed (RFC 8032).
+## A = [a]B, where a is the clamped lower half of SHA512(seed). Returns [] on a
+## bad-length seed.
+static func derive_public_key(seed: PackedByteArray) -> PackedByteArray:
+	if seed.size() != 32:
+		return PackedByteArray()
+	_ensure_init()
+	var a: Array = _clamp_scalar(_Sha512.hash(seed).slice(0, 32))
+	return _encode_point(_scalar_mult(a, _base_point()))
+
+
+## Sign `message` with a 32-byte private seed, producing the 64-byte R || S
+## signature libsodium/Phantom (and this module's verify) accept. Deterministic
+## per RFC 8032: same (seed, message) always yields the same signature. Returns []
+## on a bad-length seed.
+##
+## `public_key` is an optional optimization: pass the seed's already-derived 32-byte
+## pubkey (see derive_public_key) to skip one scalar multiplication. When omitted it
+## is recomputed. A wrong-length value is ignored and recomputed (never trusted), so
+## the signature is always valid for the seed regardless of what is passed.
+static func sign(message: PackedByteArray, seed: PackedByteArray, public_key: PackedByteArray = PackedByteArray()) -> PackedByteArray:
+	if seed.size() != 32:
+		return PackedByteArray()
+	_ensure_init()
+	# Expand the seed: a = clamped lower half (the scalar), prefix = upper half.
+	var h: PackedByteArray = _Sha512.hash(seed)
+	var a: Array = _clamp_scalar(h.slice(0, 32))
+	var prefix: PackedByteArray = h.slice(32, 64)
+	var pubkey: PackedByteArray = public_key if public_key.size() == 32 else _encode_point(_scalar_mult(a, _base_point()))
+
+	# r = SHA512(prefix || M) mod L ; R = [r]B
+	var r_input: PackedByteArray = prefix.duplicate()
+	r_input.append_array(message)
+	var r: Array = _mod(_from_le_bytes(_Sha512.hash(r_input)), _L)
+	var r_bytes: PackedByteArray = _encode_point(_scalar_mult(r, _base_point()))
+
+	# k = SHA512(R || A || M) mod L
+	var k_input: PackedByteArray = PackedByteArray()
+	k_input.append_array(r_bytes)
+	k_input.append_array(pubkey)
+	k_input.append_array(message)
+	var k: Array = _mod(_from_le_bytes(_Sha512.hash(k_input)), _L)
+
+	# S = (r + k*a) mod L
+	var s: Array = _mod(_add(r, _mul(k, a)), _L)
+
+	var signature: PackedByteArray = PackedByteArray()
+	signature.append_array(r_bytes)
+	signature.append_array(_to_le_bytes(s, 32))
+	return signature
+
+
+# The base point B in extended coordinates [X, Y, Z=1, T=XY]. Rebuilt per call so
+# callers never share/mutate the cached limb arrays.
+static func _base_point() -> Array:
+	return [_Bx, _By, _ONE.duplicate(), _mulmod(_Bx, _By)]
+
+
+# Clamp the lower 32 bytes of SHA512(seed) into the private scalar a (RFC 8032):
+# clear the low 3 bits, clear bit 255, set bit 254.
+static func _clamp_scalar(lower: PackedByteArray) -> Array:
+	var bytes: PackedByteArray = lower.duplicate()
+	bytes[0] = bytes[0] & 0xF8
+	bytes[31] = (bytes[31] & 0x7F) | 0x40
+	return _from_le_bytes(bytes)
+
+
+# Compress an extended point to 32 little-endian bytes: y in the low 255 bits with
+# the parity (low bit) of x packed into the top bit - the inverse of _decode_point.
+static func _encode_point(point: Array) -> PackedByteArray:
+	var z_inv: Array = _inv(point[2])
+	var x: Array = _mulmod(point[0], z_inv)
+	var y: Array = _mulmod(point[1], z_inv)
+	var out: PackedByteArray = _to_le_bytes(y, 32)
+	if _is_odd(x) == 1:
+		out[31] = out[31] | 0x80
+	return out
+
+
 # ===========================================================================
 # POINT DECODING (extended coordinates X, Y, Z, T with Z = 1)
 # ===========================================================================

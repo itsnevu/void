@@ -5,13 +5,27 @@ class_name PlayerSkins
 ## SpriteFrames into the sprite_frames folder, reindex, and it's offered everywhere at once.
 
 
+# TEMPORARY (next-patch): roster trimmed to 4 starters for this release. The full
+# sprite set still ships in sprite_frames/ + the registry - we only hide the rest from
+# the wardrobe + character creation. To restore the whole roster next patch, set
+# ENABLED_SKIN_IDS back to an empty array (empty = no filter, show everything).
+const ENABLED_SKIN_IDS: Array[int] = [1, 2, 3, 4]  # knight, rogue, wizard, goblin
+
+
 ## All skin ids, sorted ascending (so the original starters lead) - every entry in the
 ## `sprites` registry. Used by the wardrobe + character creation to list buyable skins.
+## While ENABLED_SKIN_IDS is non-empty the roster is filtered down to that whitelist.
 static func ids() -> Array[int]:
 	var registry: ContentRegistry = ContentRegistryHub.registry_of(&"sprites")
 	if registry == null:
 		return []
 	var out: Array[int] = registry.all_ids()
+	if not ENABLED_SKIN_IDS.is_empty():
+		var allowed: Array[int] = []
+		for id: int in out:
+			if ENABLED_SKIN_IDS.has(id):
+				allowed.append(id)
+		out = allowed
 	out.sort()
 	return out
 

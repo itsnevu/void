@@ -54,6 +54,7 @@ func _init() -> void:
 	_test_sha512()
 	_test_base58()
 	_test_ed25519()
+	_test_ed25519_sign()
 
 	print("")
 	print("CRYPTO TESTS: %d passed, %d failed" % [_passed, _failed])
@@ -192,6 +193,43 @@ func _test_ed25519() -> void:
 	var pk2_decoded: PackedByteArray = Base58.decode(pk2_b58)
 	_check("Phantom-style base58 pubkey verifies",
 		Ed25519.verify(_hex_to_bytes(msg2), _hex_to_bytes(sig2), pk2_decoded))
+
+
+func _test_ed25519_sign() -> void:
+	print("[Ed25519 sign]")
+
+	# Gold-standard cross-vector generated with openssl (Ed25519, RFC 8410 PKCS8):
+	# a fixed seed must derive exactly this public key and produce exactly this
+	# (deterministic) signature - so the signer matches the reference, not just our
+	# own verifier.
+	var seed: PackedByteArray = _hex_to_bytes("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
+	var ref_pub: String = "03a107bff3ce10be1d70dd18e74bc09967e4d6309ba50d5f1ddc8664125531b8"
+	var msg: PackedByteArray = _hex_to_bytes("4d797468726561636820737065637461746f722074657374206d657373616765")
+	var ref_sig: String = "bbc2737905b480f02719a90a9258f6e3997c0e373011e7ad909f27bd862c1c3fd6925b872d2385c0591057b936d90182d229c22b0e725b4a62df63b36141fc03"
+
+	_check("derive_public_key matches openssl", _bytes_to_hex(Ed25519.derive_public_key(seed)) == ref_pub)
+	_check("sign matches openssl vector", _bytes_to_hex(Ed25519.sign(msg, seed)) == ref_sig)
+	# Determinism: same input -> identical signature.
+	_check("sign is deterministic", Ed25519.sign(msg, seed) == Ed25519.sign(msg, seed))
+	# The reference signature must verify under our own verifier.
+	_check("openssl sig verifies", Ed25519.verify(msg, _hex_to_bytes(ref_sig), _hex_to_bytes(ref_pub)))
+
+	# Round-trip across varied seeds/messages: sign then verify must hold, and the
+	# wrong message must be rejected. Seeds/messages are derived deterministically
+	# (no RNG) so failures are reproducible.
+	for i in range(8):
+		var s: PackedByteArray = Sha512.hash(_hex_to_bytes("%02x" % i)).slice(0, 32)
+		var m: PackedByteArray = ("round-trip message %d" % i).to_utf8_buffer()
+		var pub: PackedByteArray = Ed25519.derive_public_key(s)
+		var sig: PackedByteArray = Ed25519.sign(m, s)
+		_check("round-trip %d verifies" % i, Ed25519.verify(m, sig, pub))
+		var tampered: PackedByteArray = m.duplicate()
+		tampered[0] = tampered[0] ^ 0x01
+		_check("round-trip %d rejects tampered msg" % i, not Ed25519.verify(tampered, sig, pub))
+
+	# Bad-length seed is rejected without crashing.
+	_check("short seed -> empty pubkey", Ed25519.derive_public_key(_hex_to_bytes("00")).is_empty())
+	_check("short seed -> empty sig", Ed25519.sign(msg, _hex_to_bytes("00")).is_empty())
 
 
 func _run_vector(name: String, pk_hex: String, msg_hex: String, sig_hex: String) -> void:

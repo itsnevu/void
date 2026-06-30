@@ -602,7 +602,7 @@ func _do_wallet_login(pubkey: String, silent: bool, dev_sign: bool = false) -> b
 	var message: String = WALLET_MESSAGE_PREFIX + nonce
 	var signature: String
 	if dev_sign:
-		signature = Base58.encode(Crypto.new().generate_random_bytes(64))
+		signature = _dev_wallet_sign(message)  # spectator: real ed25519 sig, no Phantom popup
 	else:
 		signature = await _wallet_sign(message)
 	if signature.is_empty():
@@ -654,9 +654,9 @@ func _wallet_sign(message: String) -> String:
 		if await _poll_wallet_status() != "ok":
 			return ""
 		return str(JavaScriptBridge.eval("window.__aeth.signature || '';", true))
-	# Desktop dev: a throwaway base58 signature. The editor-mode master skips ed25519
-	# verification, so any well-formed value is accepted for local testing.
-	return Base58.encode(Crypto.new().generate_random_bytes(64))
+	# Desktop dev: sign the nonce with the local dev-wallet seed - a real ed25519
+	# signature the master verifies even when exported (no editor bypass needed).
+	return _dev_wallet_sign(message)
 
 
 func _ensure_wallet_shim() -> void:
@@ -681,21 +681,51 @@ func _poll_wallet_status() -> String:
 
 ## A stable local "dev wallet" address for desktop testing - 32 random bytes, base58,
 ## persisted per local id so the same dev account is reused across launches.
-func _dev_wallet_pubkey() -> String:
-	var path: String = "user://%swallet.dat" % local_id
+## The local "dev wallet" is a REAL ed25519 keypair. It used to be 32 random bytes
+## passed off as a pubkey, signed with a random signature - which only ever passed the
+## master's editor-only verification bypass. On an exported server (the live VPS) the
+## fake signature is rejected, so Spectate failed with "Incorrect account name or
+## password." We now persist the 32-byte private SEED and derive the pubkey + sign the
+## login nonce for real, so spectators / desktop-dev produce a signature the live
+## server actually verifies - no Phantom extension needed. base58 throughout (Phantom).
+var _dev_pubkey_cache: String = ""
+
+
+func _dev_wallet_seed() -> PackedByteArray:
+	var path: String = "user://%swallet_seed.dat" % local_id
 	if FileAccess.file_exists(path):
 		var f: FileAccess = FileAccess.open(path, FileAccess.READ)
 		if f:
 			var saved: String = f.get_as_text().strip_edges()
 			f.close()
-			if not saved.is_empty():
-				return saved
-	var address: String = Base58.encode(Crypto.new().generate_random_bytes(32))
+			var bytes: PackedByteArray = Base58.decode(saved)
+			if bytes.size() == 32:
+				return bytes
+	var seed: PackedByteArray = Crypto.new().generate_random_bytes(32)
 	var out: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	if out:
-		out.store_string(address)
+		out.store_string(Base58.encode(seed))
 		out.close()
-	return address
+	return seed
+
+
+## The dev wallet's public key (base58) - the account identity the master sees.
+## Cached: deriving it is a scalar multiply we don't want to repeat each login.
+func _dev_wallet_pubkey() -> String:
+	if _dev_pubkey_cache.is_empty():
+		_dev_pubkey_cache = Base58.encode(Ed25519.derive_public_key(_dev_wallet_seed()))
+	return _dev_pubkey_cache
+
+
+## Sign `message` with the dev-wallet seed, returning a base58 ed25519 signature the
+## master verifies like any Phantom signature. Reuses the cached pubkey to skip a
+## scalar multiply.
+func _dev_wallet_sign(message: String) -> String:
+	return Base58.encode(Ed25519.sign(
+		message.to_utf8_buffer(),
+		_dev_wallet_seed(),
+		Base58.decode(_dev_wallet_pubkey())
+	))
 
 
 func _save_wallet_pubkey(pubkey: String) -> void:
@@ -1604,10 +1634,12 @@ func _wire_more_menu() -> void:
 	_wire_link(%WebsiteButton as Button, LINK_WEBSITE)
 
 	# Session: Logout (shown only with an active session, see _set_more_open) + Quit
-	# (desktop/console only).
+	# (desktop/console only). On web there's no app to close - get_tree().quit() just
+	# tears down the wasm canvas and reads as a crash - and phones use the OS app
+	# switcher, so hide the button on both and only wire it on a real desktop build.
 	_more_logout.pressed.connect(_logout)
-	if OS.has_feature("mobile"):
-		(%QuitButton as Button).hide()  # phones don't button-quit; use the OS app switcher
+	if OS.has_feature("web") or OS.has_feature("mobile"):
+		(%QuitButton as Button).hide()
 	else:
 		(%QuitButton as Button).pressed.connect(get_tree().quit)
 
