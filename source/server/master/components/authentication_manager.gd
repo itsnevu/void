@@ -176,4 +176,76 @@ func _verify_wallet_signature(wallet_address: String, message: String, signature
 	var sig_bytes: PackedByteArray = Base58.decode(signature)
 	if sig_bytes.size() != 64:
 		return false
+	if OS.has_feature("linux") and _verify_wallet_signature_openssl(message.to_utf8_buffer(), sig_bytes, pubkey_bytes):
+		return true
 	return Ed25519.verify(message.to_utf8_buffer(), sig_bytes, pubkey_bytes)
+
+
+func _verify_wallet_signature_openssl(message: PackedByteArray, signature: PackedByteArray, public_key: PackedByteArray) -> bool:
+	var prefix: PackedByteArray = PackedByteArray([0x30, 0x2a, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x03, 0x21, 0x00])
+	var spki: PackedByteArray = prefix.duplicate()
+	spki.append_array(public_key)
+	var pem_body: String = Marshalls.raw_to_base64(spki)
+	var pem: String = "-----BEGIN PUBLIC KEY-----\n"
+	for i in range(0, pem_body.length(), 64):
+		pem += pem_body.substr(i, 64) + "\n"
+	pem += "-----END PUBLIC KEY-----\n"
+
+	var dir: String = ProjectSettings.globalize_path("user://wallet_verify")
+	DirAccess.make_dir_recursive_absolute(dir)
+	var stem: String = "%s/%d_%d_%d" % [
+		dir,
+		OS.get_process_id(),
+		Time.get_ticks_usec(),
+		randi(),
+	]
+	var pub_path: String = stem + ".pub.pem"
+	var msg_path: String = stem + ".msg"
+	var sig_path: String = stem + ".sig"
+
+	var pub_file: FileAccess = FileAccess.open(pub_path, FileAccess.WRITE)
+	if pub_file == null:
+		return false
+	pub_file.store_string(pem)
+	pub_file.close()
+
+	var msg_file: FileAccess = FileAccess.open(msg_path, FileAccess.WRITE)
+	if msg_file == null:
+		_cleanup_wallet_verify_files(pub_path, msg_path, sig_path)
+		return false
+	msg_file.store_buffer(message)
+	msg_file.close()
+
+	var sig_file: FileAccess = FileAccess.open(sig_path, FileAccess.WRITE)
+	if sig_file == null:
+		_cleanup_wallet_verify_files(pub_path, msg_path, sig_path)
+		return false
+	sig_file.store_buffer(signature)
+	sig_file.close()
+
+	var output: Array = []
+	var exit_code: int = OS.execute(
+		"/usr/bin/openssl",
+		[
+			"pkeyutl",
+			"-verify",
+			"-rawin",
+			"-pubin",
+			"-inkey",
+			pub_path,
+			"-sigfile",
+			sig_path,
+			"-in",
+			msg_path,
+		],
+		output,
+		true
+	)
+	_cleanup_wallet_verify_files(pub_path, msg_path, sig_path)
+	return exit_code == 0
+
+
+func _cleanup_wallet_verify_files(pub_path: String, msg_path: String, sig_path: String) -> void:
+	DirAccess.remove_absolute(pub_path)
+	DirAccess.remove_absolute(msg_path)
+	DirAccess.remove_absolute(sig_path)

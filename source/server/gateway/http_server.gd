@@ -176,7 +176,7 @@ func handle_wallet_login(payload: Dictionary) -> Dictionary:
 	var version_check: Dictionary = _check_version(payload)
 	if not version_check.is_empty():
 		return version_check
-	var result: Dictionary = await send_request("wallet_login", payload)
+	var result: Dictionary = await send_request("wallet_login", payload, 30.0)
 	var error: Error = result.get("error", 0)
 	if error != OK:
 		return result
