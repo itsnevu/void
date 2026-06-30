@@ -35,7 +35,7 @@ extends "res://addons/httpserver/http_server.gd"
 ##   BIND_ADDRESS below if you'd rather SSH-tunnel in.
 
 const PORT: int = 8080
-const BIND_ADDRESS: String = "*" # "*" = all interfaces; use "127.0.0.1" for localhost-only
+const BIND_ADDRESS: String = "127.0.0.1" # Keep the admin dashboard local-only in production.
 
 const USER_CONFIG_PATH: String = "user://dashboard.cfg"
 const RES_CONFIG_PATH: String = "res://data/config/dashboard.cfg"

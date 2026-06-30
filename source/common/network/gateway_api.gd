@@ -56,9 +56,9 @@ static func base_url() -> String:
 		var host: String = str(JavaScriptBridge.eval("window.location.hostname", true))
 		if host == "localhost" or host == "127.0.0.1" or host.is_empty():
 			return "http://127.0.0.1:8088"
-		return "https://ws.mythreach.gg"
+		return "https://37-60-232-191.sslip.io"
 	if OS.has_feature("mythreach") or OS.has_feature("release"):
-		return "https://ws.mythreach.gg"
+		return "https://37-60-232-191.sslip.io"
 	return "http://127.0.0.1:8088"
 
 	# var command_line_arg: String = CmdlineUtils.get_parsed_args().get("api", "")

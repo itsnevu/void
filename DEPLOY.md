@@ -42,9 +42,9 @@ The web client decides which gateway to call in
 `base_url()`:
 
 - Served from `localhost` → `http://127.0.0.1:8088` (local dev)
-- Served from any other host (i.e. Vercel) → **`https://ws.mythreach.gg`**
+- Served from any other host (i.e. Vercel) → **`https://37-60-232-191.sslip.io`**
 
-Change `ws.mythreach.gg` to **your** server's public domain. Because the Vercel page is
+Change `37-60-232-191.sslip.io` if you move to another server/domain. Because the Vercel page is
 HTTPS, the gateway MUST be reachable over **HTTPS** (and the world over **WSS**) — a
 secure page cannot talk to `http://`/`ws://` (mixed-content). Put the servers behind a
 TLS reverse proxy (Caddy/nginx) that terminates HTTPS/WSS and forwards to them.
@@ -66,9 +66,21 @@ godot --headless --path . --mode=world-server
 
 ### Reverse proxy (example: Caddy)
 ```
-ws.mythreach.gg {
-    reverse_proxy 127.0.0.1:8088          # gateway HTTP API (CORS is already open)
-    header_up X-Real-IP {remote_host}      # gateway rate-limits per real IP
+37-60-232-191.sslip.io {
+    handle /v1/* {
+        reverse_proxy 127.0.0.1:8088 {
+            header_up X-Real-IP {remote_host}
+        }
+    }
+
+    handle_path /world* {
+        reverse_proxy 127.0.0.1:8087
+    }
+
+    handle {
+        root * /opt/mythreach/web
+        file_server
+    }
 }
 ```
 Expose the world server's WebSocket over `wss://` similarly (the client accepts a full
