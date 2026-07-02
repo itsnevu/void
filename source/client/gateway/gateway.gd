@@ -21,6 +21,12 @@ var menu_stack: Array[Control]
 # Guards the empty-world-list auto-retry so only one poll loop runs at a time.
 var _world_poll_active: bool = false
 
+# Guards wallet operations (connect, sign) to prevent concurrent calls from interfering.
+var _wallet_operation_in_progress: bool = false
+# Set by the wallet helpers to the reason the last op failed ("wallet_timeout"), so the
+# caller can show an accurate message instead of the generic "no wallet" / "rejected".
+var _last_wallet_error: String = ""
+
 # "Focus navigation" mode: the player is driving the menu by keyboard or gamepad
 # (not mouse/touch). We only force focus + show the focus highlight in this mode,
 # so pointer users never get a stray focus ring or a popped virtual keyboard.
@@ -352,12 +358,16 @@ func do_request(
 	path: String,
 	payload: Dictionary,
 ) -> Dictionary:
-	if http_request.get_http_client_status() == HTTPClient.Status.STATUS_CONNECTED:
+	# The shared HTTPRequest node can only run one request at a time. If one is already
+	# in flight, don't cancel it (cancel_request() emits no request_completed, which would
+	# strand the coroutine awaiting it) - return a retryable error so the caller retries.
+	var status: int = http_request.get_http_client_status()
+	if status == HTTPClient.Status.STATUS_REQUESTING or status == HTTPClient.Status.STATUS_BODY:
 		return {"error": "request_error"}
 
 	var custom_headers: PackedStringArray
 	custom_headers.append("Content-Type: application/json")
-	
+
 	var error: Error = http_request.request(
 		path,
 		custom_headers,
@@ -567,7 +577,8 @@ func _on_login_button_pressed() -> void:
 	var pubkey: String = await _wallet_get_pubkey()
 	if pubkey.is_empty():
 		login_button.disabled = false
-		await popup_panel.confirm_message(tr("ERR_NO_WALLET"))
+		var msg: String = tr("ERR_WALLET_TIMEOUT") if _last_wallet_error == "wallet_timeout" else tr("ERR_NO_WALLET")
+		await popup_panel.confirm_message(msg)
 		return
 	main_panel.hide()
 	_show_connecting()
@@ -582,8 +593,11 @@ func _on_login_button_pressed() -> void:
 ## successful login (worlds populated, selection shown). `silent` suppresses error popups
 ## (used by auto-login). On success calls handle_success_login(), reusing the old path.
 func _do_wallet_login(pubkey: String, silent: bool, dev_sign: bool = false) -> bool:
-	# 1. Ask the server for a fresh nonce to sign.
-	var challenge: Dictionary = await do_request(
+	session_id = ""  # reset stale state from any previous failed attempt
+
+	# 1. Ask the server for a fresh nonce to sign. Retries transient network errors
+	# internally; no wallet interaction happens here, so a retry is invisible to the user.
+	var challenge: Dictionary = await _do_request_retrying(
 		HTTPClient.Method.METHOD_POST,
 		GatewayAPI.wallet_challenge(),
 		{GatewayAPI.KEY_WALLET_PUBKEY: pubkey}
@@ -597,8 +611,9 @@ func _do_wallet_login(pubkey: String, silent: bool, dev_sign: bool = false) -> b
 	if nonce.is_empty():
 		return false
 
-	# 2. Sign the nonce-bound message with the wallet. Spectators sign with the local
-	# dev key (no Phantom popup) even on web - they don't need a real wallet to watch.
+	# 2. Sign the nonce-bound message with the wallet - done ONCE, outside any retry loop,
+	# so a later network hiccup never re-prompts Phantom for another signature. Spectators
+	# sign with the local dev key (no Phantom popup) even on web.
 	var message: String = WALLET_MESSAGE_PREFIX + nonce
 	var signature: String
 	if dev_sign:
@@ -608,11 +623,14 @@ func _do_wallet_login(pubkey: String, silent: bool, dev_sign: bool = false) -> b
 	if signature.is_empty():
 		if not silent:
 			_hide_connecting()  # drop "Connecting..." so it doesn't overlap the error popup
-			await popup_panel.confirm_message(tr("ERR_WALLET_REJECTED"))
+			var msg: String = tr("ERR_WALLET_TIMEOUT") if _last_wallet_error == "wallet_timeout" else tr("ERR_WALLET_REJECTED")
+			await popup_panel.confirm_message(msg)
 		return false
 
-	# 3. Submit for verification + login.
-	var response: Dictionary = await do_request(
+	# 3. Submit the SAME nonce + signature for verification. Retries transient network
+	# errors by resending the identical payload - a network failure leaves the nonce
+	# unconsumed on the server, so no new signature (and no new Phantom popup) is needed.
+	var response: Dictionary = await _do_request_retrying(
 		HTTPClient.Method.METHOD_POST,
 		GatewayAPI.wallet_login(),
 		{
@@ -635,23 +653,74 @@ func _do_wallet_login(pubkey: String, silent: bool, dev_sign: bool = false) -> b
 	return true
 
 
+## POST that retries transient connection errors with exponential backoff (~1s, ~2s).
+## Real rejections (bad credentials, rate limit, version gate) return immediately. Keeps
+## retry logic in one place and out of the wallet-signing path, so retries never re-prompt
+## the wallet. Safe to resend the same payload: only network-level failures are retried.
+func _do_request_retrying(
+	method: HTTPClient.Method,
+	path: String,
+	payload: Dictionary,
+	max_retries: int = 3,
+) -> Dictionary:
+	var response: Dictionary = {"error": "request_error"}
+	var attempt: int = 0
+	while attempt < max_retries:
+		response = await do_request(method, path, payload)
+		if not response.has("error") or not GatewayError.is_connection_error(response):
+			return response
+		attempt += 1
+		if attempt < max_retries:
+			await get_tree().create_timer(pow(2, attempt) * 0.5).timeout
+	return response
+
+
 ## Get the wallet public key (base58): Phantom on web, the persisted dev wallet on desktop.
+## Thin guard wrapper: GDScript has no defer/finally, so the in-progress flag is cleared on
+## a single exit path here (covering every early return inside the impl).
 func _wallet_get_pubkey() -> String:
+	if _wallet_operation_in_progress:
+		return ""
+	_wallet_operation_in_progress = true
+	_last_wallet_error = ""
+	var result: String = await _wallet_get_pubkey_impl()
+	_wallet_operation_in_progress = false
+	return result
+
+
+func _wallet_get_pubkey_impl() -> String:
 	if OS.has_feature("web"):
 		_ensure_wallet_shim()
 		JavaScriptBridge.eval("window.MythreachWallet.connect();", true)
-		if await _poll_wallet_status() != "ok":
+		var poll_result: String = await _poll_wallet_status()
+		if poll_result != "ok":
+			if poll_result == "wallet_timeout":
+				_last_wallet_error = "wallet_timeout"
 			return ""
 		return str(JavaScriptBridge.eval("window.__aeth.pubkey || '';", true))
 	return _dev_wallet_pubkey()
 
 
-## Sign a message and return the base58 signature ("" on rejection/failure).
+## Sign a message and return the base58 signature ("" on rejection/failure). Guard wrapper
+## mirrors _wallet_get_pubkey so the in-progress flag always clears on exit.
 func _wallet_sign(message: String) -> String:
+	if _wallet_operation_in_progress:
+		return ""
+	_wallet_operation_in_progress = true
+	_last_wallet_error = ""
+	var result: String = await _wallet_sign_impl(message)
+	_wallet_operation_in_progress = false
+	return result
+
+
+func _wallet_sign_impl(message: String) -> String:
 	if OS.has_feature("web"):
 		_ensure_wallet_shim()
 		JavaScriptBridge.eval("window.MythreachWallet.signMessage(%s);" % JSON.stringify(message), true)
-		if await _poll_wallet_status() != "ok":
+		var poll_result: String = await _poll_wallet_status()
+		if poll_result != "ok":
+			if poll_result == "wallet_timeout":
+				_last_wallet_error = "wallet_timeout"
 			return ""
 		return str(JavaScriptBridge.eval("window.__aeth.signature || '';", true))
 	# Desktop dev: sign the nonce with the local dev-wallet seed - a real ed25519
@@ -667,16 +736,21 @@ func _ensure_wallet_shim() -> void:
 
 
 ## Poll window.__aeth.status until the async wallet call settles. Returns the final
-## status ("ok" / "error" / "nowallet" / "timeout").
+## status ("ok" / "error" / "nowallet" / "wallet_timeout"). 30s cap for Phantom interactions.
 func _poll_wallet_status() -> String:
 	var elapsed: float = 0.0
-	while elapsed < 120.0:
+	var timeout: float = 30.0
+	while elapsed < timeout:
 		await get_tree().create_timer(0.15).timeout
 		var status: String = str(JavaScriptBridge.eval("window.__aeth.status || '';", true))
 		if status != "pending":
+			# Clean up state after response received
+			JavaScriptBridge.eval("window.__aeth.status = '';", true)
 			return status
 		elapsed += 0.15
-	return "timeout"
+	# On timeout, explicitly clear the status so next attempt doesn't see old "pending"
+	JavaScriptBridge.eval("window.__aeth.status = ''; window.__aeth.error = '';", true)
+	return "wallet_timeout"
 
 
 ## A stable local "dev wallet" address for desktop testing - 32 random bytes, base58,
@@ -1673,6 +1747,10 @@ func _logout() -> void:
 		DirAccess.remove_absolute(file_path)
 	session_id = ""  # clears the active session -> More's Logout hides again
 	account_name = ""  # back to "not logged in" in the status line
+	_wallet_operation_in_progress = false  # reset in-progress flag
+	_wallet_shim_ready = false  # reset JS shim so it reloads on next login
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.__aeth = null;", true)  # clear wallet state
 	_refresh_connection_info()
 	_set_more_open(false)
 	# Logout can be triggered from any screen (world/character select, character

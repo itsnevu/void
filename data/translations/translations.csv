@@ -7,6 +7,7 @@ CONNECT_WALLET,Connect Wallet,Conectar carteira,Conectar billetera
 CONNECTING_WALLET,Connecting wallet...,Conectando carteira...,Conectando billetera...
 ERR_NO_WALLET,No Solana wallet found. Install Phantom to play.,Nenhuma carteira Solana encontrada. Instale a Phantom para jogar.,No se encontró una billetera Solana. Instala Phantom para jugar.
 ERR_WALLET_REJECTED,Wallet connection cancelled.,Conexão da carteira cancelada.,Conexión de la billetera cancelada.
+ERR_WALLET_TIMEOUT,Wallet request timed out. Please try again.,A solicitação da carteira expirou. Tente novamente.,La solicitud de la billetera expiró. Inténtalo de nuevo.
 ERR_WALLET_SIGNATURE,Signature verification failed. Please try again.,Falha na verificação da assinatura. Tente novamente.,Error al verificar la firma. Inténtalo de nuevo.
 NO_CON_YET,Not connected yet,Ainda não conectado,Aún no conectado
 ACC_NAME,Account name,Nome da conta,Nombre de la cuenta
